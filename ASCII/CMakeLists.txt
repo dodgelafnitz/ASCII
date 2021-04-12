@@ -8,8 +8,6 @@ set("ENV{DCG_DEBUG_PRINT_STRUCTURE}" TRUE)
 string(TIMESTAMP currentYear "%Y")
 set("ENV{DCG_COPYWRITE}" "/*\n * Copywrite ${currentYear} Dodge Lafnitzegger\n */\n\n")
 
-set(gtest_build_samples ON)
-
 include("./dcg_setup.cmake")
 
 DCG_BEGIN()
@@ -49,7 +47,3 @@ set_property(TARGET gmock PROPERTY FOLDER external/gtest)
 set_property(TARGET gmock_main PROPERTY FOLDER external/gtest)
 set_property(TARGET gtest PROPERTY FOLDER external/gtest)
 set_property(TARGET gtest_main PROPERTY FOLDER external/gtest)
-
-foreach(sampleNum RANGE 1 10)
-  set_property(TARGET "sample${sampleNum}_unittest" PROPERTY FOLDER external/gtest/samples)
-endforeach()
