@@ -8,15 +8,17 @@ set("ENV{DCG_DEBUG_PRINT_STRUCTURE}" TRUE)
 string(TIMESTAMP currentYear "%Y")
 set("ENV{DCG_COPYWRITE}" "/*\n * Copywrite ${currentYear} Dodge Lafnitzegger\n */\n\n")
 
+set(gtest_build_samples ON)
+
 include("./dcg_setup.cmake")
 
 DCG_BEGIN()
   DCG_PROJECT_INTERFACE("DcUtility")
     DCG_FOLDER("Math")
-      DCG_FILE_H("Vector")
-      DCG_FILE_H("Matrix")
+      DCG_FILE_CPP_HEADER_ONLY("Vector")
+      DCG_FILE_CPP_HEADER_ONLY("Matrix")
     DCG_END_FOLDER()
-    DCG_FILE_H("Debug")
+    DCG_FILE_CPP_HEADER_ONLY("Debug")
   DCG_END_PROJECT()
 
   DCG_PROJECT_LIB("Ascii" PUBLIC_DEPENDS "DcUtility")
@@ -42,3 +44,12 @@ DCG_BEGIN()
   DCG_EXTERNAL_FILES("ExternTest")
   DCG_EXTERNAL_SUBMODULE("GoogleTest" "https://github.com/google/googletest.git")
 DCG_END()
+
+set_property(TARGET gmock PROPERTY FOLDER external/gtest)
+set_property(TARGET gmock_main PROPERTY FOLDER external/gtest)
+set_property(TARGET gtest PROPERTY FOLDER external/gtest)
+set_property(TARGET gtest_main PROPERTY FOLDER external/gtest)
+
+foreach(sampleNum RANGE 1 10)
+  set_property(TARGET "sample${sampleNum}_unittest" PROPERTY FOLDER external/gtest/samples)
+endforeach()
