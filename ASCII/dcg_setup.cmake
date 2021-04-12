@@ -26,7 +26,7 @@ function(DCG_add_interface_source_group targetName)
   get_target_property(targetSourceDir "${targetName}" SOURCE_DIR)
   get_target_property(targetSources "${targetName}" INTERFACE_SOURCES)
 
-  source_group(TREE "${targetSourceDir}"
+  source_group(TREE "${targetSourceDir}/include"
     PREFIX "external\\${targetName}"
     FILES ${targetSources}
   )
