@@ -255,6 +255,8 @@ function(DCG_END)
     message("")
   endif()
 
+  
+
   DCG_create_files()
   DCG_create_cmake_files()
   DCG_build_projects()
@@ -330,6 +332,10 @@ function(DCG_create_files)
       endif()
     endif()
   endforeach()
+
+  if("$ENV{DCG_ENABLE_TESTS}")
+    execute_process(COMMAND git submodule add "https://github.com/google/googletest.git" "./externals/GoogleTest")
+  endif()
 endfunction()
 
 function(DCG_update_file_if_different fileName fileContent)
@@ -569,6 +575,15 @@ function(DCG_create_cmake_files)
 endfunction()
 
 function(DCG_build_projects)
+  if("$ENV{DCG_ENABLE_TESTS}")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/externals/GoogleTest")
+
+    set_property(TARGET gmock PROPERTY FOLDER external/gtest)
+    set_property(TARGET gmock_main PROPERTY FOLDER external/gtest)
+    set_property(TARGET gtest PROPERTY FOLDER external/gtest)
+    set_property(TARGET gtest_main PROPERTY FOLDER external/gtest)
+  endif()
+
   foreach(externalName IN ITEMS $ENV{DCG_SOLUTION_EXTERNALS})
     add_subdirectory("${CMAKE_SOURCE_DIR}/externals/${externalName}")
   endforeach()

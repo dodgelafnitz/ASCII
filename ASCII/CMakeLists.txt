@@ -40,10 +40,5 @@ DCG_BEGIN()
   DCG_END_PROJECT()
 
   DCG_EXTERNAL_FILES("ExternTest")
-  DCG_EXTERNAL_SUBMODULE("GoogleTest" "https://github.com/google/googletest.git")
+  #DCG_EXTERNAL_SUBMODULE("GoogleTest" "https://github.com/google/googletest.git")
 DCG_END()
-
-set_property(TARGET gmock PROPERTY FOLDER external/gtest)
-set_property(TARGET gmock_main PROPERTY FOLDER external/gtest)
-set_property(TARGET gtest PROPERTY FOLDER external/gtest)
-set_property(TARGET gtest_main PROPERTY FOLDER external/gtest)
