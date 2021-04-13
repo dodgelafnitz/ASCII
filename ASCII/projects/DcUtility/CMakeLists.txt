@@ -22,6 +22,7 @@ INTERFACE
 set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Vector.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Matrix.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/Grid.h"
 )
 
 target_sources(DcUtility
