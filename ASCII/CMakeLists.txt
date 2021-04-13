@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.19.0)
 project(ASCII C CXX)
 
 set("ENV{DCG_ENABLE_TESTS}" TRUE)
-set("ENV{DCG_DEBUG_PRINT_STRUCTURE}" TRUE)
 
 string(TIMESTAMP currentYear "%Y")
 set("ENV{DCG_COPYWRITE}" "/*\n * Copywrite ${currentYear} Dodge Lafnitzegger\n */\n\n")
@@ -36,9 +35,5 @@ DCG_BEGIN()
 
   DCG_PROJECT_EXE("Game" PRIVATE_DEPENDS "Ascii")
     DCG_FILE_CPP_APPLICATION("Main")
-    DCG_ASSET("assets/file.txt")
   DCG_END_PROJECT()
-
-  DCG_EXTERNAL_FILES("ExternTest")
-  #DCG_EXTERNAL_SUBMODULE("GoogleTest" "https://github.com/google/googletest.git")
 DCG_END()
