@@ -1,0 +1,10 @@
+/*
+ * Copywrite 2021 Dodge Lafnitzegger
+ */
+
+#ifndef ASCII_SYSTEMS_MOUSEMANAGER_H
+#define ASCII_SYSTEMS_MOUSEMANAGER_H
+
+
+
+#endif // ASCII_SYSTEMS_MOUSEMANAGER_H

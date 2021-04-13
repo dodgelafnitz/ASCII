@@ -1,0 +1,3 @@
+[submodule "ASCII/externals/GoogleTest"]
+	path = ASCII/externals/GoogleTest
+	url = https://github.com/google/googletest.git
