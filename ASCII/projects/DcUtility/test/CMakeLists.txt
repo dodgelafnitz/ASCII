@@ -18,7 +18,6 @@ PRIVATE
 set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/VectorTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/MatrixTest.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/DebugTest.cpp"
 )
 
 target_sources(DcUtilityTest

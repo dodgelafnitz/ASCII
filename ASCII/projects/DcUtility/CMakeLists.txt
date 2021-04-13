@@ -22,7 +22,6 @@ INTERFACE
 set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Vector.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Matrix.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/Debug.h"
 )
 
 target_sources(DcUtility
