@@ -10,7 +10,13 @@
 template <typename T, int Count>
 class Vector {
 public:
-  Vector(void) = default;
+  static int const Size = Count;
+
+  Vector(void) {
+    for (int i = 0; i < Size; ++i) {
+      m_values[i] = T();
+    }
+  }
 
   template <typename ... Params, typename Enable = std::enable_if_t<sizeof...(Params) == Count>>
   Vector(Params && ... values) {
@@ -23,6 +29,26 @@ public:
 
   T & operator [](int index) {
     return m_values[index];
+  }
+
+  bool operator ==(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator !=(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 private:
@@ -39,6 +65,8 @@ private:
 template <typename T>
 class Vector<T, 1> {
 public:
+  static int const Size = 1;
+
   Vector(void) :
     x()
   {}
@@ -55,12 +83,34 @@ public:
     return x;
   }
 
+  bool operator ==(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator !=(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   T x;
 };
 
 template <typename T>
 class Vector<T, 2> {
 public:
+  static int const Size = 2;
+
   Vector(void) :
     x(),
     y()
@@ -87,6 +137,26 @@ public:
     return x;
   }
 
+  bool operator ==(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator !=(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   T x;
   T y;
 };
@@ -94,6 +164,8 @@ public:
 template <typename T>
 class Vector<T, 3> {
 public:
+  static int const Size = 3;
+
   Vector(void) :
     x(),
     y(),
@@ -124,6 +196,26 @@ public:
     return x;
   }
 
+  bool operator ==(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator !=(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   T x;
   T y;
   T z;
@@ -132,6 +224,8 @@ public:
 template <typename T>
 class Vector<T, 4> {
 public:
+  static int const Size = 4;
+
   Vector(void) :
     x(),
     y(),
@@ -164,6 +258,26 @@ public:
       case 3: return w;
     }
     return x;
+  }
+
+  bool operator ==(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator !=(Vector const & vec) const {
+    for (int i = 0; i < Size; ++i) {
+      if ((*this)[i] != vec[i]) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   T x;

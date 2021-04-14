@@ -10,7 +10,7 @@ set("ENV{DCG_COPYWRITE}" "/*\n * Copywrite ${currentYear} Dodge Lafnitzegger\n *
 include("./dcg_setup.cmake")
 
 DCG_BEGIN()
-  DCG_PROJECT_INTERFACE("DcUtility")
+  DCG_PROJECT_LIB("DcUtility")
     DCG_FOLDER("Math")
       DCG_FILE_CPP_HEADER_ONLY("Vector")
       DCG_FILE_CPP_HEADER_ONLY("Matrix")
@@ -18,6 +18,7 @@ DCG_BEGIN()
     DCG_FOLDER("Containers")
       DCG_FILE_CPP_HEADER_ONLY("Grid")
     DCG_END_FOLDER()
+    DCG_FILE_CPP_NO_TEST("Color")
   DCG_END_PROJECT()
 
   DCG_PROJECT_LIB("Ascii" PUBLIC_DEPENDS "DcUtility")

@@ -5,17 +5,19 @@
 
 project(DcUtility C CXX)
 
-add_library(DcUtility INTERFACE)
+add_library(DcUtility STATIC)
 
 set_property(TARGET DcUtility PROPERTY FOLDER libraries)
 
-target_compile_features(DcUtility INTERFACE cxx_std_20)
+set_property(TARGET DcUtility PROPERTY CMAKE_CXX_STANDARD 20)
+set_property(TARGET DcUtility PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(DcUtility PUBLIC cxx_std_20)
 
 target_link_libraries(DcUtility
 )
 
 target_include_directories(DcUtility
-INTERFACE
+PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
@@ -23,13 +25,21 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Vector.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Matrix.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/Grid.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Color.h"
+)
+
+set(src
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Color.cpp"
 )
 
 target_sources(DcUtility
-INTERFACE
+PUBLIC
   ${inc}
+PRIVATE
+  ${src}
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "include" FILES ${inc})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/source" PREFIX "source" FILES ${src})
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/projects/DcUtility/test")

@@ -7,7 +7,9 @@ add_executable(DcUtilityTest)
 
 set_property(TARGET DcUtilityTest PROPERTY FOLDER tests)
 
-target_compile_features(DcUtilityTest INTERFACE cxx_std_20)
+set_property(TARGET DcUtilityTest PROPERTY CMAKE_CXX_STANDARD 20)
+set_property(TARGET DcUtilityTest PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(DcUtilityTest PUBLIC cxx_std_20)
 
 target_link_libraries(DcUtilityTest
 PRIVATE
