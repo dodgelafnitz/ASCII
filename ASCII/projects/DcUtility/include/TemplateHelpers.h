@@ -2,8 +2,11 @@
  * Copywrite 2021 Dodge Lafnitzegger
  */
 
+#ifndef DCUTILITY_TEMPLATEHELPERS_H
+#define DCUTILITY_TEMPLATEHELPERS_H
+
+#include <utility>
 #include <type_traits>
-#include <iostream>
 
 template <int Begin, int End, typename Func>
 constexpr Func && template_range(Func && func) {
@@ -11,7 +14,7 @@ constexpr Func && template_range(Func && func) {
     return std::forward<Func &&>(func);
   }
   else {
-    func(Begin);
+    func.operator ()<std::integral_constant<int, Begin>>();
 
     constexpr int NextVal = Begin + (Begin < End ? 1 : -1);
 
@@ -19,15 +22,4 @@ constexpr Func && template_range(Func && func) {
   }
 }
 
-struct PrintIt {
-  template <int Val>
-  constexpr static void func(void) {
-    std::cout << Val;
-  }
-};
-
-int main(void) {
-
-  template_range<4, 0>([](int index) { std::cout << index; });
-  return 0;
-}
+#endif // DCUTILITY_TEMPLATEHELPERS_H
