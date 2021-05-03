@@ -8,7 +8,7 @@
 # [ ] documentation
 # [X] cmake file recreation disabling
 # [X] file recreation disabling
-# [ ] file moving
+# [ ] file moving (update inlcudes in file)
 ###########################
 
 function(DCG_set_default_setting setting value)
