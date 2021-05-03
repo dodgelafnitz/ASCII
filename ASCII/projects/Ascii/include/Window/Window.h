@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "Color.h"
+#include "General/Color.h"
 #include "Containers/Grid.h"
 #include "Math/Vector.h"
 

@@ -7,7 +7,7 @@
 
 #include <tuple>
 
-#include "TemplateHelpers.h"
+#include "Helpers/TemplateHelpers.h"
 
 TEST(VectorTest, DefaultConstruct) {
   ivec<5> const vec;

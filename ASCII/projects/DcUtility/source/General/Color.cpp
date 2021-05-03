@@ -2,7 +2,7 @@
  * Copywrite 2021 Dodge Lafnitzegger
  */
 
-#include "Color.h"
+#include "General/Color.h"
 
 Color const Color::Black     = Color(10,  10,  10);
 Color const Color::White     = Color(240, 240, 240);
