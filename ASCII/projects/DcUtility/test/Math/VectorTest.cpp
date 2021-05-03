@@ -9,6 +9,23 @@
 
 #include "Helpers/TemplateHelpers.h"
 
+namespace {
+  template <typename T>
+  void ExpectAlmostEqual(T const & val0, T const & val1) {
+    EXPECT_EQ(val0, val1);
+  }
+
+  template <>
+  void ExpectAlmostEqual<float>(float const & val0, float const & val1) {
+    EXPECT_FLOAT_EQ(val0, val1);
+  }
+
+  template <>
+  void ExpectAlmostEqual<double>(double const & val0, double const & val1) {
+    EXPECT_DOUBLE_EQ(val0, val1);
+  }
+}
+
 TEST(VectorTest, DefaultConstruct) {
   ivec<5> const vec;
 
@@ -17,6 +34,52 @@ TEST(VectorTest, DefaultConstruct) {
   EXPECT_EQ(vec[2], 0);
   EXPECT_EQ(vec[3], 0);
   EXPECT_EQ(vec[4], 0);
+}
+
+TEST(VectorTest, Assign) {
+  ivec<5>       vec0;
+  fvec<5> const vec1(0.0f, 1.0f, 2.0f, 3.0f, 4.0f);
+  ivec<5> const vec2(0, 1, 2, 3, 4);
+  ivec<5> const vec3(0, 2, 4, 6, 8);
+  ivec<5> const vec4(0, 0, 0, 0, 0);
+  ivec<5> const vec5(0, 1, 4, 9, 16);
+  fvec<5>       vec6;
+  fvec<5> const vec7(0.0f, 0.5f, 1.0f, 1.5f, 2.0f);
+  ivec<5> const vec8(4, 3, 2, 2, 3);
+  ivec<5> const vec9(0, 1, 0, 1, 1);
+  ivec<5> const vec10(1, 1, 1, 1, 1);
+
+  vec0 = vec1;
+  EXPECT_EQ(vec0, vec2);
+
+  vec0 += vec1;
+  EXPECT_EQ(vec0, vec3);
+
+  vec0 -= vec3;
+  EXPECT_EQ(vec0, vec4);
+
+  vec0 = vec1;
+  vec0 *= vec1;
+  EXPECT_EQ(vec0, vec5);
+
+  vec6 = vec0;
+  vec6 /= vec3;
+  EXPECT_NE(vec6[0], vec6[0]);
+
+  vec6[0] = 0;
+  EXPECT_EQ(vec6, vec7);
+
+  vec0 %= vec8;
+  EXPECT_EQ(vec0, vec9);
+
+  int const dotTotal = vec0.Dot(vec8);
+  EXPECT_EQ(dotTotal, 8);
+
+  EXPECT_EQ(vec2 + vec2, vec3);
+  EXPECT_EQ(vec3 - vec2, vec2);
+  EXPECT_EQ(vec2 * vec2, vec5);
+  EXPECT_EQ(vec8 / vec8, vec10);
+  EXPECT_EQ(vec5 % vec8, vec9);
 }
 
 template <typename T, int Count, typename ... Params >
@@ -62,7 +125,26 @@ void TestVec(T const & differentValue, Params && ... values) {
     EXPECT_TRUE(vec != otherVec);
     EXPECT_NE(vec, otherVec);
   }
+
+  T totalSum = T(0);
+  template_range<0, Count>([&tupledValues, &totalSum]<typename T>() constexpr {
+    totalSum += std::get<T::value>(tupledValues);
+  });
+  ExpectAlmostEqual(totalSum, vec.Sum());
+
+  T totalProduct = T(1);
+  template_range<0, Count>([&tupledValues, &totalProduct]<typename T>() constexpr {
+    totalProduct *= std::get<T::value>(tupledValues);
+  });
+  ExpectAlmostEqual(totalProduct, vec.Product());
+
+  T totalLengthSquared = T(0);
+  template_range<0, Count>([&tupledValues, &totalLengthSquared]<typename T>() constexpr {
+    totalLengthSquared += std::get<T::value>(tupledValues) * std::get<T::value>(tupledValues);
+  });
+  ExpectAlmostEqual(totalLengthSquared, vec.LengthSquared());
 }
+
 TEST(VectorTest, VectorInt1) {
   TestVec<int, 1>(0, 1);
 }

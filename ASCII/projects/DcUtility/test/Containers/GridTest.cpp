@@ -5,7 +5,6 @@
 #include "Containers/Grid.h"
 #include "gtest/gtest.h"
 
-/* TODO
 TEST(GridTest, SingleDimensionGrid) {
   Grid<int, 1> grid;
 
@@ -13,4 +12,3 @@ TEST(GridTest, SingleDimensionGrid) {
   EXPECT_EQ(grid.begin(), grid.end());
   EXPECT_EQ(grid.Count(), 0);
 }
-*/

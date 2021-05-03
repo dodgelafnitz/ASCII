@@ -13,8 +13,15 @@ template <typename T, int Dimensions>
 class Grid {
 public:
   Grid(void) = default;
-  Grid(ivec<Dimensions> const & size);
-  Grid(ivec<Dimensions> const & size, T const & value);
+  Grid(uvec<Dimensions> const & size) :
+    m_data(size.Product()),
+    m_size(size)
+  {}
+
+  Grid(ivec<Dimensions> const & size, T const & value) :
+    m_data(size.Product(), value),
+    m_size(size)
+  {}
 
   Grid(Grid const &) = default;
   Grid(Grid &&) = default;
@@ -25,24 +32,43 @@ public:
   T const * Data(void) const;
   T * Data(void);
 
-  int Count(void) const;
+  int Count(void) const {
+    return m_size.Product();
+  }
 
   ivec<Dimensions> GetSize(void) const;
   void SetSize(ivec<Dimensions> const & size) const;
 
-  bool Empty(void) const;
+  bool Empty(void) const {
+    for (int i = 0; i < Dimensions; ++i) {
+      if (m_size[i] != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   void Clear(void);
 
-  std::vector<T>::const_iterator begin(void) const;
-  std::vector<T>::iterator begin(void);
+  std::vector<T>::const_iterator begin(void) const {
+    return m_data.begin();
+  }
 
-  std::vector<T>::const_iterator end(void) const;
-  std::vector<T>::iterator end(void);
+  std::vector<T>::iterator begin(void) {
+    return m_data.begin();
+  }
+
+  std::vector<T>::const_iterator end(void) const {
+    return m_data.begin();
+  }
+
+  std::vector<T>::iterator end(void) {
+    return m_data.begin();
+  }
 
 private:
   std::vector<T>   m_data;
-  ivec<Dimensions> m_size;
+  uvec<Dimensions> m_size;
 };
 
 #endif // DCUTILITY_CONTAINERS_GRID_H

@@ -2,8 +2,8 @@
  * Copywrite 2021 Dodge Lafnitzegger
  */
 
-#ifndef DCUTILITY_TEMPLATEHELPERS_H
-#define DCUTILITY_TEMPLATEHELPERS_H
+#ifndef DCUTILITY_HELPERS_TEMPLATEHELPERS_H
+#define DCUTILITY_HELPERS_TEMPLATEHELPERS_H
 
 #include <utility>
 #include <type_traits>
@@ -22,4 +22,4 @@ constexpr Func && template_range(Func && func) {
   }
 }
 
-#endif // DCUTILITY_TEMPLATEHELPERS_H
+#endif // DCUTILITY_HELPERS_TEMPLATEHELPERS_H

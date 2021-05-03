@@ -13,6 +13,7 @@
 # [X] testing as external
 # [ ] edittable testing location/includes/name
 # [X] correct line feeds
+# [ ] file moving header guard updating
 ###########################
 
 function(DCG_set_default_setting setting value)

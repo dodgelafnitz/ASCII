@@ -8,18 +8,18 @@
 #include <utility>
 
 template <typename T, int Count>
-class Vector {
+class VectorBase {
 public:
   static int const Size = Count;
 
-  Vector(void) {
+  VectorBase(void) {
     for (int i = 0; i < Size; ++i) {
       m_values[i] = T();
     }
   }
 
   template <typename ... Params, typename Enable = std::enable_if_t<sizeof...(Params) == Count>>
-  Vector(Params && ... values) {
+  VectorBase(Params && ... values) {
     SetValues(0, std::forward<Params &&>(values)...);
   }
 
@@ -29,26 +29,6 @@ public:
 
   T & operator [](int index) {
     return m_values[index];
-  }
-
-  bool operator ==(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool operator !=(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
 private:
@@ -63,15 +43,15 @@ private:
 };
 
 template <typename T>
-class Vector<T, 1> {
+class VectorBase<T, 1> {
 public:
   static int const Size = 1;
 
-  Vector(void) :
+  VectorBase(void) :
     x()
   {}
 
-  Vector(T && x) :
+  VectorBase(T && x) :
     x(std::forward<T &&>(x))
   {}
 
@@ -83,40 +63,20 @@ public:
     return x;
   }
 
-  bool operator ==(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool operator !=(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   T x;
 };
 
 template <typename T>
-class Vector<T, 2> {
+class VectorBase<T, 2> {
 public:
   static int const Size = 2;
 
-  Vector(void) :
+  VectorBase(void) :
     x(),
     y()
   {}
 
-  Vector(T && x, T && y) :
+  VectorBase(T && x, T && y) :
     x(std::forward<T &&>(x)),
     y(std::forward<T &&>(y))
   {}
@@ -137,42 +97,22 @@ public:
     return x;
   }
 
-  bool operator ==(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool operator !=(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   T x;
   T y;
 };
 
 template <typename T>
-class Vector<T, 3> {
+class VectorBase<T, 3> {
 public:
   static int const Size = 3;
 
-  Vector(void) :
+  VectorBase(void) :
     x(),
     y(),
     z()
   {}
 
-  Vector(T && x, T && y, T && z) :
+  VectorBase(T && x, T && y, T && z) :
     x(std::forward<T &&>(x)),
     y(std::forward<T &&>(y)),
     z(std::forward<T &&>(z))
@@ -196,44 +136,24 @@ public:
     return x;
   }
 
-  bool operator ==(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool operator !=(Vector const & vec) const {
-    for (int i = 0; i < Size; ++i) {
-      if ((*this)[i] != vec[i]) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   T x;
   T y;
   T z;
 };
 
 template <typename T>
-class Vector<T, 4> {
+class VectorBase<T, 4> {
 public:
   static int const Size = 4;
 
-  Vector(void) :
+  VectorBase(void) :
     x(),
     y(),
     z(),
     w()
   {}
 
-  Vector(T&& x, T && y, T && z, T && w) :
+  VectorBase(T&& x, T && y, T && z, T && w) :
     x(std::forward<T &&>(x)),
     y(std::forward<T &&>(y)),
     z(std::forward<T &&>(z)),
@@ -260,6 +180,22 @@ public:
     return x;
   }
 
+  T x;
+  T y;
+  T z;
+  T w;
+};
+
+template <typename T, int Count>
+class Vector : public VectorBase<T, Count> {
+public:
+  static int const Size = Count;
+
+  template <typename ... Params>
+  Vector(Params && ... params) :
+    VectorBase<T, Count>(std::forward<Params &&>(params) ...)
+  {}
+
   bool operator ==(Vector const & vec) const {
     for (int i = 0; i < Size; ++i) {
       if ((*this)[i] != vec[i]) {
@@ -280,10 +216,113 @@ public:
     return false;
   }
 
-  T x;
-  T y;
-  T z;
-  T w;
+  T Sum(void) const {
+    T total = T(0);
+
+    for (int i = 0; i < Size; ++i) {
+      total += (*this)[i];
+    }
+
+    return total;
+  }
+
+  T Product(void) const {
+    T total = T(1);
+
+    for (int i = 0; i < Size; ++i) {
+      total *= (*this)[i];
+    }
+
+    return total;
+  }
+
+  template <typename U>
+  T Dot(Vector<U, Count> const & vec) const {
+    return ((*this) * vec).Sum();
+  }
+
+  T LengthSquared(void) const {
+    return Dot(*this);
+  }
+
+  template <typename U>
+  Vector & operator =(Vector<U, Count> const & vec) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] = vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator +=(Vector<U, Count> const & vec) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] += vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator -=(Vector<U, Count> const & vec) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] -= vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator *=(Vector<U, Count> const & vec) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] *= vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator /=(Vector<U, Count> const & vec) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] /= vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator %=(Vector<U, Count> const & vec) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] %= vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector operator *(Vector<U, Count> const & vec) const {
+    return Vector(*this) *= vec;
+  }
+
+  template <typename U>
+  Vector operator /(Vector<U, Count> const & vec) const {
+    return Vector(*this) /= vec;
+  }
+
+  template <typename U>
+  Vector operator +(Vector<U, Count> const & vec) const {
+    return Vector(*this) += vec;
+  }
+
+  template <typename U>
+  Vector operator -(Vector<U, Count> const & vec) const {
+    return Vector(*this) -= vec;
+  }
+
+  template <typename U>
+  Vector operator %(Vector<U, Count> const & vec) const {
+    return Vector(*this) %= vec;
+  }
 };
 
 template<int Count>

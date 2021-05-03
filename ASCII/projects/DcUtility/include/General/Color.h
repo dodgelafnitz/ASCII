@@ -2,8 +2,8 @@
  * Copywrite 2021 Dodge Lafnitzegger
  */
 
-#ifndef DCUTILITY_COLOR_H
-#define DCUTILITY_COLOR_H
+#ifndef DCUTILITY_GENERAL_COLOR_H
+#define DCUTILITY_GENERAL_COLOR_H
 
 struct Color {
   static Color const Black;
@@ -36,4 +36,4 @@ struct Color {
   unsigned char b;
 };
 
-#endif // DCUTILITY_COLOR_H
+#endif // DCUTILITY_GENERAL_COLOR_H
