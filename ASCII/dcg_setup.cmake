@@ -421,7 +421,7 @@ function(DCG_update_file_if_different fileName fileContent)
   endif()
 
   if(NOT "${oldContent}" STREQUAL "${fileContent}")
-    file(WRITE "${fileName}" ${fileContent})
+    file(WRITE "${fileName}" "${fileContent}")
   endif()
 endfunction()
 
