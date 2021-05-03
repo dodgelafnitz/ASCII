@@ -301,6 +301,7 @@ function(DCG_END)
   DCG_create_files()
   DCG_create_cmake_files()
   DCG_build_projects()
+  DCG_replace_strings()
 endfunction()
 
 function(DCG_create_files)
@@ -366,6 +367,14 @@ function(DCG_create_files)
               file(COPY "${previousFilePath}" DESTINATION "${fileDir}")
               file(REMOVE "${previousFilePath}")
               set(fileIsPresent TRUE)
+
+              set(oldInclude "#include \"$ENV{${fileId}_PREVIOUS_LOCATION}.h\"")
+              set(newInclude "#include \"$ENV{${fileId}_PATH}.h\"")
+
+              DCG_get_unique(unique_var)
+              DCG_append_env_list("DCG_REPLACES" "DCG_REPLACE_${unique_var}")
+              set("ENV{DCG_REPLACE_${unique_var}_MATCH_STR}" "${oldInclude}")
+              set("ENV{DCG_REPLACE_${unique_var}_REPLACE_STR}" "${newInclude}")
             endif()
           endif()
 
@@ -648,5 +657,40 @@ function(DCG_build_projects)
 
   foreach(projectName IN ITEMS $ENV{DCG_SOLUTION_PROJECTS})
     add_subdirectory("${CMAKE_SOURCE_DIR}/projects/${projectName}")
+  endforeach()
+endfunction()
+
+function(DCG_replace_strings)
+  set(files "")
+
+  foreach(projectName IN ITEMS $ENV{DCG_SOLUTION_PROJECTS})
+    foreach(fileId IN ITEMS $ENV{DCG_PROJECT_${projectName}_FILES})
+      set(fileType ".c")
+      if("$ENV{${fileId}_TYPE}" STREQUAL "DCG_CPP")
+        set(fileType ".cpp")
+      endif()
+
+      if("$ENV{${fileId}_HAS_INTERFACE}")
+        list(APPEND files "projects/${projectName}/include/$ENV{${fileId}_PATH}.h")
+      endif()
+
+      if("$ENV{${fileId}_HAS_SOURCE}")
+        list(APPEND files "projects/${projectName}/source/$ENV{${fileId}_PATH}${fileType}")
+      endif()
+
+      if("$ENV{${fileId}_HAS_TEST}")
+        list(APPEND files "projects/${projectName}/test/$ENV{${fileId}_PATH}Test${fileType}")
+      endif()
+    endforeach()
+  endforeach()
+
+  foreach(fileName IN ITEMS ${files})
+    file(READ "${fileName}" fileContent)
+
+    foreach(replaceValue IN ITEMS $ENV{DCG_REPLACES})
+      string(REPLACE "$ENV{${replaceValue}_MATCH_STR}" "$ENV{${replaceValue}_REPLACE_STR}" fileContent "${fileContent}")
+    endforeach()
+
+    DCG_update_file_if_different("${fileName}" "${fileContent}")
   endforeach()
 endfunction()
