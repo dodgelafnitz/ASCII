@@ -8,7 +8,11 @@
 # [ ] documentation
 # [X] cmake file recreation disabling
 # [X] file recreation disabling
-# [ ] file moving (update inlcudes in file)
+# [X] file moving (update inlcudes in file)
+# [X] autoplacing externals
+# [X] testing as external
+# [ ] edittable testing location/includes/name
+# [X] correct line feeds
 ###########################
 
 function(DCG_set_default_setting setting value)
@@ -257,6 +261,10 @@ function(DCG_BEGIN)
 endfunction()
 
 function(DCG_END)
+  if("$ENV{DCG_ENABLE_TESTS}")
+    DCG_EXTERNAL_SUBMODULE("GoogleTest" "https://github.com/google/googletest.git")
+  endif()
+
   if("$ENV{DCG_DEBUG_PRINT_STRUCTURE}")
     message("Solution : ${PROJECT_NAME}")
     message("  Projects : $ENV{DCG_SOLUTION_PROJECTS}")
@@ -394,16 +402,10 @@ function(DCG_create_files)
       if("$ENV{DCG_EXTERNAL_${externalName}_TYPE}" STREQUAL DCG_SUBMODULE)
         execute_process(COMMAND git submodule add "$ENV{DCG_EXTERNAL_${externalName}_LOCATION}" "./externals/${externalName}")
       else()
-        file(WRITE "${CMAKE_SOURCE_DIR}/externals/${externalName}/CMakeLists.txt" "")
+        file(TOUCH "${CMAKE_SOURCE_DIR}/externals/${externalName}/CMakeLists.txt")
       endif()
     endif()
   endforeach()
-
-  if("$ENV{DCG_ENABLE_TESTS}")
-    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/externals/GoogleTest")
-      execute_process(COMMAND git submodule add "https://github.com/google/googletest.git" "./externals/GoogleTest")
-    endif()
-  endif()
 endfunction()
 
 function(DCG_update_file_if_different fileName fileContent)
@@ -421,7 +423,7 @@ function(DCG_update_file_if_different fileName fileContent)
   endif()
 
   if(NOT "${oldContent}" STREQUAL "${fileContent}")
-    file(WRITE "${fileName}" "${fileContent}")
+    file(GENERATE OUTPUT "${fileName}" CONTENT "${fileContent}" NEWLINE_STYLE LF)
   endif()
 endfunction()
 
@@ -641,19 +643,47 @@ function(DCG_create_cmake_files)
   endforeach()
 endfunction()
 
-function(DCG_build_projects)
-  if("$ENV{DCG_ENABLE_TESTS}")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/externals/GoogleTest")
+function(DCG_get_all_subdirectories outVar directory)
+  set(resultDirs "${directory}")
 
-    set_property(TARGET gmock PROPERTY FOLDER external/gtest)
-    set_property(TARGET gmock_main PROPERTY FOLDER external/gtest)
-    set_property(TARGET gtest PROPERTY FOLDER external/gtest)
-    set_property(TARGET gtest_main PROPERTY FOLDER external/gtest)
+  get_property(subdirectories DIRECTORY ${directory} PROPERTY SUBDIRECTORIES)
+  foreach(subdirectory IN ITEMS ${subdirectories})
+    DCG_get_all_subdirectories(internalDirectories "${subdirectory}")
+    list(APPEND resultDirs ${internalDirectories})
+  endforeach()
+
+  set("${outVar}" "${resultDirs}" PARENT_SCOPE)
+endfunction()
+
+function(DCG_get_relative_directory outVar targetDirectory sourceDirectory)
+  string(FIND "${targetDirectory}" "${sourceDirectory}" prefixFind)
+  if("${prefixFind}" EQUAL 0)
+    string(REPLACE "${sourceDirectory}/" "" relDir "${targetDirectory}")
+    set("${outVar}" "${relDir}" PARENT_SCOPE)
   endif()
+endfunction()
 
+function(DCG_set_external_folders)
+  DCG_get_all_subdirectories(subdirectories "${CMAKE_SOURCE_DIR}")
+
+  foreach(directory IN ITEMS ${subdirectories})
+    get_property(targets DIRECTORY "${directory}" PROPERTY BUILDSYSTEM_TARGETS)
+    DCG_get_relative_directory(relDir "${directory}" "${CMAKE_SOURCE_DIR}/externals")
+
+    if(NOT "${relDir}" STREQUAL "")
+      foreach(target IN ITEMS ${targets})
+        set_property(TARGET ${target} PROPERTY FOLDER "externals/${relDir}")
+      endforeach()
+    endif()
+  endforeach()
+endfunction()
+
+function(DCG_build_projects)
   foreach(externalName IN ITEMS $ENV{DCG_SOLUTION_EXTERNALS})
     add_subdirectory("${CMAKE_SOURCE_DIR}/externals/${externalName}")
   endforeach()
+
+  DCG_set_external_folders()
 
   foreach(projectName IN ITEMS $ENV{DCG_SOLUTION_PROJECTS})
     add_subdirectory("${CMAKE_SOURCE_DIR}/projects/${projectName}")
@@ -690,6 +720,9 @@ function(DCG_replace_strings)
     foreach(replaceValue IN ITEMS $ENV{DCG_REPLACES})
       string(REPLACE "$ENV{${replaceValue}_MATCH_STR}" "$ENV{${replaceValue}_REPLACE_STR}" fileContent "${fileContent}")
     endforeach()
+
+    string(REPLACE "\r\n" "\n" fileContent "${fileContent}")
+    string(REPLACE "\r" "\n" fileContent "${fileContent}")
 
     DCG_update_file_if_different("${fileName}" "${fileContent}")
   endforeach()
