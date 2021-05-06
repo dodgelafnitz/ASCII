@@ -12,8 +12,8 @@
 # [X] autoplacing externals
 # [X] testing as external
 # [ ] edittable testing location/includes/name
-# [X] correct line feeds
-# [ ] file moving header guard updating
+# [ ] correct line feeds
+# [X] file moving header guard updating
 ###########################
 
 function(DCG_set_default_setting setting value)
@@ -266,6 +266,11 @@ function(DCG_END)
     DCG_EXTERNAL_SUBMODULE("GoogleTest" "https://github.com/google/googletest.git")
   endif()
 
+  DCG_create_files()
+  DCG_create_cmake_files()
+  DCG_build_projects()
+  DCG_replace_strings()
+
   if("$ENV{DCG_DEBUG_PRINT_STRUCTURE}")
     message("Solution : ${PROJECT_NAME}")
     message("  Projects : $ENV{DCG_SOLUTION_PROJECTS}")
@@ -304,13 +309,16 @@ function(DCG_END)
       message("      Location : $ENV{DCG_EXTERNAL_${externalName}_LOCATION}")
     endforeach()
 
+    message("  Replaces : $ENV{DCG_REPLACES}")
+
+    foreach(replacement IN ITEMS $ENV{DCG_REPLACES})
+      message("    Replacement : ${replacement}")
+      message("      Match : $ENV{${replacement}_MATCH_STR}")
+      message("      Replace : $ENV{${replacement}_REPLACE_STR}")
+    endforeach()
+
     message("")
   endif()
-
-  DCG_create_files()
-  DCG_create_cmake_files()
-  DCG_build_projects()
-  DCG_replace_strings()
 endfunction()
 
 function(DCG_create_files)
@@ -335,9 +343,8 @@ function(DCG_create_files)
           endif()
           set(fileType ".h")
 
-          string(TOUPPER "${projectName}_$ENV{${fileId}_PATH}" fileDefine)
+          string(TOUPPER "${projectName}_$ENV{${fileId}_PATH}_H" fileDefine)
           string(REPLACE "/" "_" fileDefine "${fileDefine}")
-          string(APPEND fileDefine "_H")
 
           set(fileContent "$ENV{DCG_COPYWRITE}#ifndef ${fileDefine}\n#define ${fileDefine}\n\n\n\n#endif // ${fileDefine}\n")
         elseif(sourceArea STREQUAL "source")
@@ -372,18 +379,27 @@ function(DCG_create_files)
             set(previousFilePath "${CMAKE_SOURCE_DIR}/projects/${projectName}/${sourceArea}/$ENV{${fileId}_PREVIOUS_LOCATION}${fileSuffix}${fileType}")
             if(EXISTS "${previousFilePath}")
               message("moving ${previousFilePath} to ${filePath}")
-              get_filename_component(fileDir "${filePath}" DIRECTORY)
-              file(COPY "${previousFilePath}" DESTINATION "${fileDir}")
-              file(REMOVE "${previousFilePath}")
+              file(RENAME "${previousFilePath}" "${filePath}")
               set(fileIsPresent TRUE)
 
               set(oldInclude "#include \"$ENV{${fileId}_PREVIOUS_LOCATION}.h\"")
               set(newInclude "#include \"$ENV{${fileId}_PATH}.h\"")
 
-              DCG_get_unique(unique_var)
-              DCG_append_env_list("DCG_REPLACES" "DCG_REPLACE_${unique_var}")
-              set("ENV{DCG_REPLACE_${unique_var}_MATCH_STR}" "${oldInclude}")
-              set("ENV{DCG_REPLACE_${unique_var}_REPLACE_STR}" "${newInclude}")
+              DCG_get_unique(uniqueVarPath)
+              DCG_append_env_list("DCG_REPLACES" "DCG_REPLACE_${uniqueVarPath}")
+              set("ENV{DCG_REPLACE_${uniqueVarPath}_MATCH_STR}" "${oldInclude}")
+              set("ENV{DCG_REPLACE_${uniqueVarPath}_REPLACE_STR}" "${newInclude}")
+
+              string(TOUPPER "${projectName}_$ENV{${fileId}_PREVIOUS_LOCATION}_H" oldFileDefine)
+              string(REPLACE "/" "_" oldFileDefine "${oldFileDefine}")
+
+              string(TOUPPER "${projectName}_$ENV{${fileId}_PATH}_H" newFileDefine)
+              string(REPLACE "/" "_" newFileDefine "${newFileDefine}")
+
+              DCG_get_unique(uniqueVarInclude)
+              DCG_append_env_list("DCG_REPLACES" "DCG_REPLACE_${uniqueVarInclude}")
+              set("ENV{DCG_REPLACE_${uniqueVarInclude}_MATCH_STR}" "${oldFileDefine}")
+              set("ENV{DCG_REPLACE_${uniqueVarInclude}_REPLACE_STR}" "${newFileDefine}")
             endif()
           endif()
 
@@ -424,7 +440,7 @@ function(DCG_update_file_if_different fileName fileContent)
   endif()
 
   if(NOT "${oldContent}" STREQUAL "${fileContent}")
-    file(GENERATE OUTPUT "${fileName}" CONTENT "${fileContent}" NEWLINE_STYLE LF)
+    file(WRITE "${fileName}" "${fileContent}")
   endif()
 endfunction()
 
@@ -716,15 +732,15 @@ function(DCG_replace_strings)
   endforeach()
 
   foreach(fileName IN ITEMS ${files})
-    file(READ "${fileName}" fileContent)
+    file(READ "${fileName}" oldFileContent)
+    set(fileContent "${oldFileContent}")
 
     foreach(replaceValue IN ITEMS $ENV{DCG_REPLACES})
       string(REPLACE "$ENV{${replaceValue}_MATCH_STR}" "$ENV{${replaceValue}_REPLACE_STR}" fileContent "${fileContent}")
     endforeach()
 
-    string(REPLACE "\r\n" "\n" fileContent "${fileContent}")
-    string(REPLACE "\r" "\n" fileContent "${fileContent}")
-
-    DCG_update_file_if_different("${fileName}" "${fileContent}")
+    if(NOT "${fileContent}" STREQUAL "${oldFileContent}")
+      file(WRITE "${fileName}" "${fileContent}")
+    endif()
   endforeach()
 endfunction()
