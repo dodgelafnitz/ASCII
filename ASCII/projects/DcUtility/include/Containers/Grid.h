@@ -12,6 +12,23 @@
 template <typename T, int Dimensions>
 class Grid {
 public:
+  static ivec<Dimensions> GetNextCoord(
+    ivec<Dimensions> const & current,
+    ivec<Dimensions> const & max
+  ) {
+    ivec<Dimensions> result = current;
+
+    for (int i = Dimensions - 1; i >= 0; --i) {
+      if (++result[i] != max[i]) {
+        return result;
+      }
+
+      result[i] = 0;
+    }
+
+    return max;
+  }
+
   Grid(void) = default;
   Grid(uvec<Dimensions> const & size) :
     m_data(size.Product()),
@@ -26,8 +43,18 @@ public:
   Grid(Grid const &) = default;
   Grid(Grid &&) = default;
 
-  T const & operator [](ivec<Dimensions> const & location) const;
-  T & operator [](ivec<Dimensions> const & location);
+  Grid & operator =(Grid const &) = default;
+  Grid & operator =(Grid &&) = default;
+
+  T const & operator [](ivec<Dimensions> const & location) const {
+    int const index = location.Dot(GetIndexerDot());
+    return m_data[index];
+  }
+
+  T & operator [](ivec<Dimensions> const & location) {
+    int const index = location.Dot(GetIndexerDot());
+    return m_data[index];
+  }
 
   T const * Data(void) const;
   T * Data(void);
@@ -37,7 +64,15 @@ public:
   }
 
   ivec<Dimensions> GetSize(void) const;
-  void SetSize(ivec<Dimensions> const & size) const;
+  void SetSize(ivec<Dimensions> const & size) {
+    ivec<Dimensions> const minBounds = m_size.Min(size);
+
+    Grid newGrid(size);
+    for (ivec<Dimensions> i; i != minBounds; i = GetNextCoord(i, minBounds)) {
+      newGrid[i] = (*this)[i];
+    }
+    *this = std::move(newGrid);
+  }
 
   bool Empty(void) const {
     for (int i = 0; i < Dimensions; ++i) {
@@ -59,16 +94,27 @@ public:
   }
 
   std::vector<T>::const_iterator end(void) const {
-    return m_data.begin();
+    return m_data.end();
   }
 
   std::vector<T>::iterator end(void) {
-    return m_data.begin();
+    return m_data.end();
   }
 
 private:
+  ivec<Dimensions> GetIndexerDot(void) const {
+    ivec<Dimensions> result;
+
+    result[Dimensions - 1] = 1;
+    for (int i = Dimensions - 2; i >= 0; --i) {
+      result[i] = m_size[i + 1] * result[i + 1];
+    }
+
+    return result;
+  }
+
   std::vector<T>   m_data;
-  uvec<Dimensions> m_size;
+  ivec<Dimensions> m_size;
 };
 
 #endif // DCUTILITY_CONTAINERS_GRID_H

@@ -8,6 +8,9 @@
 #include <utility>
 
 template <typename T, int Count>
+class Vector;
+
+template <typename T, int Count>
 class VectorBase {
 public:
   static int const Size = Count;
@@ -51,8 +54,22 @@ public:
     x()
   {}
 
+  template <typename U>
+  VectorBase(Vector<U, 1> const & vec) :
+    x(vec.x)
+  {}
+
+  template <typename U>
+  VectorBase(Vector<U, 1> && vec) :
+    x(std::move(vec.x))
+  {}
+
+  VectorBase(T const & x) :
+    x(x)
+  {}
+
   VectorBase(T && x) :
-    x(std::forward<T &&>(x))
+    x(std::move(x))
   {}
 
   T const & operator [](int index) const {
@@ -76,9 +93,26 @@ public:
     y()
   {}
 
+  template <typename U>
+  VectorBase(Vector<U, 2> const & vec) :
+    x(vec.x),
+    y(vec.y)
+  {}
+
+  template <typename U>
+  VectorBase(Vector<U, 2> && vec) :
+    x(std::move(vec.x)),
+    y(std::move(vec.y))
+  {}
+
+  VectorBase(T const & x, T const & y) :
+    x(x),
+    y(y)
+  {}
+
   VectorBase(T && x, T && y) :
-    x(std::forward<T &&>(x)),
-    y(std::forward<T &&>(y))
+    x(std::move(x)),
+    y(std::move(y))
   {}
 
   T const & operator [](int index) const {
@@ -112,10 +146,30 @@ public:
     z()
   {}
 
+  template <typename U>
+  VectorBase(Vector<U, 3> const & vec) :
+    x(vec.x),
+    y(vec.y),
+    z(vec.z)
+  {}
+
+  template <typename U>
+  VectorBase(Vector<U, 3> && vec) :
+    x(std::move(vec.x)),
+    y(std::move(vec.y)),
+    z(std::move(vec.z))
+  {}
+
+  VectorBase(T const & x, T const & y, T const & z) :
+    x(x),
+    y(y),
+    z(z)
+  {}
+
   VectorBase(T && x, T && y, T && z) :
-    x(std::forward<T &&>(x)),
-    y(std::forward<T &&>(y)),
-    z(std::forward<T &&>(z))
+    x(std::move(x)),
+    y(std::move(y)),
+    z(std::move(z))
   {}
 
   T const & operator [](int index) const {
@@ -153,11 +207,34 @@ public:
     w()
   {}
 
-  VectorBase(T&& x, T && y, T && z, T && w) :
-    x(std::forward<T &&>(x)),
-    y(std::forward<T &&>(y)),
-    z(std::forward<T &&>(z)),
-    w(std::forward<T &&>(w))
+  template <typename U>
+  VectorBase(Vector<U, 4> const & vec) :
+    x(vec.x),
+    y(vec.y),
+    z(vec.z),
+    w(vec.w)
+  {}
+
+  template <typename U>
+  VectorBase(Vector<U, 4> && vec) :
+    x(std::move(vec.x)),
+    y(std::move(vec.y)),
+    z(std::move(vec.z)),
+    w(std::move(vec.w))
+  {}
+
+  VectorBase(T const & x, T const & y, T const & z, T const & w) :
+    x(x),
+    y(y),
+    z(z),
+    w(w)
+  {}
+
+  VectorBase(T && x, T && y, T && z, T && w) :
+    x(std::move(x)),
+    y(std::move(y)),
+    z(std::move(z)),
+    w(std::move(w))
   {}
 
   T const & operator [](int index) const {
@@ -195,6 +272,12 @@ public:
   Vector(Params && ... params) :
     VectorBase<T, Count>(std::forward<Params &&>(params) ...)
   {}
+
+  Vector(Vector const &) = default;
+  Vector(Vector &&) = default;
+
+  Vector & operator =(Vector const &) = default;
+  Vector & operator =(Vector &&) = default;
 
   bool operator ==(Vector const & vec) const {
     for (int i = 0; i < Size; ++i) {
@@ -243,6 +326,28 @@ public:
 
   T LengthSquared(void) const {
     return Dot(*this);
+  }
+
+  template <typename U>
+  Vector Min(Vector<U, Count> const & vec) const {
+    Vector result;
+
+    for (int i = 0; i < Size; ++i) {
+      result[i] = std::min((*this)[i], T(vec[i]));
+    }
+
+    return result;
+  }
+
+  template <typename U>
+  Vector Max(Vector<U, Count> const & vec) const {
+    Vector result;
+
+    for (int i = 0; i < Size; ++i) {
+      result[i] = std::max((*this)[i], vec[i]);
+    }
+
+    return result;
   }
 
   template <typename U>

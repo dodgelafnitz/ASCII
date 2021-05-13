@@ -8,6 +8,7 @@
 #include <tuple>
 
 #include "Helpers/TemplateHelpers.h"
+#include "Helpers/TestHelpers.h"
 
 namespace {
   template <typename T>
@@ -48,6 +49,10 @@ TEST(VectorTest, Assign) {
   ivec<5> const vec8(4, 3, 2, 2, 3);
   ivec<5> const vec9(0, 1, 0, 1, 1);
   ivec<5> const vec10(1, 1, 1, 1, 1);
+  ivec<5> const vec11(5, 4, 3, 2, 1);
+  ivec<5> const vec12(1, 2, 3, 4, 5);
+  ivec<5> const vec13(1, 2, 3, 2, 1);
+  ivec<5> const vec14(5, 4, 3, 4, 5);
 
   vec0 = vec1;
   EXPECT_EQ(vec0, vec2);
@@ -80,6 +85,9 @@ TEST(VectorTest, Assign) {
   EXPECT_EQ(vec2 * vec2, vec5);
   EXPECT_EQ(vec8 / vec8, vec10);
   EXPECT_EQ(vec5 % vec8, vec9);
+
+  EXPECT_EQ(vec11.Min(vec12), vec13);
+  EXPECT_EQ(vec11.Max(vec12), vec14);
 }
 
 template <typename T, int Count, typename ... Params >
@@ -203,4 +211,91 @@ TEST(VectorTest, VectorFloat5) {
 
 TEST(VectorTest, VectorDouble5) {
   TestVec<double, 5>(15.0, 345735.0, 25.23, 246.2, -3246.33, -124.7);
+}
+
+TEST(VectorTest, CountIs1_DefaultConstructed_ElementIsDefaultConstructed) {
+  Vector<DefaultConstructorCheck, 1> const vec;
+  EXPECT_TRUE(vec.x.WasDefaultConstructed());
+}
+
+TEST(VectorTest, CountIs2_DefaultConstructed_ElementsAreDefaultConstructed) {
+  Vector<DefaultConstructorCheck, 2> const vec;
+  EXPECT_TRUE(vec.x.WasDefaultConstructed());
+  EXPECT_TRUE(vec.y.WasDefaultConstructed());
+}
+
+TEST(VectorTest, CountIs3_DefaultConstructed_ElementsAreDefaultConstructed) {
+  Vector<DefaultConstructorCheck, 3> const vec;
+  EXPECT_TRUE(vec.x.WasDefaultConstructed());
+  EXPECT_TRUE(vec.y.WasDefaultConstructed());
+  EXPECT_TRUE(vec.z.WasDefaultConstructed());
+}
+
+TEST(VectorTest, CountIs4_DefaultConstructed_ElementsAreDefaultConstructed) {
+  Vector<DefaultConstructorCheck, 4> const vec;
+  EXPECT_TRUE(vec.x.WasDefaultConstructed());
+  EXPECT_TRUE(vec.y.WasDefaultConstructed());
+  EXPECT_TRUE(vec.z.WasDefaultConstructed());
+  EXPECT_TRUE(vec.w.WasDefaultConstructed());
+}
+
+TEST(VectorTest, CountIs5_DefaultConstructed_ElementsAreDefaultConstructed) {
+  Vector<DefaultConstructorCheck, 5> const vec;
+  EXPECT_TRUE(vec[0].WasDefaultConstructed());
+  EXPECT_TRUE(vec[1].WasDefaultConstructed());
+  EXPECT_TRUE(vec[2].WasDefaultConstructed());
+  EXPECT_TRUE(vec[3].WasDefaultConstructed());
+  EXPECT_TRUE(vec[4].WasDefaultConstructed());
+}
+
+TEST(VectorTest, ConstAndCountIs1_CheckIndexAndNamedElement_ReferencesAreSame) {
+  Vector<int, 1> const vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+}
+
+TEST(VectorTest, ConstAndCountIs2_CheckIndexAndNamedElements_ReferencesAreSame) {
+  Vector<int, 2> const vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+  EXPECT_EQ(&vec.y, &vec[1]);
+}
+
+TEST(VectorTest, ConstAndCountIs3_CheckIndexAndNamedElements_ReferencesAreSame) {
+  Vector<int, 3> const vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+  EXPECT_EQ(&vec.y, &vec[1]);
+  EXPECT_EQ(&vec.z, &vec[2]);
+}
+
+TEST(VectorTest, ConstAndCountIs4_CheckIndexAndNamedElements_ReferencesAreSame) {
+  Vector<int, 4> const vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+  EXPECT_EQ(&vec.y, &vec[1]);
+  EXPECT_EQ(&vec.z, &vec[2]);
+  EXPECT_EQ(&vec.w, &vec[3]);
+}
+
+TEST(VectorTest, NonConstAndCountIs1_CheckIndexAndNamedElement_ReferencesAreSame) {
+  Vector<int, 1> vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+}
+
+TEST(VectorTest, NonConstAndCountIs2_CheckIndexAndNamedElements_ReferencesAreSame) {
+  Vector<int, 2> vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+  EXPECT_EQ(&vec.y, &vec[1]);
+}
+
+TEST(VectorTest, NonConstAndCountIs3_CheckIndexAndNamedElements_ReferencesAreSame) {
+  Vector<int, 3> vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+  EXPECT_EQ(&vec.y, &vec[1]);
+  EXPECT_EQ(&vec.z, &vec[2]);
+}
+
+TEST(VectorTest, NonConstAndCountIs4_CheckIndexAndNamedElements_ReferencesAreSame) {
+  Vector<int, 4> vec;
+  EXPECT_EQ(&vec.x, &vec[0]);
+  EXPECT_EQ(&vec.y, &vec[1]);
+  EXPECT_EQ(&vec.z, &vec[2]);
+  EXPECT_EQ(&vec.w, &vec[3]);
 }

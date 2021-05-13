@@ -15,6 +15,7 @@ target_link_libraries(AsciiTest
 PRIVATE
   Ascii
   gtest_main
+  DcTestUtility
 )
 
 set(tst
@@ -34,3 +35,4 @@ PRIVATE
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "test" FILES ${tst})
 
 DCG_add_interface_source_group(Ascii)
+DCG_add_interface_source_group(DcTestUtility)

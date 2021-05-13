@@ -15,6 +15,7 @@ target_link_libraries(DcUtilityTest
 PRIVATE
   DcUtility
   gtest_main
+  DcTestUtility
 )
 
 set(tst
@@ -32,3 +33,4 @@ PRIVATE
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "test" FILES ${tst})
 
 DCG_add_interface_source_group(DcUtility)
+DCG_add_interface_source_group(DcTestUtility)
