@@ -28,11 +28,19 @@ private:
 
 class OperatorCheck {
 public:
-  OperatorCheck(char value) :
-    m_value(1, value)
+  OperatorCheck(void) :
+    m_value("()")
   {}
 
-  std::string const & GetValue(void) {
+  OperatorCheck(std::string const & value) :
+    m_value(value)
+  {}
+
+  OperatorCheck(int value) :
+    m_value(std::to_string(value))
+  {}
+
+  std::string const & GetValue(void) const {
     return m_value;
   }
 

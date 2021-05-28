@@ -10,209 +10,6 @@
 #include "Helpers/TemplateHelpers.h"
 #include "Helpers/TestHelpers.h"
 
-namespace {
-  template <typename T>
-  void ExpectAlmostEqual(T const & val0, T const & val1) {
-    EXPECT_EQ(val0, val1);
-  }
-
-  template <>
-  void ExpectAlmostEqual<float>(float const & val0, float const & val1) {
-    EXPECT_FLOAT_EQ(val0, val1);
-  }
-
-  template <>
-  void ExpectAlmostEqual<double>(double const & val0, double const & val1) {
-    EXPECT_DOUBLE_EQ(val0, val1);
-  }
-}
-
-TEST(VectorTest, DefaultConstruct) {
-  ivec<5> const vec;
-
-  EXPECT_EQ(vec[0], 0);
-  EXPECT_EQ(vec[1], 0);
-  EXPECT_EQ(vec[2], 0);
-  EXPECT_EQ(vec[3], 0);
-  EXPECT_EQ(vec[4], 0);
-}
-
-TEST(VectorTest, Assign) {
-  ivec<5>       vec0;
-  fvec<5> const vec1(0.0f, 1.0f, 2.0f, 3.0f, 4.0f);
-  ivec<5> const vec2(0, 1, 2, 3, 4);
-  ivec<5> const vec3(0, 2, 4, 6, 8);
-  ivec<5> const vec4(0, 0, 0, 0, 0);
-  ivec<5> const vec5(0, 1, 4, 9, 16);
-  fvec<5>       vec6;
-  fvec<5> const vec7(0.0f, 0.5f, 1.0f, 1.5f, 2.0f);
-  ivec<5> const vec8(4, 3, 2, 2, 3);
-  ivec<5> const vec9(0, 1, 0, 1, 1);
-  ivec<5> const vec10(1, 1, 1, 1, 1);
-  ivec<5> const vec11(5, 4, 3, 2, 1);
-  ivec<5> const vec12(1, 2, 3, 4, 5);
-  ivec<5> const vec13(1, 2, 3, 2, 1);
-  ivec<5> const vec14(5, 4, 3, 4, 5);
-
-  vec0 = vec1;
-  EXPECT_EQ(vec0, vec2);
-
-  vec0 += vec1;
-  EXPECT_EQ(vec0, vec3);
-
-  vec0 -= vec3;
-  EXPECT_EQ(vec0, vec4);
-
-  vec0 = vec1;
-  vec0 *= vec1;
-  EXPECT_EQ(vec0, vec5);
-
-  vec6 = vec0;
-  vec6 /= vec3;
-  EXPECT_NE(vec6[0], vec6[0]);
-
-  vec6[0] = 0;
-  EXPECT_EQ(vec6, vec7);
-
-  vec0 %= vec8;
-  EXPECT_EQ(vec0, vec9);
-
-  int const dotTotal = vec0.Dot(vec8);
-  EXPECT_EQ(dotTotal, 8);
-
-  EXPECT_EQ(vec2 + vec2, vec3);
-  EXPECT_EQ(vec3 - vec2, vec2);
-  EXPECT_EQ(vec2 * vec2, vec5);
-  EXPECT_EQ(vec8 / vec8, vec10);
-  EXPECT_EQ(vec5 % vec8, vec9);
-
-  EXPECT_EQ(vec11.Min(vec12), vec13);
-  EXPECT_EQ(vec11.Max(vec12), vec14);
-}
-
-template <typename T, int Count, typename ... Params >
-void TestVec(T const & differentValue, Params && ... values) {
-  auto tupledValues = std::forward_as_tuple<Params && ...>(std::forward<Params &&>(values)...);
-  Vector<T, Count> const vec(std::forward<Params &&>(values)...);
-
-  template_range<0, Count>([&tupledValues, &vec]<typename T>() constexpr {
-    EXPECT_EQ(vec[T::value], std::get<T::value>(tupledValues));
-  });
-
-  if constexpr (Count >= 1 && Count < 5) {
-    EXPECT_EQ(vec.x, std::get<0>(tupledValues));
-    EXPECT_EQ(&vec[0], &vec.x);
-  }
-
-  if constexpr (Count >= 2 && Count < 5) {
-    EXPECT_EQ(vec.y, std::get<1>(tupledValues));
-    EXPECT_EQ(&vec[1], &vec.y);
-  }
-
-  if constexpr (Count >= 3 && Count < 5) {
-    EXPECT_EQ(vec.z, std::get<2>(tupledValues));
-    EXPECT_EQ(&vec[2], &vec.z);
-  }
-
-  if constexpr (Count >= 4 && Count < 5) {
-    EXPECT_EQ(vec.w, std::get<3>(tupledValues));
-    EXPECT_EQ(&vec[3], &vec.w);
-  }
-
-  {
-    auto otherVec = vec;
-    EXPECT_TRUE(vec == otherVec);
-    EXPECT_FALSE(vec != otherVec);
-    EXPECT_EQ(vec, otherVec);
-  }
-
-  for (int i = 0; i < Count; ++i) {
-    auto otherVec = vec;
-    otherVec[i] = differentValue;
-    EXPECT_FALSE(vec == otherVec);
-    EXPECT_TRUE(vec != otherVec);
-    EXPECT_NE(vec, otherVec);
-  }
-
-  T totalSum = T(0);
-  template_range<0, Count>([&tupledValues, &totalSum]<typename T>() constexpr {
-    totalSum += std::get<T::value>(tupledValues);
-  });
-  ExpectAlmostEqual(totalSum, vec.Sum());
-
-  T totalProduct = T(1);
-  template_range<0, Count>([&tupledValues, &totalProduct]<typename T>() constexpr {
-    totalProduct *= std::get<T::value>(tupledValues);
-  });
-  ExpectAlmostEqual(totalProduct, vec.Product());
-
-  T totalLengthSquared = T(0);
-  template_range<0, Count>([&tupledValues, &totalLengthSquared]<typename T>() constexpr {
-    totalLengthSquared += std::get<T::value>(tupledValues) * std::get<T::value>(tupledValues);
-  });
-  ExpectAlmostEqual(totalLengthSquared, vec.LengthSquared());
-}
-
-TEST(VectorTest, VectorInt1) {
-  TestVec<int, 1>(0, 1);
-}
-
-TEST(VectorTest, VectorFloat1) {
-  TestVec<float, 1>(0.0f, 1.0f);
-}
-
-TEST(VectorTest, VectorDouble1) {
-  TestVec<double, 1>(0.0, 1.0);
-}
-
-TEST(VectorTest, VectorInt2) {
-  TestVec<int, 2>(-4, 2, 56);
-}
-
-TEST(VectorTest, VectorFloat2) {
-  TestVec<float, 2>(100.0f, -2.0f, 30.0f);
-}
-
-TEST(VectorTest, VectorDouble2) {
-  TestVec<double, 2>(10.0, 14.0, 0.444444444);
-}
-
-TEST(VectorTest, VectorInt3) {
-  TestVec<int, 3>(3, 6, 12, 8);
-}
-
-TEST(VectorTest, VectorFloat3) {
-  TestVec<float, 3>(1.0f, 0.5f, 0.2f, 5.1f);
-}
-
-TEST(VectorTest, VectorDouble3) {
-  TestVec<double, 3>(0.01, 0.2, 0.0, 2.5);
-}
-
-TEST(VectorTest, VectorInt4) {
-  TestVec<int, 4>(0, 1, 6, 19, -4);
-}
-
-TEST(VectorTest, VectorFloat4) {
-  TestVec<float, 4>(4.9f, 21.5f, 426.0f, 13.41f, 9715.3f);
-}
-
-TEST(VectorTest, VectorDouble4) {
-  TestVec<double, 4>(725.2, 74.6, 23.899, 2.4, 435843.1);
-}
-
-TEST(VectorTest, VectorInt5) {
-  TestVec<int, 5>(175, -71, -517574, 44, 23, 73);
-}
-
-TEST(VectorTest, VectorFloat5) {
-  TestVec<float, 5>(1.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f);
-}
-
-TEST(VectorTest, VectorDouble5) {
-  TestVec<double, 5>(15.0, 345735.0, 25.23, 246.2, -3246.33, -124.7);
-}
-
 TEST(VectorTest, CountIs1_DefaultConstructed_ElementIsDefaultConstructed) {
   Vector<DefaultConstructorCheck, 1> const vec;
   EXPECT_TRUE(vec.x.WasDefaultConstructed());
@@ -298,4 +95,164 @@ TEST(VectorTest, NonConstAndCountIs4_CheckIndexAndNamedElements_ReferencesAreSam
   EXPECT_EQ(&vec.y, &vec[1]);
   EXPECT_EQ(&vec.z, &vec[2]);
   EXPECT_EQ(&vec.w, &vec[3]);
+}
+
+TEST(VectorTest, Vector_CheckSum_ResultIsSum) {
+  Vector<OperatorCheck, 5> const vec("a", "b", "c", "d", "e");
+  EXPECT_EQ(vec.Sum().GetValue(), "(((((0+a)+b)+c)+d)+e)");
+}
+TEST(VectorTest, Vector_CheckProduct_ResultIsProduct) {
+  Vector<OperatorCheck, 5> const vec("a", "b", "c", "d", "e");
+  EXPECT_EQ(vec.Product().GetValue(), "(((((1*a)*b)*c)*d)*e)");
+}
+
+TEST(VectorTest, TypesAreSame_Assign_ResultIsLeftHandSide) {
+  Vector<int, 5>       vec0;
+  Vector<int, 5> const vec1(1, 2, 3, 4, 5);
+
+  vec0 = vec1;
+
+  EXPECT_EQ(vec0[0], 1);
+  EXPECT_EQ(vec0[1], 2);
+  EXPECT_EQ(vec0[2], 3);
+  EXPECT_EQ(vec0[3], 4);
+  EXPECT_EQ(vec0[4], 5);
+}
+TEST(VectorTest, TypesAreDifferent_Assign_ResultIsLeftHandSide) {
+  Vector<float, 5>     vec0;
+  Vector<int, 5> const vec1(1, 2, 3, 4, 5);
+
+  vec0 = vec1;
+
+  EXPECT_EQ(vec0[0], 1.0f);
+  EXPECT_EQ(vec0[1], 2.0f);
+  EXPECT_EQ(vec0[2], 3.0f);
+  EXPECT_EQ(vec0[3], 4.0f);
+  EXPECT_EQ(vec0[4], 5.0f);
+}
+
+TEST(VectorTest, Addition_CheckValues_ValuesAreAdded) {
+  Vector<OperatorCheck, 5> const vec0("a0", "b0", "c0", "d0", "e0");
+  Vector<OperatorCheck, 5> const vec1("a1", "b1", "c1", "d1", "e1");
+
+  Vector<OperatorCheck, 5> const vec2 = vec0 + vec1;
+
+  EXPECT_EQ(vec2[0].GetValue(), "(a0+a1)");
+  EXPECT_EQ(vec2[1].GetValue(), "(b0+b1)");
+  EXPECT_EQ(vec2[2].GetValue(), "(c0+c1)");
+  EXPECT_EQ(vec2[3].GetValue(), "(d0+d1)");
+  EXPECT_EQ(vec2[4].GetValue(), "(e0+e1)");
+}
+
+TEST(VectorTest, Subtraction_CheckValues_ValuesAreSubtracted) {
+  Vector<OperatorCheck, 5> const vec0("a0", "b0", "c0", "d0", "e0");
+  Vector<OperatorCheck, 5> const vec1("a1", "b1", "c1", "d1", "e1");
+
+  Vector<OperatorCheck, 5> const vec2 = vec0 - vec1;
+
+  EXPECT_EQ(vec2[0].GetValue(), "(a0-a1)");
+  EXPECT_EQ(vec2[1].GetValue(), "(b0-b1)");
+  EXPECT_EQ(vec2[2].GetValue(), "(c0-c1)");
+  EXPECT_EQ(vec2[3].GetValue(), "(d0-d1)");
+  EXPECT_EQ(vec2[4].GetValue(), "(e0-e1)");
+}
+
+TEST(VectorTest, Multiplication_CheckValues_ValuesAreMutiplied) {
+  Vector<OperatorCheck, 5> const vec0("a0", "b0", "c0", "d0", "e0");
+  Vector<OperatorCheck, 5> const vec1("a1", "b1", "c1", "d1", "e1");
+
+  Vector<OperatorCheck, 5> const vec2 = vec0 * vec1;
+
+  EXPECT_EQ(vec2[0].GetValue(), "(a0*a1)");
+  EXPECT_EQ(vec2[1].GetValue(), "(b0*b1)");
+  EXPECT_EQ(vec2[2].GetValue(), "(c0*c1)");
+  EXPECT_EQ(vec2[3].GetValue(), "(d0*d1)");
+  EXPECT_EQ(vec2[4].GetValue(), "(e0*e1)");
+}
+
+TEST(VectorTest, Division_CheckValues_ValuesAreDivided) {
+  Vector<OperatorCheck, 5> const vec0("a0", "b0", "c0", "d0", "e0");
+  Vector<OperatorCheck, 5> const vec1("a1", "b1", "c1", "d1", "e1");
+
+  Vector<OperatorCheck, 5> const vec2 = vec0 / vec1;
+
+  EXPECT_EQ(vec2[0].GetValue(), "(a0/a1)");
+  EXPECT_EQ(vec2[1].GetValue(), "(b0/b1)");
+  EXPECT_EQ(vec2[2].GetValue(), "(c0/c1)");
+  EXPECT_EQ(vec2[3].GetValue(), "(d0/d1)");
+  EXPECT_EQ(vec2[4].GetValue(), "(e0/e1)");
+}
+
+TEST(VectorTest, Modulous_CheckValues_ValuesAreModuloed) {
+  Vector<OperatorCheck, 5> const vec0("a0", "b0", "c0", "d0", "e0");
+  Vector<OperatorCheck, 5> const vec1("a1", "b1", "c1", "d1", "e1");
+
+  Vector<OperatorCheck, 5> const vec2 = vec0 % vec1;
+
+  EXPECT_EQ(vec2[0].GetValue(), "(a0%a1)");
+  EXPECT_EQ(vec2[1].GetValue(), "(b0%b1)");
+  EXPECT_EQ(vec2[2].GetValue(), "(c0%c1)");
+  EXPECT_EQ(vec2[3].GetValue(), "(d0%d1)");
+  EXPECT_EQ(vec2[4].GetValue(), "(e0%e1)");
+}
+
+TEST(VectorTest, SameVectors_CheckEqual_ResultIsTrue) {
+  Vector<int, 5> const vec0(1, 2, 3, 4, 5);
+  Vector<int, 5> const vec1(1, 2, 3, 4, 5);
+
+  ASSERT_TRUE(vec0 == vec1);
+}
+
+TEST(VectorTest, SameVectors_CheckNotEqual_ResultIsFalse) {
+  Vector<int, 5> const vec0(1, 2, 3, 4, 5);
+  Vector<int, 5> const vec1(1, 2, 3, 4, 5);
+
+  ASSERT_FALSE(vec0 != vec1);
+}
+
+TEST(VectorTest, DifferentVectors_CheckEqual_ResultIsFalse) {
+  Vector<int, 5> const vec0(1, 2, 3, 4, 5);
+  Vector<int, 5> const vec1(0, 2, 3, 4, 5);
+
+  ASSERT_FALSE(vec0 == vec1);
+}
+
+TEST(VectorTest, DifferentVectors_CheckNotEqual_ResultIsTrue) {
+  Vector<int, 5> const vec0(1, 2, 3, 4, 5);
+  Vector<int, 5> const vec1(0, 2, 3, 4, 5);
+
+  ASSERT_TRUE(vec0 != vec1);
+}
+
+TEST(VectorTest, Min_CheckValues_ValuesAreMin) {
+  Vector<float, 5> const vec0(0.0f, 1.0f, -2.0f, 0.5f, 4.5f);
+  Vector<float, 5> const vec1(-3.0f, 2.0f, 1.0f, 0.5f, 3.5f);
+  Vector<float, 5> const vec2(-3.0f, 1.0f, -2.0f, 0.5f, 3.5f);
+
+  Vector<float, 5> const vec3 = vec0.Min(vec1);
+
+  EXPECT_EQ(vec2, vec3);
+}
+
+TEST(VectorTest, DotProduct_CheckResult_ResultIsDotProduct) {
+  Vector<OperatorCheck, 5> const vec0("a0", "b0", "c0", "d0", "e0");
+  Vector<OperatorCheck, 5> const vec1("a1", "b1", "c1", "d1", "e1");
+
+  std::string const res0 = "(((((0+(a0*a1))+(b0*b1))+(c0*c1))+(d0*d1))+(e0*e1))";
+  std::string const res1 = "(((((0+(a1*a0))+(b1*b0))+(c1*c0))+(d1*d0))+(e1*e0))";
+
+  ASSERT_EQ(vec0.Dot(vec1).GetValue(), res0);
+  ASSERT_EQ(vec1.Dot(vec0).GetValue(), res1);
+}
+
+TEST(VectorTest, LengthSquared_CheckResult_ResultIsLengthSquared) {
+  Vector<OperatorCheck, 5> const vec("a", "b", "c", "d", "e");
+
+  ASSERT_EQ(vec.LengthSquared().GetValue(), vec.Dot(vec).GetValue());
+}
+
+TEST(VectorTest, Length_CheckResult_ResultIsLength) {
+  Vector<float, 3> const vec(12.0f, 3.0f, 4.0f);
+
+  ASSERT_EQ(vec.Length(), 13.0f);
 }

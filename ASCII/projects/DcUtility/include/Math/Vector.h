@@ -5,6 +5,7 @@
 #ifndef DCUTILITY_MATH_VECTOR_H
 #define DCUTILITY_MATH_VECTOR_H
 
+#include <cmath>
 #include <utility>
 
 template <typename T, int Count>
@@ -37,7 +38,7 @@ public:
 private:
   template <typename CurrentParam, typename ... Params>
   void SetValues(int index, CurrentParam && currentValue, Params && ... values) {
-    m_values[index] = std::forward<CurrentParam &&>(currentValue);
+    m_values[index] = T(std::forward<CurrentParam &&>(currentValue));
     SetValues(index + 1, std::forward<Params &&>(values)...);
   }
   void SetValues(int index) {}
@@ -326,6 +327,10 @@ public:
 
   T LengthSquared(void) const {
     return Dot(*this);
+  }
+
+  T Length(void) const {
+    return std::sqrt(LengthSquared());
   }
 
   template <typename U>
