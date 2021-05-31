@@ -47,11 +47,212 @@ struct AsciiCell {
   unsigned char backgroundColor : 3;
   unsigned char foregroundAlpha : 1;
   unsigned char backgroundAlpha : 1;
-  char          character;
+  char          character           = ' ';
+};
+
+enum class Direction {
+  Up,
+  Down,
+  Left,
+  Right,
+};
+
+enum class AsciiButton {
+  Mouse1,
+  Mouse2,
+  Mouse3,
+  Mouse4,
+  Mouse5,
+  Key1,
+  Key2,
+  Key3,
+  Key4,
+  Key5,
+  Key6,
+  Key7,
+  Key8,
+  Key9,
+  Key0,
+  F1,
+  F2,
+  F3,
+  F4,
+  F5,
+  F6,
+  F7,
+  F8,
+  F9,
+  F10,
+  F11,
+  F12,
+  NumPad0,
+  NumPad1,
+  NumPad2,
+  NumPad3,
+  NumPad4,
+  NumPad5,
+  NumPad6,
+  NumPad7,
+  NumPad8,
+  NumPad9,
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Q,
+  R,
+  S,
+  T,
+  U,
+  V,
+  W,
+  X,
+  Y,
+  Z,
+  Left,
+  Right,
+  Up,
+  Down,
+  Delete,
+  Backspace,
+  Space,
+  Tab,
+  Return,
+  Grave,
+  Escape,
+  Insert,
+  CapsLock,
+  Dash,
+  Equal,
+  LeftBracket,
+  RighBracket,
+  BackSlash,
+  ForwardSlash,
+  LeftShift,
+  RightShift,
+  LeftControl,
+  RightControl,
+  LeftAlt,
+  RightAlt,
+  Semicolon,
+  Apostrophe,
+  Comma,
+  Period,
+  Home,
+  End,
+  PageUp,
+  PageDown,
+  NumLock,
+  NumPadDivide,
+  NumPadMultiply,
+  NumPadMinus,
+  NumPadPlus,
+  NumPadEnter,
+  NumPadPeriod,
+};
+
+enum class AsciiState {
+  NumLock,
+  ScrollLock,
+  CapsLock,
+  Insert,
+  ShiftMod,
+  ControlMod,
+  AltMod,
+};
+
+enum class AsciiTextInputType {
+  Character,
+  Cut,
+  Copy,
+  Paste,
+  MoveCursor,
+  MoveSelection,
+  Delete,
+  Select,
+  Indent,
+  Outdent,
+};
+
+enum class AsciiTextAmount {
+  Character,
+  Word,
+  Line,
+  Page,
+  All,
 };
 
 struct AsciiInputEvent {
-  // TODO
+  enum class EventType {
+    MouseMove,
+    MouseScroll,
+    MouseClick,
+    MouseHold,
+    Button,
+    State,
+    Text,
+  };
+
+  EventType type;
+  union {
+    struct {
+      int x;
+      int y;
+    } mouseMoveData;
+
+    struct {
+      int delta;
+      int current;
+    } mouseScrollData;
+
+    struct {
+      AsciiButton button;
+      int         clickCount;
+    } mouseClickData;
+
+    struct {
+      AsciiButton button;
+      int         clickCount;
+    } mouseHoldData;
+
+    struct {
+      AsciiButton button;
+      bool        down;
+    } buttonData;
+
+    struct {
+      AsciiState state;
+      bool       on;
+    } stateData;
+
+    struct {
+      AsciiTextInputType inputType;
+      union {
+        char character;
+
+        struct {
+          Direction       dir;
+          AsciiTextAmount amount;
+        } move;
+
+        struct {
+          AsciiTextAmount amount;
+        } select;
+      };
+    } textData;
+  };
 };
 
 class AsciiWindow {

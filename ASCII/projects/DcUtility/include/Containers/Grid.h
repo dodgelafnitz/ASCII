@@ -63,7 +63,10 @@ public:
     return m_size.Product();
   }
 
-  ivec<Dimensions> GetSize(void) const;
+  ivec<Dimensions> GetSize(void) const {
+    return m_size;
+  }
+
   void SetSize(ivec<Dimensions> const & size) {
     ivec<Dimensions> const minBounds = m_size.Min(size);
 
