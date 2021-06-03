@@ -42,7 +42,7 @@ DCG_BEGIN()
       "DcTestUtility"
   )
     DCG_FOLDER("Window")
-      DCG_FILE_CPP("Window")
+      DCG_FILE_CPP_NO_TEST("Window")
     DCG_END_FOLDER()
     DCG_FOLDER("Widget")
       DCG_FILE_CPP("Widget")

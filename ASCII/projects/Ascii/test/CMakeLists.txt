@@ -19,7 +19,6 @@ PRIVATE
 )
 
 set(tst
-  "${CMAKE_CURRENT_SOURCE_DIR}/Window/WindowTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Widget/WidgetTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/ButtonManagerTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/FocusManagerTest.cpp"

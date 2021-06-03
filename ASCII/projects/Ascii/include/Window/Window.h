@@ -21,40 +21,19 @@ struct AsciiFont {
 };
 
 struct AsciiCell {
-  AsciiCell(void) : AsciiCell(0, 0, 1, 1) {}
+  AsciiCell(void) : AsciiCell(0, 0) {}
 
   AsciiCell(
     unsigned char foregroundColor,
-    unsigned char backgroundColor,
-    bool          visible         = true
-  ) :
-    AsciiCell(foregroundColor, backgroundColor, visible, visible)
-  {}
-
-  AsciiCell(
-    unsigned char foregroundColor,
-    unsigned char backgroundColor,
-    bool          foregroundVisible,
-    bool          backgroundVisible
+    unsigned char backgroundColor
   ) :
     foregroundColor(foregroundColor),
-    backgroundColor(backgroundColor),
-    foregroundAlpha(foregroundVisible),
-    backgroundAlpha(backgroundVisible)
+    backgroundColor(backgroundColor)
   {}
 
   unsigned char foregroundColor : 3;
   unsigned char backgroundColor : 3;
-  unsigned char foregroundAlpha : 1;
-  unsigned char backgroundAlpha : 1;
   char          character           = ' ';
-};
-
-enum class Direction {
-  Up,
-  Down,
-  Left,
-  Right,
 };
 
 enum class AsciiButton {
@@ -163,6 +142,7 @@ enum class AsciiButton {
   NumPadPeriod,
 };
 
+/*
 enum class AsciiState {
   NumLock,
   ScrollLock,
@@ -254,24 +234,69 @@ struct AsciiInputEvent {
     } textData;
   };
 };
+*/
 
-class AsciiWindow {
+enum class AsciiInputType {
+  Button,
+  Mouse,
+};
+
+struct AsciiInputEvent {
+  AsciiInputType type;
+
+  union {
+    struct {
+      AsciiButton button;
+      bool        isDown;
+    } buttonEvent;
+
+    struct {
+      ivec2 position;
+      int   scroll;
+    } mouseEvent;
+  };
+};
+
+class IAsciiWindow {
 public:
-  void Draw(Grid<AsciiCell, 2> const & draw);
+  virtual ~IAsciiWindow(void) = default;
 
-  std::vector<AsciiInputEvent> PollInput(void);
+  virtual void Draw(Grid<AsciiCell, 2> const & draw) = 0;
 
-  std::string GetClipboard(void) const;
-  void SetClipboard(std::string const & clipboard);
+  virtual std::vector<AsciiInputEvent> PollInput(void) = 0;
 
-  std::string GetTitle(void) const;
-  void SetTitle(std::string const & title);
+  virtual std::string GetClipboard(void) const = 0;
+  virtual void SetClipboard(std::string const & clipboard) = 0;
 
-  AsciiFont GetFont(void) const;
-  void SetFont(AsciiFont const & font);
+  virtual std::string GetTitle(void) const = 0;
+  virtual void SetTitle(std::string const & title) = 0;
 
-  int GetRunMs(void) const;
-  void Sleep(int milliseconds);
+  virtual AsciiFont GetFont(void) const = 0;
+  virtual void SetFont(AsciiFont const & font) = 0;
+
+  virtual int GetRunMs(void) const = 0;
+  virtual void Sleep(int milliseconds) = 0;
+};
+
+class AsciiWindow : public IAsciiWindow {
+public:
+  virtual ~AsciiWindow(void) override = default;
+
+  virtual void Draw(Grid<AsciiCell, 2> const & draw) override;
+
+  virtual std::vector<AsciiInputEvent> PollInput(void) override;
+
+  virtual std::string GetClipboard(void) const override;
+  virtual void SetClipboard(std::string const & clipboard) override;
+
+  virtual std::string GetTitle(void) const override;
+  virtual void SetTitle(std::string const & title) override;
+
+  virtual AsciiFont GetFont(void) const override;
+  virtual void SetFont(AsciiFont const & font) override;
+
+  virtual int GetRunMs(void) const override;
+  virtual void Sleep(int milliseconds) override;
 };
 
 #endif // ASCII_WINDOW_WINDOW_H
