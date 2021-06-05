@@ -280,6 +280,8 @@ public:
 
 class AsciiWindow : public IAsciiWindow {
 public:
+  AsciiWindow(void);
+
   virtual ~AsciiWindow(void) override = default;
 
   virtual void Draw(Grid<AsciiCell, 2> const & draw) override;
