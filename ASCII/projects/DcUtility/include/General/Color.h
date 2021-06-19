@@ -31,6 +31,8 @@ struct Color {
     b(b)
   {}
 
+  bool operator ==(Color const &) const = default;
+
   unsigned char r;
   unsigned char g;
   unsigned char b;

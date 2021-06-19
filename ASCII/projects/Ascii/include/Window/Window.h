@@ -16,6 +16,8 @@ static int const FontColorCount = 8;
 struct AsciiFont {
   AsciiFont(void) = default;
 
+  bool operator ==(AsciiFont const &) const = default;
+
   ivec2 size;
   Color colors[FontColorCount];
 };
@@ -37,12 +39,14 @@ struct AsciiCell {
 };
 
 enum class AsciiButton {
+  Invalid = -1,
   Mouse1,
   Mouse2,
   Mouse3,
   Mouse4,
   Mouse5,
-  Key1,
+  MouseCount,
+  Key1 = MouseCount,
   Key2,
   Key3,
   Key4,
@@ -116,7 +120,7 @@ enum class AsciiButton {
   Dash,
   Equal,
   LeftBracket,
-  RighBracket,
+  RightBracket,
   BackSlash,
   ForwardSlash,
   LeftShift,
@@ -140,6 +144,14 @@ enum class AsciiButton {
   NumPadPlus,
   NumPadEnter,
   NumPadPeriod,
+};
+
+enum class AsciiState {
+  CapsLock,
+  NumLock,
+  ScrollLock,
+  Insert,
+  Count
 };
 
 /*
@@ -237,11 +249,19 @@ struct AsciiInputEvent {
 */
 
 enum class AsciiInputType {
+  Invalid,
   Button,
-  Mouse,
+  MousePosition,
+  MouseScroll,
+  State,
 };
 
 struct AsciiInputEvent {
+  AsciiInputEvent(void) :
+    type(AsciiInputType::Invalid),
+    mousePositionEvent()
+  {}
+
   AsciiInputType type;
 
   union {
@@ -249,11 +269,12 @@ struct AsciiInputEvent {
       AsciiButton button;
       bool        isDown;
     } buttonEvent;
-
+    ivec2 mousePositionEvent;
+    int   mouseScrollEvent;
     struct {
-      ivec2 position;
-      int   scroll;
-    } mouseEvent;
+      AsciiState state;
+      bool       isActive;
+    } stateEvent;
   };
 };
 
@@ -299,6 +320,11 @@ public:
 
   virtual int GetRunMs(void) const override;
   virtual void Sleep(int milliseconds) override;
+
+private:
+  bool      m_currentMouseButtons[int(AsciiButton::MouseCount)] = { 0 };
+  bool      m_currentState[int(AsciiState::Count)]              = { 0 };
+  AsciiFont m_font;
 };
 
 #endif // ASCII_WINDOW_WINDOW_H

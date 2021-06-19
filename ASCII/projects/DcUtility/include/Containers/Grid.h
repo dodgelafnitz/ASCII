@@ -18,7 +18,7 @@ public:
   ) {
     ivec<Dimensions> result = current;
 
-    for (int i = Dimensions - 1; i >= 0; --i) {
+    for (int i = 0; i < Dimensions; ++i) {
       if (++result[i] != max[i]) {
         return result;
       }
@@ -56,8 +56,13 @@ public:
     return m_data[index];
   }
 
-  T const * Data(void) const;
-  T * Data(void);
+  T const * Data(void) const {
+    return m_data.data();
+  }
+
+  T * Data(void) {
+    return m_data.data();
+  }
 
   int Count(void) const {
     return m_size.Product();
@@ -108,9 +113,9 @@ private:
   ivec<Dimensions> GetIndexerDot(void) const {
     ivec<Dimensions> result;
 
-    result[Dimensions - 1] = 1;
-    for (int i = Dimensions - 2; i >= 0; --i) {
-      result[i] = m_size[i + 1] * result[i + 1];
+    result[0] = 1;
+    for (int i = 1; i < Dimensions; ++i) {
+      result[i] = m_size[i - 1] * result[i - 1];
     }
 
     return result;

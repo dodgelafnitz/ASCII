@@ -5,14 +5,14 @@
 #include "Containers/Grid.h"
 #include "gtest/gtest.h"
 
-TEST(GridTest, GetNextCoord) {
+TEST(GridTest, MultidimensionalGrid_GetNextCoord_IsRowMajor) {
   ivec3 const coord0 = ivec3(0, 0, 0);
-  ivec3 const coord1 = ivec3(0, 0, 1);
+  ivec3 const coord1 = ivec3(1, 0, 0);
   ivec3 const coord2 = ivec3(0, 1, 0);
-  ivec3 const coord3 = ivec3(0, 1, 1);
-  ivec3 const coord4 = ivec3(1, 0, 0);
+  ivec3 const coord3 = ivec3(1, 1, 0);
+  ivec3 const coord4 = ivec3(0, 0, 1);
   ivec3 const coord5 = ivec3(1, 0, 1);
-  ivec3 const coord6 = ivec3(1, 1, 0);
+  ivec3 const coord6 = ivec3(0, 1, 1);
   ivec3 const coord7 = ivec3(1, 1, 1);
   ivec3 const max    = ivec3(2, 2, 2);
 
@@ -33,6 +33,19 @@ TEST(GridTest, GetNextCoord) {
   EXPECT_EQ(res5, coord6);
   EXPECT_EQ(res6, coord7);
   EXPECT_EQ(res7, max);
+}
+
+TEST(GridTest, MultidimensionalGrid_ReadStoredData_MatchNextCoordOrder) {
+  Grid<int, 4> grid;
+
+  int val = 0;
+  for (ivec4 pos; pos != grid.GetSize(); pos = grid.GetNextCoord(pos, grid.GetSize())) {
+    grid[pos] = val++;
+  }
+
+  for (int i = 0; i < grid.Count(); ++i) {
+    EXPECT_EQ(i, grid.Data()[i]);
+  }
 }
 
 TEST(GridTest, SingleDimensionGrid_DefaultConstructed_IsEmpty) {
@@ -180,4 +193,14 @@ TEST(GridTest, MultidimensionalGrid_RangeBasedFor_IteratesOverAll) {
 
   EXPECT_EQ(count, grid.Count());
   EXPECT_EQ(count, 64);
+}
+
+TEST(GridTest, MultidimensionalGrid_GetData_PointsToFirstElement) {
+  Grid<int, 3> grid(ivec3(4, 4, 4), 0);
+
+  ASSERT_TRUE(grid.Data());
+
+  for (auto const & val : grid) {
+    EXPECT_LE(grid.Data(), &val);
+  }
 }
