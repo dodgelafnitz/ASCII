@@ -20,10 +20,12 @@ PRIVATE
 
 set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Widget/WidgetTest.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/ButtonManagerTest.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/FocusManagerTest.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/MouseManagerTest.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/TextManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/ButtonManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/FocusManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/MouseManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/TextManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/StateManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/InputManagerTest.cpp"
 )
 
 target_sources(AsciiTest
