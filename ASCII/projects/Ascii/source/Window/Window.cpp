@@ -275,10 +275,25 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
         state[int(AsciiState::NumLock)]    = record.Event.KeyEvent.dwControlKeyState & NUMLOCK_ON;
 
         if (
-          (record.Event.KeyEvent.wVirtualKeyCode == VK_INSERT) ||
-          (state[int(AsciiState::NumLock)] && record.Event.KeyEvent.wVirtualKeyCode == VK_NUMPAD0 && record.Event.KeyEvent.bKeyDown)
+          record.Event.KeyEvent.bKeyDown && (
+            (record.Event.KeyEvent.wVirtualKeyCode == VK_INSERT) ||
+            (state[int(AsciiState::NumLock)] && record.Event.KeyEvent.wVirtualKeyCode == VK_NUMPAD0)
+          )
         ) {
-          state[int(AsciiState::Insert)] = true;
+          state[int(AsciiState::Insert)] = !state[int(AsciiState::Insert)];
+        }
+        else {
+          switch (record.Event.KeyEvent.wVirtualKeyCode) {
+            case VK_SHIFT: {
+              state[int(AsciiState::Shift)] = record.Event.KeyEvent.bKeyDown;
+            } break;
+            case VK_CONTROL: {
+              state[int(AsciiState::Control)] = record.Event.KeyEvent.bKeyDown;
+            } break;
+            case VK_MENU: {
+              state[int(AsciiState::Alt)] = record.Event.KeyEvent.bKeyDown;
+            } break;
+          }
         }
       } break;
       case MOUSE_EVENT: {

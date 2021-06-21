@@ -144,6 +144,7 @@ enum class AsciiButton {
   NumPadPlus,
   NumPadEnter,
   NumPadPeriod,
+  Count,
 };
 
 enum class AsciiState {
@@ -151,102 +152,11 @@ enum class AsciiState {
   NumLock,
   ScrollLock,
   Insert,
-  Count
+  Shift,
+  Control,
+  Alt,
+  Count,
 };
-
-/*
-enum class AsciiState {
-  NumLock,
-  ScrollLock,
-  CapsLock,
-  Insert,
-  ShiftMod,
-  ControlMod,
-  AltMod,
-};
-
-enum class AsciiTextInputType {
-  Character,
-  Cut,
-  Copy,
-  Paste,
-  MoveCursor,
-  MoveSelection,
-  Delete,
-  Select,
-  Indent,
-  Outdent,
-};
-
-enum class AsciiTextAmount {
-  Character,
-  Word,
-  Line,
-  Page,
-  All,
-};
-
-struct AsciiInputEvent {
-  enum class EventType {
-    MouseMove,
-    MouseScroll,
-    MouseClick,
-    MouseHold,
-    Button,
-    State,
-    Text,
-  };
-
-  EventType type;
-  union {
-    struct {
-      int x;
-      int y;
-    } mouseMoveData;
-
-    struct {
-      int delta;
-      int current;
-    } mouseScrollData;
-
-    struct {
-      AsciiButton button;
-      int         clickCount;
-    } mouseClickData;
-
-    struct {
-      AsciiButton button;
-      int         clickCount;
-    } mouseHoldData;
-
-    struct {
-      AsciiButton button;
-      bool        down;
-    } buttonData;
-
-    struct {
-      AsciiState state;
-      bool       on;
-    } stateData;
-
-    struct {
-      AsciiTextInputType inputType;
-      union {
-        char character;
-
-        struct {
-          Direction       dir;
-          AsciiTextAmount amount;
-        } move;
-
-        struct {
-          AsciiTextAmount amount;
-        } select;
-      };
-    } textData;
-  };
-};
-*/
 
 enum class AsciiInputType {
   Invalid,
