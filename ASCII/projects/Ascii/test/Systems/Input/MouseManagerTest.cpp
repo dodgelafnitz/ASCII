@@ -4,6 +4,9 @@
 
 #include "Systems/Input/MouseManager.h"
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
+DEFINE_MockMouseManager();
 
 TEST(MouseManagerTest, MousePositionDelegateOwned_ChangeMousePosition_DelegateTriggered) {
   MouseManager mouseManager;

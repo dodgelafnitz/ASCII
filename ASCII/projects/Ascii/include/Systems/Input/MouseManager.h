@@ -9,6 +9,9 @@
 #include "Window/Window.h"
 
 class IMouseManager {
+public:
+  virtual ~IMouseManager(void) {};
+
   virtual Delegate<ivec2> AddMousePositionEvent(
     DelegateFunc<ivec2> const & func
   ) = 0;
@@ -26,6 +29,8 @@ class IMouseManager {
 
 class MouseManager : public IMouseManager {
 public:
+  virtual ~MouseManager(void) {};
+
   virtual Delegate<ivec2> AddMousePositionEvent(
     DelegateFunc<ivec2> const & func
   ) override;
@@ -49,5 +54,33 @@ private:
   Delegator<int>   m_mouseScrollDelegator;
   ivec2            m_mousePos;
 };
+
+#define DEFINE_MockMouseManager()               \
+class MockMouseManager : public IMouseManager { \
+  MOCK_METHOD(                                  \
+    Delegate<ivec2>,                            \
+    AddMousePositionEvent,                      \
+    (DelegateFunc<ivec2> const &),              \
+    (override)                                  \
+  );                                            \
+  MOCK_METHOD(                                  \
+    (Delegate<ivec2>),                          \
+    AddMouseDeltaEvent,                         \
+    (DelegateFunc<ivec2> const &),              \
+    (override)                                  \
+  );                                            \
+  MOCK_METHOD(                                  \
+    (Delegate<int>),                            \
+    AddMouseScrollEvent,                        \
+    (DelegateFunc<int> const &),                \
+    (override)                                  \
+  );                                            \
+  MOCK_METHOD(                                  \
+    ivec2,                                      \
+    GetMousePosition,                           \
+    (),                                         \
+    (const, override)                           \
+  );                                            \
+}
 
 #endif // ASCII_SYSTEMS_INPUT_MOUSEMANAGER_H

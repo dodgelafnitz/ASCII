@@ -237,4 +237,69 @@ private:
   AsciiFont m_font;
 };
 
+#define DEFINE_MockAsciiWindow()              \
+class MockAsciiWindow : public IAsciiWindow { \
+  MOCK_METHOD(                                \
+    void,                                     \
+    Draw,                                     \
+    ((Grid<AsciiCell, 2> const & draw)),      \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    std::vector<AsciiInputEvent>,             \
+    PollInput,                                \
+    (),                                       \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    std::string,                              \
+    GetClipboard,                             \
+    (),                                       \
+    (const, override)                         \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    SetClipboard,                             \
+    (std::string const &),                    \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    std::string,                              \
+    GetTitle,                                 \
+    (),                                       \
+    (const, override)                         \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    SetTitle,                                 \
+    (std::string const &),                    \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    AsciiFont,                                \
+    GetFont,                                  \
+    (),                                       \
+    (const, override)                         \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    SetFont,                                  \
+    (AsciiFont const &),                      \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    int,                                      \
+    GetRunMs,                                 \
+    (),                                       \
+    (const, override)                         \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    Sleep,                                    \
+    (int),                                    \
+    (override)                                \
+  );                                          \
+}
+
+
 #endif // ASCII_WINDOW_WINDOW_H

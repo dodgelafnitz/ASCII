@@ -12,6 +12,7 @@ target_compile_features(DcTestUtilityTest INTERFACE cxx_std_20)
 target_link_libraries(DcTestUtilityTest
 PRIVATE
   DcTestUtility
+  gmock
   gtest_main
 )
 

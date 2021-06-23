@@ -4,6 +4,9 @@
 
 #include "Systems/Input/ButtonManager.h"
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
+DEFINE_MockButtonManager();
 
 TEST(ButtonManagerTest, ButtonDelegateOwned_ButtonChanged_DelegateTriggered) {
   ButtonManager buttonManager;

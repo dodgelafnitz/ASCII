@@ -14,11 +14,13 @@ target_compile_features(AsciiTest PUBLIC cxx_std_20)
 target_link_libraries(AsciiTest
 PRIVATE
   Ascii
+  gmock
   gtest_main
   DcTestUtility
 )
 
 set(tst
+  "${CMAKE_CURRENT_SOURCE_DIR}/Window/WindowTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Widget/WidgetTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/ButtonManagerTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/FocusManagerTest.cpp"
