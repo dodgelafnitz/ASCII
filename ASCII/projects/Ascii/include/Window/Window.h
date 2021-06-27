@@ -239,6 +239,7 @@ private:
 
 #define DEFINE_MockAsciiWindow()              \
 class MockAsciiWindow : public IAsciiWindow { \
+public:                                       \
   MOCK_METHOD(                                \
     void,                                     \
     Draw,                                     \

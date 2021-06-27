@@ -50,6 +50,7 @@ private:
 
 #define DEFINE_MockButtonManager()                \
 class MockButtonManager : public IButtonManager { \
+public:                                           \
   MOCK_METHOD(                                    \
     Delegate<bool>,                               \
     AddButtonEvent,                               \

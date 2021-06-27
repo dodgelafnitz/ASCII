@@ -57,6 +57,7 @@ private:
 
 #define DEFINE_MockMouseManager()               \
 class MockMouseManager : public IMouseManager { \
+public:                                         \
   MOCK_METHOD(                                  \
     Delegate<ivec2>,                            \
     AddMousePositionEvent,                      \

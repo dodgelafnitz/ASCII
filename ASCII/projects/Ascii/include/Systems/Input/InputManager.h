@@ -48,9 +48,7 @@ public:
 
   void ProcessInput(void);
 
-  std::shared_ptr<IAsciiWindow>   GetWindow(void) const;
-  std::shared_ptr<IButtonManager> GetButtonManager(void) const;
-  std::shared_ptr<IMouseManager>  GetMouseManager(void) const;
+  std::shared_ptr<IAsciiWindow> GetWindow(void) const;
 
 private:
   std::shared_ptr<IAsciiWindow>  m_window;
@@ -60,6 +58,7 @@ private:
 
 #define DEFINE_MockInputManager()                \
 class MockInputManager : public IInputManager {  \
+public:                                          \
   MOCK_METHOD(                                   \
     Delegate<bool>,                              \
     AddButtonEvent,                              \
