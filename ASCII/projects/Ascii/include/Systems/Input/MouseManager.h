@@ -25,6 +25,9 @@ public:
   ) = 0;
 
   virtual ivec2 GetMousePosition(void) const = 0;
+  virtual void  SetMousePosition(ivec2 const & mousePosition) = 0;
+
+  virtual void ScrollMouse(int mouseScroll) = 0;
 };
 
 class MouseManager : public IMouseManager {
@@ -44,9 +47,9 @@ public:
   ) override;
 
   virtual ivec2 GetMousePosition(void) const override;
-  void          SetMousePosition(ivec2 const & mousePosition);
+  virtual void  SetMousePosition(ivec2 const & mousePosition) override;
 
-  void ScrollMouse(int mouseScroll);
+  virtual void ScrollMouse(int mouseScroll) override;
 
 private:
   Delegator<ivec2> m_mousePositionDelegator;
@@ -81,6 +84,18 @@ public:                                         \
     GetMousePosition,                           \
     (),                                         \
     (const, override)                           \
+  );                                            \
+  MOCK_METHOD(                                  \
+    void,                                       \
+    SetMousePosition,                           \
+    (ivec2 const &),                            \
+    (override)                                  \
+  );                                            \
+  MOCK_METHOD(                                  \
+    void,                                       \
+    ScrollMouse,                                \
+    (int),                                      \
+    (override)                                  \
   );                                            \
 }
 

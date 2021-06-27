@@ -10,97 +10,68 @@
 
 #include "Window/Window.h"
 
-class IInputManager :
-  public IButtonManager,
-  public IMouseManager
-{};
+class IInputManager {
+public:
+  virtual ~IInputManager(void) {}
+
+  virtual void ProcessInput(void) = 0;
+
+  virtual std::shared_ptr<IAsciiWindow>   GetWindow(void) const        = 0;
+  virtual std::shared_ptr<IButtonManager> GetButtonManager(void) const = 0;
+  virtual std::shared_ptr<IMouseManager>  GetMouseManager(void) const  = 0;
+};
 
 class InputManager : public IInputManager {
 public:
   InputManager(void);
   InputManager(std::shared_ptr<IAsciiWindow> const & window);
+  InputManager(
+    std::shared_ptr<IAsciiWindow> const &   window,
+    std::shared_ptr<IButtonManager> const & buttonManager,
+    std::shared_ptr<IMouseManager> const &  mouseManager
+  );
 
   virtual ~InputManager(void) {}
 
-  virtual Delegate<bool> AddButtonEvent(
-    AsciiButton button,
-    DelegateFunc<bool> const & func
-  ) override;
+  virtual void ProcessInput(void) override;
 
-  virtual Delegate<AsciiButton, bool> AddGenericButtonEvent(
-    DelegateFunc<AsciiButton, bool> const & func
-  ) override;
-
-  virtual Delegate<ivec2> AddMousePositionEvent(
-    DelegateFunc<ivec2> const & func
-  ) override;
-
-  virtual Delegate<ivec2> AddMouseDeltaEvent(
-    DelegateFunc<ivec2> const & func
-  ) override;
-
-  virtual Delegate<int> AddMouseScrollEvent(
-    DelegateFunc<int> const & func
-  ) override;
-  
-  virtual bool  GetButtonState(AsciiButton button) const override;
-  virtual ivec2 GetMousePosition(void) const override;
-
-  void ProcessInput(void);
-
-  std::shared_ptr<IAsciiWindow> GetWindow(void) const;
+  virtual std::shared_ptr<IAsciiWindow>   GetWindow(void) const override;
+  virtual std::shared_ptr<IButtonManager> GetButtonManager(void) const override;
+  virtual std::shared_ptr<IMouseManager>  GetMouseManager(void) const override;
 
 private:
-  std::shared_ptr<IAsciiWindow>  m_window;
-  std::shared_ptr<ButtonManager> m_buttonManager;
-  std::shared_ptr<MouseManager>  m_mouseManager;
+  std::shared_ptr<IAsciiWindow>   m_window;
+  std::shared_ptr<IButtonManager> m_buttonManager;
+  std::shared_ptr<IMouseManager>  m_mouseManager;
 };
 
-#define DEFINE_MockInputManager()                \
-class MockInputManager : public IInputManager {  \
-public:                                          \
-  MOCK_METHOD(                                   \
-    Delegate<bool>,                              \
-    AddButtonEvent,                              \
-    (AsciiButton, DelegateFunc<bool> const &),   \
-    (override)                                   \
-  );                                             \
-  MOCK_METHOD(                                   \
-    (Delegate<AsciiButton, bool>),               \
-    AddGenericButtonEvent,                       \
-    ((DelegateFunc<AsciiButton, bool> const &)), \
-    (override)                                   \
-  );                                             \
-  MOCK_METHOD(                                   \
-    Delegate<ivec2>,                             \
-    AddMousePositionEvent,                       \
-    (DelegateFunc<ivec2> const &),               \
-    (override)                                   \
-  );                                             \
-  MOCK_METHOD(                                   \
-    (Delegate<ivec2>),                           \
-    AddMouseDeltaEvent,                          \
-    (DelegateFunc<ivec2> const &),               \
-    (override)                                   \
-  );                                             \
-  MOCK_METHOD(                                   \
-    (Delegate<int>),                             \
-    AddMouseScrollEvent,                         \
-    (DelegateFunc<int> const &),                 \
-    (override)                                   \
-  );                                             \
-  MOCK_METHOD(                                   \
-    (bool),                                      \
-    GetButtonState,                              \
-    (AsciiButton),                               \
-    (const, override)                            \
-  );                                             \
-  MOCK_METHOD(                                   \
-    ivec2,                                       \
-    GetMousePosition,                            \
-    (),                                          \
-    (const, override)                            \
-  );                                             \
+#define DEFINE_MockInputManager()               \
+class MockInputManager : public IInputManager { \
+public:                                         \
+  MOCK_METHOD(                                  \
+    void,                                       \
+    ProcessInput,                               \
+    (),                                         \
+    (override)                                  \
+  );                                            \
+  MOCK_METHOD(                                  \
+    std::shared_ptr<IAsciiWindow>,              \
+    GetWindow,                                  \
+    (),                                         \
+    (const, override)                           \
+  );                                            \
+  MOCK_METHOD(                                  \
+    std::shared_ptr<IButtonManager>,            \
+    GetButtonManager,                           \
+    (),                                         \
+    (const, override)                           \
+  );                                            \
+  MOCK_METHOD(                                  \
+    std::shared_ptr<IMouseManager>,             \
+    GetMouseManager,                            \
+    (),                                         \
+    (const, override)                           \
+  );                                            \
 }
 
 #endif // ASCII_SYSTEMS_INPUT_INPUTMANAGER_H

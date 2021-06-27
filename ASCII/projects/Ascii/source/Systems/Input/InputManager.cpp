@@ -9,72 +9,55 @@ InputManager::InputManager(void) :
 {}
 
 InputManager::InputManager(std::shared_ptr<IAsciiWindow> const & window) :
-  m_window(window),
-  m_buttonManager(std::make_shared<ButtonManager>()),
-  m_mouseManager(std::make_shared<MouseManager>())
+  InputManager(
+    window,
+    std::make_shared<ButtonManager>(),
+    std::make_shared<MouseManager>()
+  )
 {}
 
-Delegate<bool> InputManager::AddButtonEvent(
-  AsciiButton button,
-  DelegateFunc<bool> const & func
-) {
-  return m_buttonManager->AddButtonEvent(button, func);
-}
-
-Delegate<AsciiButton, bool> InputManager::AddGenericButtonEvent(
-  DelegateFunc<AsciiButton, bool> const & func
-) {
-  return Delegate<AsciiButton, bool>();
-}
-
-Delegate<ivec2> InputManager::AddMousePositionEvent(
-  DelegateFunc<ivec2> const & func
-) {
-  return Delegate<ivec2>();
-}
-
-Delegate<ivec2> InputManager::AddMouseDeltaEvent(
-  DelegateFunc<ivec2> const & func
-) {
-  return Delegate<ivec2>();
-}
-
-Delegate<int> InputManager::AddMouseScrollEvent(
-  DelegateFunc<int> const & func
-) {
-  return Delegate<int>();
-}
-
-bool InputManager::GetButtonState(AsciiButton button) const {
-  return bool();
-}
-
-ivec2 InputManager::GetMousePosition(void) const {
-  return ivec2();
-}
+InputManager::InputManager(
+  std::shared_ptr<IAsciiWindow> const &   window,
+  std::shared_ptr<IButtonManager> const & buttonManager,
+  std::shared_ptr<IMouseManager> const &  mouseManager
+) :
+  m_window(window),
+  m_buttonManager(buttonManager),
+  m_mouseManager(mouseManager)
+{}
 
 void InputManager::ProcessInput(void) {
+  if (!m_window) {
+    return;
+  }
+
   std::vector<AsciiInputEvent> events = m_window->PollInput();
 
   for (auto const & event : events) {
     switch (event.type) {
       case AsciiInputType::Button: {
-        m_buttonManager->SetButtonState(
-          event.buttonEvent.button,
-          event.buttonEvent.isDown
-        );
+        if (m_buttonManager) {
+          m_buttonManager->SetButtonState(
+            event.buttonEvent.button,
+            event.buttonEvent.isDown
+          );
+        }
       } break;
 
       case AsciiInputType::MousePosition: {
-        m_mouseManager->SetMousePosition(
-          event.mousePositionEvent
-        );
+        if (m_mouseManager) {
+          m_mouseManager->SetMousePosition(
+            event.mousePositionEvent
+          );
+        }
       } break;
 
       case AsciiInputType::MouseScroll: {
-        m_mouseManager->ScrollMouse(
-          event.mouseScrollEvent
-        );
+        if (m_mouseManager) {
+          m_mouseManager->ScrollMouse(
+            event.mouseScrollEvent
+          );
+        }
       } break;
 
       case AsciiInputType::State: {
@@ -82,4 +65,16 @@ void InputManager::ProcessInput(void) {
       } break;
     }
   }
+}
+
+std::shared_ptr<IAsciiWindow> InputManager::GetWindow(void) const {
+  return m_window;
+}
+
+std::shared_ptr<IButtonManager> InputManager::GetButtonManager(void) const {
+  return m_buttonManager;
+}
+
+std::shared_ptr<IMouseManager> InputManager::GetMouseManager(void) const {
+  return m_mouseManager;
 }

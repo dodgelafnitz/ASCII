@@ -24,6 +24,7 @@ public:
   ) = 0;
 
   virtual bool GetButtonState(AsciiButton button) const = 0;
+  virtual void SetButtonState(AsciiButton button, bool state) = 0;
 };
 
 class ButtonManager : public IButtonManager {
@@ -40,7 +41,7 @@ public:
   ) override;
 
   virtual bool GetButtonState(AsciiButton button) const override;
-  void         SetButtonState(AsciiButton button, bool state);
+  virtual void SetButtonState(AsciiButton button, bool state) override;
 
 private:
   std::unordered_map<AsciiButton, Delegator<bool>> m_buttonDelegators;
@@ -64,10 +65,16 @@ public:                                           \
     (override)                                    \
   );                                              \
   MOCK_METHOD(                                    \
-    (bool),                                       \
+    bool,                                         \
     GetButtonState,                               \
     (AsciiButton),                                \
     (const, override)                             \
+  );                                              \
+  MOCK_METHOD(                                    \
+    void,                                         \
+    SetButtonState,                               \
+    (AsciiButton, bool),                          \
+    (override)                                    \
   );                                              \
 }
 
