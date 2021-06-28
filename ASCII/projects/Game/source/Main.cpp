@@ -3,8 +3,9 @@
  */
 
 #include <cmath>
+#include <memory>
 
-#include "Window/Window.h"
+#include "Systems/Input/InputManager.h"
 
 namespace {
   int const BlackIndex   = 0;
@@ -70,9 +71,9 @@ namespace {
 };
 
 int main(void) {
-  AsciiWindow window;
+  auto window = std::make_shared<AsciiWindow>();
 
-  AsciiFont font = window.GetFont();
+  AsciiFont font = window->GetFont();
   font.size = ivec2(8, 8);
 
   font.colors[BlackIndex]   = Color::Black;
@@ -80,52 +81,92 @@ int main(void) {
 
   font.colors[RainbowIndex] = ColorFromHueRotation(0.0f);
 
-  window.SetFont(font);
+  window->SetFont(font);
 
-  int const width  = 60;
-  int const height = width;// / 2;
+  int const width  = 200;
+  int const height = width / 2;
 
   float const colorRotSpeed          = 0.01f;
-  int   const colorRotUpdateThrottle = 4;
+  int   const colorRotUpdateThrottle = 16;
 
   int currentFrame = 0;
   float colorRot = 0.0f;
 
-  ivec2 charPos(width / 2, height / 2);
+  fvec2 charPos(width / 2, height / 2);
+
+  InputManager inputManager(window);
+
+  auto buttonManager = inputManager.GetButtonManager();
+
+  struct Shot {
+    fvec2 pos;
+    fvec2 vel;
+    int lifeLeft;
+  };
+
+  float const shotSpeed    = 0.5f;
+  float const charSpeed    = 0.2f;
+  int const   shotLifetime = 100;
+
+  std::vector<Shot> shots;
+
+  auto onMouseDown = buttonManager->AddButtonEvent(AsciiButton::Mouse1, [&](bool isDown) {
+    if (isDown) {
+      ivec2 const mousePos = inputManager.GetMouseManager()->GetMousePosition();
+
+      fvec2 shotVel = mousePos - charPos;
+      if (shotVel.x != 0.0f || shotVel.y != 0.0f) {
+        float const shotVelLength = shotVel.Length();
+        shotVel /= fvec2(shotVelLength, shotVelLength);
+        shotVel *= fvec2(shotSpeed, shotSpeed);
+      }
+
+      Shot newShot;
+      newShot.pos = charPos;
+      newShot.vel = shotVel;
+      newShot.lifeLeft = shotLifetime;
+      shots.emplace_back(newShot);
+    }
+  });
 
   while (true) {
-    auto inputBuffer = window.PollInput();
+    inputManager.ProcessInput();
 
-    for (auto const & input : inputBuffer) {
-      if (input.type == AsciiInputType::Button) {
-        if (input.buttonEvent.isDown) {
-          switch (input.buttonEvent.button) {
-            case AsciiButton::Left: {
-              --charPos.x;
-            } break;
-            case AsciiButton::Right: {
-              ++charPos.x;
-            } break;
-            case AsciiButton::Up: {
-              --charPos.y;
-            } break;
-            case AsciiButton::Down: {
-              ++charPos.y;
-            } break;
-          }
-        }
-      }
+    fvec2 charVel;
+
+    if (buttonManager->GetButtonState(AsciiButton::A)) {
+      charVel.x -= 1.0f;
+    }
+    if (buttonManager->GetButtonState(AsciiButton::D)) {
+      charVel.x += 1.0f;
+    }
+    if (buttonManager->GetButtonState(AsciiButton::W)) {
+      charVel.y -= 1.0f;
+    }
+    if (buttonManager->GetButtonState(AsciiButton::S)) {
+      charVel.y += 1.0f;
     }
 
-    charPos.x = std::min(std::max(charPos.x, 0), width - AnimWidth);
-    charPos.y = std::min(std::max(charPos.y, 0), height - AnimHeight);
+    //charVel.Normalize();
+    float const charVelLength = charVel.Length();
+    if (charVel.x != 0.0f || charVel.y != 0.0f) {
+      charVel /= fvec2(charVelLength, charVelLength);
+      charVel *= fvec2(charSpeed, charSpeed);
+    }
+
+    charPos += charVel;
+
+    charPos.x = std::min(std::max(charPos.x, 0.0f), float(width - AnimWidth));
+    charPos.y = std::min(std::max(charPos.y, 0.0f), float(height - AnimHeight));
+
+    ivec2 const charDrawPos(charPos + ivec2(0.5f, 0.5f));
 
     Grid<AsciiCell, 2> grid(ivec2(width, height));
 
     if (currentFrame % colorRotUpdateThrottle == 0) {
       font.colors[RainbowIndex] = ColorFromHueRotation(colorRot);
 
-      window.SetFont(font);
+      window->SetFont(font);
     }
 
     colorRot += colorRotSpeed;
@@ -135,12 +176,42 @@ int main(void) {
     grid.Data()[xCell].foregroundColor = WhiteIndex;
     grid.Data()[xCell].backgroundColor = BlackIndex;
 
+    for (int i = shots.size() - 1; i >= 0; --i) {
+      Shot & shot = shots[i];
+
+      bool shouldDestroy = false;
+
+      if (shot.pos.x < 0.0f || shot.pos.x >= float(width) - 0.5f) {
+        shouldDestroy = true;
+      }
+      else if (shot.pos.y < 0.0f || shot.pos.y >= float(height) - 0.5f) {
+        shouldDestroy = true;
+      }
+      else if (shot.lifeLeft == 0) {
+        shouldDestroy = true;
+      }
+
+      if (shouldDestroy) {
+        shots.erase(shots.begin() + i);
+      }
+      else {
+        ivec2 const shotDrawPos = shot.pos + fvec2(0.5f, 0.5f);
+
+        grid[shotDrawPos].character       = '.';
+        grid[shotDrawPos].foregroundColor = RainbowIndex;
+        grid[shotDrawPos].backgroundColor = BlackIndex;
+
+        --shot.lifeLeft;
+        shot.pos += shot.vel;
+      }
+    }
+
     Grid<char, 2> const anim = GetCharacter(currentFrame / 2);
 
     for (int i = 0; i < AnimHeight; ++i) {
       for (int j = 0; j < AnimWidth; ++j) {
         ivec2 const animCell(j, i);
-        ivec2 const worldCell(charPos.x + j, charPos.y + i);
+        ivec2 const worldCell(charDrawPos.x + j, charDrawPos.y + i);
 
         if (anim[animCell] != ' ') {
           grid[worldCell].character       = anim[animCell];
@@ -150,10 +221,10 @@ int main(void) {
       }
     }
 
-    window.Draw(grid);
+    window->Draw(grid);
 
     ++currentFrame;
 
-    window.Sleep(10);
+    window->Sleep(10);
   }
 }
