@@ -27,22 +27,24 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Window/Window.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Widget/Widget.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/ButtonManager.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/FocusManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/MouseManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/TextManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/StateManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/InputManager.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/UpdateManager.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/FocusManager.h"
 )
 
 set(src
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Window/Window.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Widget/Widget.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/ButtonManager.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/FocusManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/MouseManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/TextManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/StateManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/InputManager.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/UpdateManager.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/FocusManager.cpp"
 )
 
 target_sources(Ascii

@@ -68,13 +68,13 @@ public:                                         \
     (override)                                  \
   );                                            \
   MOCK_METHOD(                                  \
-    (Delegate<ivec2>),                          \
+    Delegate<ivec2>,                            \
     AddMouseDeltaEvent,                         \
     (DelegateFunc<ivec2> const &),              \
     (override)                                  \
   );                                            \
   MOCK_METHOD(                                  \
-    (Delegate<int>),                            \
+    Delegate<int>,                              \
     AddMouseScrollEvent,                        \
     (DelegateFunc<int> const &),                \
     (override)                                  \
