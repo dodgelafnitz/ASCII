@@ -175,32 +175,10 @@ namespace {
 
 AsciiWindow::AsciiWindow(void) {
   if (!s_windowInitialized) {
-
     CONSOLE_CURSOR_INFO cursorInfo;
     cursorInfo.bVisible = FALSE;
     cursorInfo.dwSize = sizeof(cursorInfo);
     SetConsoleCursorInfo(s_outputHandle, &cursorInfo);
-
-    CONSOLE_SCREEN_BUFFER_INFOEX screenInfo = { 0 };
-    screenInfo.cbSize = sizeof(screenInfo);
-    GetConsoleScreenBufferInfoEx(s_outputHandle, &screenInfo);
-
-    static_assert(FontColorCount <= sizeof(screenInfo.ColorTable) / sizeof(*screenInfo.ColorTable));
-
-    for (int i = 0; i < FontColorCount; ++i) {
-      COLORREF const color = screenInfo.ColorTable[i];
-
-      m_font.colors[i].r = GetRValue(color);
-      m_font.colors[i].g = GetGValue(color);
-      m_font.colors[i].b = GetBValue(color);
-    }
-
-    CONSOLE_FONT_INFOEX fontInfo;
-    fontInfo.cbSize = sizeof(fontInfo);
-    GetCurrentConsoleFontEx(s_outputHandle, FALSE, &fontInfo);
-
-    m_font.size.x = fontInfo.dwFontSize.X;
-    m_font.size.y = fontInfo.dwFontSize.Y;
 
     DWORD consoleMode;
     GetConsoleMode(s_inputHandle, &consoleMode);
@@ -211,6 +189,29 @@ AsciiWindow::AsciiWindow(void) {
 
     s_windowInitialized = true;
   }
+
+  CONSOLE_SCREEN_BUFFER_INFOEX screenInfo = { 0 };
+  screenInfo.cbSize = sizeof(screenInfo);
+  GetConsoleScreenBufferInfoEx(s_outputHandle, &screenInfo);
+
+  static_assert(FontColorCount <= sizeof(screenInfo.ColorTable) / sizeof(*screenInfo.ColorTable));
+
+  for (int i = 0; i < FontColorCount; ++i) {
+    COLORREF const color = screenInfo.ColorTable[i];
+
+    m_font.colors[i].r = GetRValue(color);
+    m_font.colors[i].g = GetGValue(color);
+    m_font.colors[i].b = GetBValue(color);
+  }
+
+  CONSOLE_FONT_INFOEX fontInfo;
+  fontInfo.cbSize = sizeof(fontInfo);
+  GetCurrentConsoleFontEx(s_outputHandle, FALSE, &fontInfo);
+
+  m_font.size.x = fontInfo.dwFontSize.X;
+  m_font.size.y = fontInfo.dwFontSize.Y;
+
+  m_startTime = GetCurrentMs();
 }
 
 void AsciiWindow::Draw(Grid<AsciiCell, 2> const & draw) {
@@ -459,6 +460,14 @@ void AsciiWindow::SetFont(AsciiFont const & font) {
 }
 
 int AsciiWindow::GetRunMs(void) const {
+  return GetCurrentMs() - m_startTime;
+}
+
+void AsciiWindow::Sleep(int milliseconds) {
+  ::Sleep(milliseconds);
+}
+
+int AsciiWindow::GetCurrentMs(void) const {
   LARGE_INTEGER counter;
   if (!QueryPerformanceCounter(&counter)) {
     return 0;
@@ -470,8 +479,4 @@ int AsciiWindow::GetRunMs(void) const {
   }
 
   return int((counter.QuadPart * 1000) / frequency.QuadPart);
-}
-
-void AsciiWindow::Sleep(int milliseconds) {
-  ::Sleep(milliseconds);
 }

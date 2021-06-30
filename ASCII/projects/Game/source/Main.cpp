@@ -105,8 +105,8 @@ int main(void) {
     int lifeLeft;
   };
 
-  float const shotSpeed    = 0.5f;
-  float const charSpeed    = 0.2f;
+  float const shotSpeed    = 60.0f;
+  float const charSpeed    = 30.0f;
   int const   shotLifetime = 100;
 
   std::vector<Shot> shots;
@@ -154,11 +154,13 @@ int main(void) {
       charVel.y += 1.0f;
     }
 
+    float const distTravelled = charSpeed * dt;
+
     //charVel.Normalize();
     float const charVelLength = charVel.Length();
     if (charVel.x != 0.0f || charVel.y != 0.0f) {
       charVel /= fvec2(charVelLength, charVelLength);
-      charVel *= fvec2(charSpeed, charSpeed);
+      charVel *= fvec2(distTravelled, distTravelled);
     }
 
     charPos += charVel;
@@ -166,29 +168,8 @@ int main(void) {
     charPos.x = std::min(std::max(charPos.x, 0.0f), float(width - AnimWidth));
     charPos.y = std::min(std::max(charPos.y, 0.0f), float(height - AnimHeight));
 
-    ++currentFrame;
-  });
-
-  auto draw = updateManager.AddOnDynamicUpdate([&](float dt, float progress) {
-    ivec2 const charDrawPos(charPos + ivec2(0.5f, 0.5f));
-
-    Grid<AsciiCell, 2> grid(ivec2(width, height));
-
-    if (currentFrame % colorRotUpdateThrottle == 0) {
-      font.colors[RainbowIndex] = ColorFromHueRotation(colorRot);
-
-      window->SetFont(font);
-    }
-
-    colorRot += colorRotSpeed;
-
-    int const xCell = currentFrame % grid.Count();
-    grid.Data()[xCell].character       = 'X';
-    grid.Data()[xCell].foregroundColor = WhiteIndex;
-    grid.Data()[xCell].backgroundColor = BlackIndex;
-
     for (int i = shots.size() - 1; i >= 0; --i) {
-      Shot & shot = shots[i];
+      Shot& shot = shots[i];
 
       bool shouldDestroy = false;
 
@@ -208,13 +189,56 @@ int main(void) {
       else {
         ivec2 const shotDrawPos = shot.pos + fvec2(0.5f, 0.5f);
 
-        grid[shotDrawPos].character       = '.';
-        grid[shotDrawPos].foregroundColor = RainbowIndex;
-        grid[shotDrawPos].backgroundColor = BlackIndex;
-
         --shot.lifeLeft;
-        shot.pos += shot.vel;
+        shot.pos += shot.vel * fvec2(dt, dt);
       }
+    }
+
+    ++currentFrame;
+  });
+
+  int dynamicFrame = 0;
+
+  auto draw = updateManager.AddOnDynamicUpdate([&](float dt, float progress) {
+    ivec2 const charDrawPos(charPos + ivec2(0.5f, 0.5f));
+
+    Grid<AsciiCell, 2> grid(ivec2(width, height));
+
+    if (currentFrame % colorRotUpdateThrottle == 0) {
+      font.colors[RainbowIndex] = ColorFromHueRotation(colorRot);
+
+      window->SetFont(font);
+    }
+
+    colorRot += colorRotSpeed;
+
+    int const xCell = dynamicFrame % grid.Count();
+    grid.Data()[xCell].character       = 'X';
+    grid.Data()[xCell].foregroundColor = WhiteIndex;
+    grid.Data()[xCell].backgroundColor = BlackIndex;
+
+    for (int i = shots.size() - 1; i >= 0; --i) {
+      Shot & shot = shots[i];
+
+      float const extraTime = progress * updateManager.GetFixedUpdateDt();
+
+      ivec2 const shotDrawPos =
+        shot.pos +
+        shot.vel * fvec2(extraTime, extraTime) +
+        fvec2(0.5f, 0.5f)
+      ;
+
+      if (shotDrawPos.x < 0 || shotDrawPos.x >= width) {
+        continue;
+      }
+
+      if (shotDrawPos.y < 0 || shotDrawPos.y >= height) {
+        continue;
+      }
+
+      grid[shotDrawPos].character       = '.';
+      grid[shotDrawPos].foregroundColor = RainbowIndex;
+      grid[shotDrawPos].backgroundColor = BlackIndex;
     }
 
     Grid<char, 2> const anim = GetCharacter(currentFrame / 2);
@@ -233,6 +257,8 @@ int main(void) {
     }
 
     window->Draw(grid);
+
+    ++dynamicFrame;
   });
 
   while (true) {

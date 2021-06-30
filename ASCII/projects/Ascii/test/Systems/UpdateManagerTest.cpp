@@ -13,7 +13,7 @@ DEFINE_MockAsciiWindow();
 using ::testing::Return;
 using ::testing::Gt;
 
-TEST(UpdateMangerTest, FixedUpdateDelegateRegistered_Updated_DtIsFixedValue) {
+TEST(UpdateManagerTest, FixedUpdateDelegateRegistered_Updated_DtIsFixedValue) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
@@ -21,20 +21,20 @@ TEST(UpdateMangerTest, FixedUpdateDelegateRegistered_Updated_DtIsFixedValue) {
     .WillOnce(Return(1600))
   ;
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
-  updateManger.Update();
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
 
   float updateDt = 0.0f;
-  Delegate<float> onUpdate = updateManger.AddOnFixedUpdate([&updateDt](float dt) {
+  Delegate<float> onUpdate = updateManager.AddOnFixedUpdate([&updateDt](float dt) {
     updateDt = dt;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   EXPECT_EQ(updateDt, 1.0f);
 }
 
-TEST(UpdateMangerTest, DynamicUpdateDelegateRegistered_Updated_DtIsAtLeastMinValue) {
+TEST(UpdateManagerTest, DynamicUpdateDelegateRegistered_Updated_DtIsAtLeastMinValue) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
@@ -42,39 +42,39 @@ TEST(UpdateMangerTest, DynamicUpdateDelegateRegistered_Updated_DtIsAtLeastMinVal
     .WillOnce(Return(600))
   ;
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
-  updateManger.Update();
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
 
   float updateDt = 0.0f;
-  Delegate<float, float> onUpdate = updateManger.AddOnDynamicUpdate([&updateDt](float dt, float) {
+  Delegate<float, float> onUpdate = updateManager.AddOnDynamicUpdate([&updateDt](float dt, float) {
     updateDt = dt;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   EXPECT_GE(updateDt, 0.5f);
 }
 
-TEST(UpdateMangerTest, BehindInFixedUpdates_Updated_MultipleFixedUpdates) {
+TEST(UpdateManagerTest, BehindInFixedUpdates_Updated_MultipleFixedUpdates) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
     .WillOnce(Return(3000))
   ;
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
 
   int updates = 0;
-  Delegate<float> onUpdate = updateManger.AddOnFixedUpdate([&updates](float) {
+  Delegate<float> onUpdate = updateManager.AddOnFixedUpdate([&updates](float) {
     ++updates;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   EXPECT_EQ(updates, 3);
 }
 
-TEST(UpdateMangerTest, AheadInFixedUpdates_Updated_SkipFixedUpdate) {
+TEST(UpdateManagerTest, AheadInFixedUpdates_Updated_SkipFixedUpdate) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
@@ -82,20 +82,20 @@ TEST(UpdateMangerTest, AheadInFixedUpdates_Updated_SkipFixedUpdate) {
     .WillOnce(Return(600))
   ;
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
-  updateManger.Update();
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
 
   bool updated = false;
-  Delegate<float> onUpdate = updateManger.AddOnFixedUpdate([&updated](float) {
+  Delegate<float> onUpdate = updateManager.AddOnFixedUpdate([&updated](float) {
     updated = true;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   EXPECT_FALSE(updated);
 }
 
-TEST(UpdateMangerTest, AheadInDynamicUpdates_Updated_WaitForDynamicUpdate) {
+TEST(UpdateManagerTest, AheadInDynamicUpdates_Updated_WaitForDynamicUpdate) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
@@ -105,12 +105,12 @@ TEST(UpdateMangerTest, AheadInDynamicUpdates_Updated_WaitForDynamicUpdate) {
 
   EXPECT_CALL(*asciiWindow, Sleep(Gt(280)));
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
-  updateManger.Update();
-  updateManger.Update();
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
+  updateManager.Update();
 }
 
-TEST(UpdateMangerTest, DynamicUpdateDelegateRegistered_UpdateOnFixedUpdateFrame_ProgressIs0) {
+TEST(UpdateManagerTest, DynamicUpdateDelegateRegistered_UpdateOnFixedUpdateFrame_ProgressIs0) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
@@ -118,20 +118,20 @@ TEST(UpdateMangerTest, DynamicUpdateDelegateRegistered_UpdateOnFixedUpdateFrame_
     .WillOnce(Return(2200))
   ;
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
-  updateManger.Update();
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
 
   float progress = -1.0f;
-  Delegate<float, float> onUpdate = updateManger.AddOnDynamicUpdate([&progress](float, float frameDelta) {
+  Delegate<float, float> onUpdate = updateManager.AddOnDynamicUpdate([&progress](float, float frameDelta) {
     progress = frameDelta;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   EXPECT_EQ(progress, 0.0f);
 }
 
-TEST(UpdateMangerTest, DynamicUpdateDelegateRegistered_UpdateRightBeforeFixedUpdateFrame_ProgressIsAlmost1) {
+TEST(UpdateManagerTest, DynamicUpdateDelegateRegistered_UpdateRightBeforeFixedUpdateFrame_ProgressIsAlmost1) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
@@ -139,36 +139,74 @@ TEST(UpdateMangerTest, DynamicUpdateDelegateRegistered_UpdateRightBeforeFixedUpd
     .WillOnce(Return(2199))
   ;
 
-  UpdateManager updateManger(asciiWindow, 1.0f, 0.5f);
-  updateManger.Update();
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
 
   float progress = -1.0f;
-  Delegate<float, float> onUpdate = updateManger.AddOnDynamicUpdate([&progress](float, float frameDelta) {
+  Delegate<float, float> onUpdate = updateManager.AddOnDynamicUpdate([&progress](float, float frameDelta) {
     progress = frameDelta;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   EXPECT_GT(progress, 0.99f);
 }
 
-TEST(UpdateMangerTest, ImperfectUpdateTimes_ManyFixedUpdates_UpdateCountMatchesExpectedElapsedTime) {
+TEST(UpdateManagerTest, ImperfectUpdateTimes_ManyFixedUpdates_UpdateCountMatchesExpectedElapsedTime) {
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
   EXPECT_CALL(*asciiWindow, GetRunMs())
     .WillOnce(Return(200))
     .WillOnce(Return(99999200))
   ;
 
-  UpdateManager updateManger(asciiWindow, 0.51223f, 1.0f / 60.0f);
+  UpdateManager updateManager(asciiWindow, 0.51223f, 1.0f / 60.0f);
 
   int updates = 0;
-  Delegate<float> onUpdate = updateManger.AddOnFixedUpdate([&updates](float) {
+  Delegate<float> onUpdate = updateManager.AddOnFixedUpdate([&updates](float) {
     ++updates;
   });
 
-  updateManger.Update();
+  updateManager.Update();
 
   int const expectedUpdates = int(float(99999200 - 200) / (0.51223f * 1000.0f)) + 1;
 
   EXPECT_EQ(updates, expectedUpdates);
+}
+
+TEST(UpdateManagerTest, DynamicUpdateDelegateRegistered_SleepForDynamicUpdate_ProgressIsBetween0And1) {
+  auto asciiWindow = std::make_shared<MockAsciiWindow>();
+  EXPECT_CALL(*asciiWindow, GetRunMs())
+    .WillOnce(Return(200))
+    .WillOnce(Return(400))
+    .WillOnce(Return(600))
+  ;
+
+  UpdateManager updateManager(asciiWindow, 1.0f, 0.5f);
+  updateManager.Update();
+
+  float progress = -1.0f;
+  Delegate<float, float> onUpdate = updateManager.AddOnDynamicUpdate([&progress](float, float frameDelta) {
+    progress = frameDelta;
+  });
+
+  updateManager.Update();
+
+  EXPECT_GE(progress, 0.0f);
+  EXPECT_LT(progress, 1.0f);
+}
+
+TEST(UpdateManagerTest, SetFixedUpdateDt_CheckFixedDt_ValueIsCorrect) {
+  UpdateManager updateManager(0.3f, 0.1f);
+
+  updateManager.SetFixedUpdateDt(0.3f);
+
+  EXPECT_EQ(updateManager.GetFixedUpdateDt(), 0.3f);
+}
+
+TEST(UpdateManagerTest, SetDynamicUpdateDt_CheckDynamicDt_ValueIsCorrect) {
+  UpdateManager updateManager(0.3f, 0.1f);
+
+  updateManager.SetDynamicUpdateDt(0.2f);
+
+  EXPECT_EQ(updateManager.GetDynamicUpdateDt(), 0.2f);
 }

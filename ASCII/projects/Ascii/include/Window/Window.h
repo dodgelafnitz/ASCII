@@ -232,6 +232,9 @@ public:
   virtual void Sleep(int milliseconds) override;
 
 private:
+  int GetCurrentMs(void) const;
+
+  int       m_startTime;
   bool      m_currentMouseButtons[int(AsciiButton::MouseCount)] = { 0 };
   bool      m_currentState[int(AsciiState::Count)]              = { 0 };
   AsciiFont m_font;

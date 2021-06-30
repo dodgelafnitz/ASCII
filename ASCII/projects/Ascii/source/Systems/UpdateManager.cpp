@@ -49,17 +49,19 @@ Delegate<float, float> UpdateManager::AddOnDynamicUpdate(DelegateFunc<float, flo
 }
 
 float UpdateManager::GetFixedUpdateDt(void) const {
-  return float();
+  return m_fixedUpdateDelta;
 }
 
 void UpdateManager::SetFixedUpdateDt(float dt) {
+  m_fixedUpdateDelta = dt;
 }
 
 float UpdateManager::GetDynamicUpdateDt(void) const {
-  return float();
+  return m_minDynamicUpdateDelta;
 }
 
 void UpdateManager::SetDynamicUpdateDt(float dt) {
+  m_minDynamicUpdateDelta = dt;
 }
 
 void UpdateManager::Update(void) {
@@ -90,7 +92,7 @@ void UpdateManager::Update(void) {
     m_nextDynamicUpdateFrame = currentTime + int(m_minDynamicUpdateDelta * 1000.0f);
 
     dynamicDt = m_minDynamicUpdateDelta;
-    progress  = float(m_nextDynamicUpdateFrame - prevFixedUpdateFrame) / float(m_fixedUpdateDelta);
+    progress  = float(m_nextDynamicUpdateFrame - prevFixedUpdateFrame) / float(fixedUpdateMs);
   }
   else {
     dynamicDt = float(currentTime - m_prevDynamicUpdateFrame) / 1000.0f;
