@@ -36,7 +36,7 @@ UpdateManager::UpdateManager(
   int const currentTime = m_window->GetRunMs();
 
   m_nextFixedUpdateFrame   = currentTime;
-  m_prevDynamicUpdateFrame = currentTime - dynamicDt;
+  m_prevDynamicUpdateFrame = currentTime - int(dynamicDt * 1000.0f);
   m_nextDynamicUpdateFrame = currentTime;
 }
 

@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "Systems/Input/InputManager.h"
+#include "Systems/UpdateManager.h"
 
 namespace {
   int const BlackIndex   = 0;
@@ -129,7 +130,13 @@ int main(void) {
     }
   });
 
-  while (true) {
+  auto onQ = buttonManager->AddButtonEvent(AsciiButton::Q, [&window](bool isDown) {
+    window->Sleep(1000);
+  });
+
+  UpdateManager updateManager(0.1f, 1.0f / 30.0f);
+
+  auto inputAndPhysics = updateManager.AddOnFixedUpdate([&](float dt) {
     inputManager.ProcessInput();
 
     fvec2 charVel;
@@ -159,6 +166,10 @@ int main(void) {
     charPos.x = std::min(std::max(charPos.x, 0.0f), float(width - AnimWidth));
     charPos.y = std::min(std::max(charPos.y, 0.0f), float(height - AnimHeight));
 
+    ++currentFrame;
+  });
+
+  auto draw = updateManager.AddOnDynamicUpdate([&](float dt, float progress) {
     ivec2 const charDrawPos(charPos + ivec2(0.5f, 0.5f));
 
     Grid<AsciiCell, 2> grid(ivec2(width, height));
@@ -222,9 +233,9 @@ int main(void) {
     }
 
     window->Draw(grid);
+  });
 
-    ++currentFrame;
-
-    window->Sleep(10);
+  while (true) {
+    updateManager.Update();
   }
 }
