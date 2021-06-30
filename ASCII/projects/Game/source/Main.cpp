@@ -90,43 +90,68 @@ int main(void) {
   float const colorRotSpeed          = 0.01f;
   int   const colorRotUpdateThrottle = 16;
 
-  int currentFrame = 0;
   float colorRot = 0.0f;
-
-  fvec2 charPos(width / 2, height / 2);
 
   InputManager inputManager(window);
 
   auto buttonManager = inputManager.GetButtonManager();
 
-  struct Shot {
-    fvec2 pos;
-    fvec2 vel;
-    int lifeLeft;
+  enum class EntityType {
+    Invalid,
+    Player,
+    Shot,
   };
+
+  struct Entity {
+    Entity(void) :
+      type(EntityType::Invalid)
+    {}
+
+    EntityType type;
+    fvec2      pos;
+    fvec2      lastPos;
+    union {
+      struct {
+        int animationFrame;
+      } playerData;
+      struct {
+        float lifeLeft;
+        fvec2 vel;
+      } shotData;
+    };
+  };
+
+
+  std::vector<std::shared_ptr<Entity>> entities;
+  auto player = std::make_shared<Entity>();
+  entities.emplace_back(player);
+
+  player->type    = EntityType::Player;
+  player->lastPos = fvec2(width / 2, height / 2);
+  player->pos     = player->lastPos;
+
+  player->playerData.animationFrame = 0;
 
   float const shotSpeed    = 60.0f;
   float const charSpeed    = 30.0f;
   int const   shotLifetime = 100;
 
-  std::vector<Shot> shots;
-
   auto onMouseDown = buttonManager->AddButtonEvent(AsciiButton::Mouse1, [&](bool isDown) {
     if (isDown) {
       ivec2 const mousePos = inputManager.GetMouseManager()->GetMousePosition();
 
-      fvec2 shotVel = mousePos - charPos;
-      if (shotVel.x != 0.0f || shotVel.y != 0.0f) {
-        float const shotVelLength = shotVel.Length();
-        shotVel /= fvec2(shotVelLength, shotVelLength);
-        shotVel *= fvec2(shotSpeed, shotSpeed);
-      }
+      fvec2 shotVel = mousePos - player->pos;
+      shotVel.Normalize();
+      shotVel *= shotSpeed;
 
-      Shot newShot;
-      newShot.pos = charPos;
-      newShot.vel = shotVel;
-      newShot.lifeLeft = shotLifetime;
-      shots.emplace_back(newShot);
+      auto newShot = std::make_shared<Entity>();
+      newShot->pos               = player->pos;
+      newShot->lastPos           = player->pos;
+      newShot->shotData.vel      = shotVel;
+      newShot->shotData.lifeLeft = shotLifetime;
+      newShot->type              = EntityType::Shot;
+
+      entities.emplace_back(newShot);
     }
   });
 
@@ -137,6 +162,10 @@ int main(void) {
   UpdateManager updateManager(0.1f, 1.0f / 30.0f);
 
   auto inputAndPhysics = updateManager.AddOnFixedUpdate([&](float dt) {
+    for (auto & entity : entities) {
+      entity->lastPos = entity->pos;
+    }
+
     inputManager.ProcessInput();
 
     fvec2 charVel;
@@ -156,20 +185,20 @@ int main(void) {
 
     float const distTravelled = charSpeed * dt;
 
-    //charVel.Normalize();
-    float const charVelLength = charVel.Length();
-    if (charVel.x != 0.0f || charVel.y != 0.0f) {
-      charVel /= fvec2(charVelLength, charVelLength);
-      charVel *= fvec2(distTravelled, distTravelled);
-    }
+    charVel.Normalize();
+    charVel *= distTravelled;
 
-    charPos += charVel;
+    player->pos += charVel;
 
-    charPos.x = std::min(std::max(charPos.x, 0.0f), float(width - AnimWidth));
-    charPos.y = std::min(std::max(charPos.y, 0.0f), float(height - AnimHeight));
+    player->pos.x = std::min(std::max(player->pos.x, 0.0f), float(width - AnimWidth));
+    player->pos.y = std::min(std::max(player->pos.y, 0.0f), float(height - AnimHeight));
 
-    for (int i = shots.size() - 1; i >= 0; --i) {
-      Shot& shot = shots[i];
+    for (int i = entities.size() - 1; i >= 0; --i) {
+      if (entities[i]->type != EntityType::Shot) {
+        continue;
+      }
+
+      Entity & shot = *entities[i];
 
       bool shouldDestroy = false;
 
@@ -179,32 +208,34 @@ int main(void) {
       else if (shot.pos.y < 0.0f || shot.pos.y >= float(height) - 0.5f) {
         shouldDestroy = true;
       }
-      else if (shot.lifeLeft == 0) {
+      else if (shot.shotData.lifeLeft == 0) {
         shouldDestroy = true;
       }
 
       if (shouldDestroy) {
-        shots.erase(shots.begin() + i);
+        entities.erase(entities.begin() + i);
       }
       else {
-        ivec2 const shotDrawPos = shot.pos + fvec2(0.5f, 0.5f);
+        ivec2 const shotDrawPos = shot.pos + 0.5f;
 
-        --shot.lifeLeft;
-        shot.pos += shot.vel * fvec2(dt, dt);
+        --shot.shotData.lifeLeft;
+        shot.pos += shot.shotData.vel * dt;
       }
     }
-
-    ++currentFrame;
   });
 
   int dynamicFrame = 0;
 
   auto draw = updateManager.AddOnDynamicUpdate([&](float dt, float progress) {
-    ivec2 const charDrawPos(charPos + ivec2(0.5f, 0.5f));
+    ivec2 const charDrawPos =
+      player->lastPos * (1.0f - progress) +
+      player->pos * progress +
+      0.5f
+    ;
 
     Grid<AsciiCell, 2> grid(ivec2(width, height));
 
-    if (currentFrame % colorRotUpdateThrottle == 0) {
+    if (dynamicFrame % colorRotUpdateThrottle == 0) {
       font.colors[RainbowIndex] = ColorFromHueRotation(colorRot);
 
       window->SetFont(font);
@@ -217,31 +248,33 @@ int main(void) {
     grid.Data()[xCell].foregroundColor = WhiteIndex;
     grid.Data()[xCell].backgroundColor = BlackIndex;
 
-    for (int i = shots.size() - 1; i >= 0; --i) {
-      Shot & shot = shots[i];
+    for (auto const & entity : entities) {
+      if (entity->type != EntityType::Shot) {
+        continue;
+      }
 
       float const extraTime = progress * updateManager.GetFixedUpdateDt();
 
-      ivec2 const shotDrawPos =
-        shot.pos +
-        shot.vel * fvec2(extraTime, extraTime) +
-        fvec2(0.5f, 0.5f)
+      ivec2 const drawPos =
+        entity->lastPos * (1.0f - progress) +
+        entity->pos * progress +
+        0.5f
       ;
 
-      if (shotDrawPos.x < 0 || shotDrawPos.x >= width) {
+      if (drawPos.x < 0 || drawPos.x >= width) {
         continue;
       }
 
-      if (shotDrawPos.y < 0 || shotDrawPos.y >= height) {
+      if (drawPos.y < 0 || drawPos.y >= height) {
         continue;
       }
 
-      grid[shotDrawPos].character       = '.';
-      grid[shotDrawPos].foregroundColor = RainbowIndex;
-      grid[shotDrawPos].backgroundColor = BlackIndex;
+      grid[drawPos].character       = '.';
+      grid[drawPos].foregroundColor = RainbowIndex;
+      grid[drawPos].backgroundColor = BlackIndex;
     }
 
-    Grid<char, 2> const anim = GetCharacter(currentFrame / 2);
+    Grid<char, 2> const anim = GetCharacter(dynamicFrame / 2);
 
     for (int i = 0; i < AnimHeight; ++i) {
       for (int j = 0; j < AnimWidth; ++j) {

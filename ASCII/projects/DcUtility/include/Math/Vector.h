@@ -333,6 +333,20 @@ public:
     return std::sqrt(LengthSquared());
   }
 
+  Vector & Normalize(void) {
+    T const length = Length();
+
+    if (length != T(0)) {
+      operator /=(length);
+    }
+
+    return *this;
+  }
+
+  Vector & Normal(void) {
+    return Vector(*this).Normalize();
+  }
+
   template <typename U>
   Vector Min(Vector<U, Count> const & vec) const {
     Vector result;
@@ -374,9 +388,27 @@ public:
   }
 
   template <typename U>
+  Vector & operator +=(U const & val) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] += val;
+    }
+
+    return *this;
+  }
+
+  template <typename U>
   Vector & operator -=(Vector<U, Count> const & vec) {
     for (int i = 0; i < Size; ++i) {
       (*this)[i] -= vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator -=(U const & val) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] -= val;
     }
 
     return *this;
@@ -392,9 +424,27 @@ public:
   }
 
   template <typename U>
+  Vector & operator *=(U const & val) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] *= val;
+    }
+
+    return *this;
+  }
+
+  template <typename U>
   Vector & operator /=(Vector<U, Count> const & vec) {
     for (int i = 0; i < Size; ++i) {
       (*this)[i] /= vec[i];
+    }
+
+    return *this;
+  }
+
+  template <typename U>
+  Vector & operator /=(U const & val) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] /= val;
     }
 
     return *this;
@@ -410,13 +460,12 @@ public:
   }
 
   template <typename U>
-  Vector operator *(Vector<U, Count> const & vec) const {
-    return Vector(*this) *= vec;
-  }
+  Vector & operator %=(U const & val) {
+    for (int i = 0; i < Size; ++i) {
+      (*this)[i] %= val;
+    }
 
-  template <typename U>
-  Vector operator /(Vector<U, Count> const & vec) const {
-    return Vector(*this) /= vec;
+    return *this;
   }
 
   template <typename U>
@@ -425,15 +474,87 @@ public:
   }
 
   template <typename U>
+  Vector operator +(U const & val) const {
+    return Vector(*this) += val;
+  }
+
+  template <typename U>
   Vector operator -(Vector<U, Count> const & vec) const {
     return Vector(*this) -= vec;
+  }
+
+  template <typename U>
+  Vector operator -(U const & val) const {
+    return Vector(*this) -= val;
+  }
+
+  template <typename U>
+  Vector operator *(Vector<U, Count> const & vec) const {
+    return Vector(*this) *= vec;
+  }
+
+  template <typename U>
+  Vector operator *(U const & val) const {
+    return Vector(*this) *= val;
+  }
+
+  template <typename U>
+  Vector operator /(Vector<U, Count> const & vec) const {
+    return Vector(*this) /= vec;
+  }
+
+  template <typename U>
+  Vector operator /(U const & val) const {
+    return Vector(*this) /= val;
   }
 
   template <typename U>
   Vector operator %(Vector<U, Count> const & vec) const {
     return Vector(*this) %= vec;
   }
+
+  template <typename U>
+  Vector operator %(U const & val) const {
+    return Vector(*this) %= val;
+  }
 };
+
+template <typename T, typename U, int Count>
+Vector<U, Count> operator +(T const & val, Vector<U, Count> const & vec) {
+  return vec + val;
+}
+
+template <typename T, typename U, int Count>
+Vector<U, Count> operator -(T const & val, Vector<U, Count> const & vec) {
+  return -vec + val;
+}
+
+template <typename T, typename U, int Count>
+Vector<U, Count> operator *(T const & val, Vector<U, Count> const & vec) {
+  return vec * val;
+}
+
+template <typename T, typename U, int Count>
+Vector<U, Count> operator /(T const & val, Vector<U, Count> const & vec) {
+  Vector<U, Count> result;
+
+  for (int i = 0; i < Count; ++i) {
+    result[i] = val / vec[i];
+  }
+
+  return result;
+}
+
+template <typename T, typename U, int Count>
+Vector<U, Count> operator %(T const & val, Vector<U, Count> const & vec) {
+  Vector<U, Count> result;
+
+  for (int i = 0; i < Count; ++i) {
+    result[i] = val % vec[i];
+  }
+
+  return result;
+}
 
 template<int Count>
 using ivec = Vector<int, Count>;

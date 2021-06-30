@@ -256,3 +256,18 @@ TEST(VectorTest, Length_CheckResult_ResultIsLength) {
 
   ASSERT_EQ(vec.Length(), 13.0f);
 }
+
+TEST(VectorTest, NormalizedVector_CheckLength_LengthIs1) {
+  Vector<float, 3> vec(12.0f, 3.0f, 4.0f);
+  vec.Normalize();
+
+  ASSERT_FLOAT_EQ(vec.Length(), 1.0f);
+}
+
+TEST(VectorTest, Normalized0Vector_CheckLength_LengthIs0) {
+  Vector<float, 3> vec(0.0f, 0.0f, 0.0f);
+  vec.Normalize();
+
+  ASSERT_EQ(vec.Length(), 0.0f);
+}
+
