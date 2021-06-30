@@ -12,8 +12,8 @@ class IUpdateManager {
 public:
   virtual ~IUpdateManager(void) {}
 
-  virtual Delegate<float> AddOnFixedUpdate(DelegateFunc<float> const & func) = 0;
-  virtual Delegate<float> AddOnDynamicUpdate(DelegateFunc<float> const & func) = 0;
+  virtual Delegate<float>        AddOnFixedUpdate(DelegateFunc<float> const & func) = 0;
+  virtual Delegate<float, float> AddOnDynamicUpdate(DelegateFunc<float, float> const & func) = 0;
 
   virtual float GetFixedUpdateDt(void) const = 0;
   virtual void  SetFixedUpdateDt(float dt) = 0;
@@ -32,8 +32,8 @@ public:
   UpdateManager(std::shared_ptr<IAsciiWindow> const & window, float fixedDt, float dynamicDt);
   virtual ~UpdateManager(void) {}
 
-  virtual Delegate<float> AddOnFixedUpdate(DelegateFunc<float> const & func) override;
-  virtual Delegate<float> AddOnDynamicUpdate(DelegateFunc<float> const & func) override;
+  virtual Delegate<float>        AddOnFixedUpdate(DelegateFunc<float> const & func) override;
+  virtual Delegate<float, float> AddOnDynamicUpdate(DelegateFunc<float, float> const & func) override;
 
   virtual float GetFixedUpdateDt(void) const override;
   virtual void  SetFixedUpdateDt(float dt) override;
@@ -46,13 +46,16 @@ public:
 private:
   std::shared_ptr<IAsciiWindow> m_window;
 
-  Delegator<float> m_fixedUpdateDelegator;
-  Delegator<float> m_dynamicUpdateDelegator;
+  Delegator<float>        m_fixedUpdateDelegator;
+  Delegator<float, float> m_dynamicUpdateDelegator;
 
   float m_fixedUpdateDelta;
   float m_minDynamicUpdateDelta;
 
-  int m_nextFixedUpdateFrame;
+  int   m_nextFixedUpdateFrame;
+  float m_fixedUpdateRemainder;
+
+  int m_prevDynamicUpdateFrame;
   int m_nextDynamicUpdateFrame;
 };
 
@@ -65,9 +68,9 @@ class MockUpdateManager : public IUpdateManager { \
     (override)                                    \
   );                                              \
   MOCK_METHOD(                                    \
-    Delegate<float>,                              \
+    (Delegate<float, float>),                     \
     AddOnDynamicUpdate,                           \
-    (DelegateFunc<float> const &),                \
+    ((DelegateFunc<float, float> const &)),       \
     (override)                                    \
   );                                              \
   MOCK_METHOD(                                    \
