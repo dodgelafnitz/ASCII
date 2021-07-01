@@ -22,6 +22,13 @@ PRIVATE
 set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/VectorTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/MatrixTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/LineSegmentTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/LineTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/RayTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/CircleTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/RectTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/PolygonTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/CollisionTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Containers/GridTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/General/DelagateTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Helpers/TemplateHelpersTest.cpp"

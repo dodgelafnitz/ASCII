@@ -24,6 +24,13 @@ PUBLIC
 set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Vector.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Matrix.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/LineSegment.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Line.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Ray.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Circle.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Rect.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Polygon.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Collision.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/Grid.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Color.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Delagate.h"
@@ -31,6 +38,13 @@ set(inc
 )
 
 set(src
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/LineSegment.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Line.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Ray.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Circle.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Rect.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Polygon.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Collision.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/General/Color.cpp"
 )
 

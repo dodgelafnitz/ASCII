@@ -130,12 +130,12 @@ int main(void) {
   std::vector<Terrain> terrain = {
     { fvec2(0.25f * width, 0.75f * height), fvec2(0.75f * width, 0.80f * height) },
 
-    { fvec2(0.00f * width, 0.98f * height), fvec2(0.05f * width, 1.00f * height) },
-    { fvec2(0.05f * width, 0.93f * height), fvec2(0.10f * width, 0.95f * height) },
-    { fvec2(0.10f * width, 0.88f * height), fvec2(0.15f * width, 0.90f * height) },
-    { fvec2(0.15f * width, 0.83f * height), fvec2(0.20f * width, 0.85f * height) },
-    { fvec2(0.20f * width, 0.78f * height), fvec2(0.25f * width, 0.80f * height) },
-    { fvec2(0.25f * width, 0.73f * height), fvec2(0.30f * width, 0.75f * height) },
+    { ivec2(0.00f * width, 0.98f * height), ivec2(0.05f * width, 1.00f * height) },
+    { ivec2(0.05f * width, 0.93f * height), ivec2(0.10f * width, 0.95f * height) },
+    { ivec2(0.10f * width, 0.88f * height), ivec2(0.15f * width, 0.90f * height) },
+    { ivec2(0.15f * width, 0.83f * height), ivec2(0.20f * width, 0.85f * height) },
+    { ivec2(0.20f * width, 0.78f * height), ivec2(0.25f * width, 0.80f * height) },
+    { ivec2(0.25f * width, 0.73f * height), ivec2(0.30f * width, 0.75f * height) },
   };
 
   std::vector<std::shared_ptr<Entity>> entities;
@@ -327,7 +327,18 @@ int main(void) {
       entity->lastPos = entity->pos;
     }
 
-    player->vel.y += 80.0f * dt;
+    if (!IsInTerrain(player->pos + fvec2(0.0f, 1.1f))) {
+      player->playerData.onGround = false;
+    }
+
+    if (!player->playerData.onGround) {
+      player->vel.y += 80.0f * dt;
+    }
+
+    if (player->vel.LengthSquared() < 0.01f) {
+      player->pos = ivec2(player->pos + 0.5f);
+    }
+
     player->pos += player->vel * dt;
 
     if (player->pos.x < 0.0f) {
