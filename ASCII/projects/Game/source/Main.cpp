@@ -178,8 +178,11 @@ int main(void) {
     }
   });
 
-  auto onQ = buttonManager->AddButtonEvent(AsciiButton::Q, [&window](bool isDown) {
-    window->Sleep(1000);
+  float waitUntil = 0.0f;
+  float runTime   = 0.0f;
+
+  auto onQ = buttonManager->AddButtonEvent(AsciiButton::Q, [&](bool isDown) {
+    waitUntil = runTime + 10.0f;
   });
 
   UpdateManager updateManager(0.1f, 0.0f);
@@ -323,6 +326,11 @@ int main(void) {
   };
 
   auto inputAndPhysics = updateManager.AddOnFixedUpdate([&](float dt) {
+    runTime += dt;
+    if (waitUntil > runTime) {
+      return;
+    }
+
     for (auto & entity : entities) {
       entity->lastPos = entity->pos;
     }
