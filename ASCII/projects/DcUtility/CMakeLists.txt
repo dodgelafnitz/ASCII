@@ -31,6 +31,7 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Rect.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Polygon.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/Collision.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/ForwardDeclarations.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/Grid.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Color.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Delagate.h"

@@ -343,7 +343,7 @@ public:
     return *this;
   }
 
-  Vector & Normal(void) {
+  Vector Normal(void) const {
     return Vector(*this).Normalize();
   }
 
@@ -364,6 +364,15 @@ public:
 
     for (int i = 0; i < Size; ++i) {
       result[i] = std::max((*this)[i], vec[i]);
+    }
+
+    return result;
+  }
+
+  Vector operator -(void) const {
+    Vector result = *this;
+    for (int i = 0; i < Size; ++i) {
+      result[i] = -result[i];
     }
 
     return result;
