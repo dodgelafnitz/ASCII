@@ -10,6 +10,12 @@ namespace {
   fvec2 const c_defaultNormal(0.0f, 1.0f);
 }
 
+Line Line::BuildFromPointAndNormal(fvec2 const & point, fvec2 const & normal) {
+  fvec2 const trueNormal = normal.LengthSquared() == 0.0f ? c_defaultNormal : normal.Normal();
+
+  return Line(trueNormal, point.Dot(trueNormal));
+}
+
 Line::Line(void) :
   m_normal(c_defaultNormal),
   m_dist(0.0f)

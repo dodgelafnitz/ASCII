@@ -9,8 +9,15 @@
 #include "Math/Shapes2D/Line.h"
 
 struct LineSegment {
-  LineSegment(void);
+  LineSegment(void) = default;
   LineSegment(fvec2 const & p0, fvec2 const & p1);
+
+  LineSegment(LineSegment const &) = default;
+
+  LineSegment & operator =(LineSegment const &) = default;
+
+  bool operator ==(LineSegment const &) const = default;
+  bool operator !=(LineSegment const &) const = default;
 
   float GetDistanceToPoint(fvec2 const & point) const;
 
@@ -20,12 +27,12 @@ struct LineSegment {
 
   fvec2 GetNormal(void) const;
 
-  float GetLength(void) const;
-  float GetLengthSquared(void) const;
+  float Length(void) const;
+  float LengthSquared(void) const;
 
   Line GetLine(void) const;
 
-  void FaceTowrads(fvec2 const & target);
+  void FaceTowards(fvec2 const & target);
   void FaceAway(fvec2 const & target);
 
   fvec2 p0;

@@ -109,3 +109,27 @@ TEST(LineTest, FacingIsSet_CheckRoot_RootIsUnchanged) {
   line.SetFacing(fvec2(0.0f, 0.0f));
   EXPECT_EQ(line.GetRoot(), root);
 }
+
+TEST(LineTest, BuiltFromPointAndNormal_CheckDistanceToPoint_DistanceIs0) {
+  Line const line = Line::BuildFromPointAndNormal(fvec2(1.0f, 4.2f), fvec2(1.3f, 5.4f));
+
+  EXPECT_NEAR(line.DistanceTo(fvec2(1.0f, 4.2f)), 0.0f, 0.0001f);
+}
+
+TEST(LineTest, BuiltFromPointAndNormal_CheckNormal_NormalIsSame) {
+  Line const line = Line::BuildFromPointAndNormal(fvec2(0.3f, -2.3f), fvec2(0.6f, 0.8f));
+
+  EXPECT_EQ(line.GetNormal(), fvec2(0.6f, 0.8f));
+}
+
+TEST(LineTest, BuiltFromPointAndNormalWith0Normal_CheckNormal_NormalIsValid) {
+  Line const line = Line::BuildFromPointAndNormal(fvec2(0.7f, 10.4f), fvec2());
+
+  EXPECT_FLOAT_EQ(line.GetNormal().Length(), 1.0f);
+}
+
+TEST(LineTest, BuiltFromPointAndNormalWithAnAbnormalNormal_CheckNormal_NormalIsValid) {
+  Line const line = Line::BuildFromPointAndNormal(fvec2(-1.4f, -4.0f), fvec2(-3.9f, 10.3f));
+
+  EXPECT_FLOAT_EQ(line.GetNormal().Length(), 1.0f);
+}

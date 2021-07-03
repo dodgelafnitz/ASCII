@@ -18,6 +18,13 @@ public:
   Line(void);
   Line(fvec2 const & normal, float distanceFromOrigin);
 
+  Line(Line const &) = default;
+
+  Line & operator =(Line const &) = default;
+
+  bool operator ==(Line const &) const = default;
+  bool operator !=(Line const &) const = default;
+
   fvec2 GetRoot(void) const;
   void  SetRoot(fvec2 const & root);
 
