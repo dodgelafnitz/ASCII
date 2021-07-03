@@ -10,18 +10,7 @@ LineSegment::LineSegment(fvec2 const & p0, fvec2 const & p1) :
 {}
 
 float LineSegment::GetDistanceToPoint(fvec2 const & point) const {
-  float const delta = GetDeltaToProjection(point);
-
-  if (delta < 0.0f) {
-    return (point - p0).Length();
-  }
-  else if (delta > 1.0f) {
-    return (point - p1).Length();
-  }
-  else {
-    fvec2 const closestPoint = p0 * (1.0f - delta) + p1 * delta;
-    return (point - closestPoint).Length();
-  }
+  return (ProjectPointOntoLineSegment(point) - point).Length();
 }
 
 fvec2 LineSegment::ProjectPointOntoLineSegment(fvec2 const & point) const {
@@ -30,11 +19,11 @@ fvec2 LineSegment::ProjectPointOntoLineSegment(fvec2 const & point) const {
   if (delta <= 0.0f) {
     return p0;
   }
-  else if (delta >= 0.0f) {
+  else if (delta >= 1.0f) {
     return p1;
   }
   else {
-    return 0 * (1.0f - delta) + p1 * delta;
+    return p0 * (1.0f - delta) + p1 * delta;
   }
 }
 

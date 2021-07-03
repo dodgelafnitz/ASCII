@@ -93,11 +93,39 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentAfterP1_Distan
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBetweenPoints_DistanceToResultIs0) {
   LineSegment const lineSegment(fvec2(-14.3f, 1.0f), fvec2(23.9f, -4.3f));
-  fvec2 const       target(3.6f, 5.0f);
+  fvec2 const       target(3.6f, -0.3f);
 
   fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
 
   EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), 0.0f);
+}
+
+TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBeforeP0_DeltaToResultIs0) {
+  LineSegment const lineSegment(fvec2(0.3f, 8.4f), fvec2(-2.1f, 0.5f));
+  fvec2 const       target(1.4f, 10.5f);
+
+  fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
+
+  EXPECT_FLOAT_EQ(lineSegment.GetDeltaToProjection(projected), 0.0f);
+}
+
+TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentAfterP1_DeltaToResultIsBetween0And1) {
+  LineSegment const lineSegment(fvec2(-10.8f, 9.2f), fvec2(1.4f, -4.0f));
+  fvec2 const       target(2.5f, -6.3f);
+
+  fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
+
+  EXPECT_FLOAT_EQ(lineSegment.GetDeltaToProjection(projected), 1.0f);
+}
+
+TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBetweenPoints_DeltaToResultIs1) {
+  LineSegment const lineSegment(fvec2(1.0f, 1.2f), fvec2(1.6f, 1.3f));
+  fvec2 const       target(1.4f, 1.3f);
+
+  fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
+
+  EXPECT_GT(lineSegment.GetDeltaToProjection(projected), 0.0f);
+  EXPECT_LT(lineSegment.GetDeltaToProjection(projected), 1.0f);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineBeforeP0_DistanceToResultIsDistanceToP0) {
