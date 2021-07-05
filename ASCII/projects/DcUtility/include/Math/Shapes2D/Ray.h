@@ -11,7 +11,7 @@
 class Ray {
 public:
   Ray(void);
-  Ray(fvec2 const & root, fvec2 const & normal);
+  Ray(fvec2 const & root, fvec2 const & diirection);
 
   Ray(Ray const &) = default;
 
@@ -23,10 +23,14 @@ public:
   fvec2 GetRoot(void) const;
   void  SetRoot(fvec2 const & root);
 
+  fvec2 GetDirection(void) const;
+  void  SetDirection(fvec2 const & direction);
+
   fvec2 GetNormal(void) const;
-  void  SetNormal(fvec2 const & normal);
 
   Line GetLine(void) const;
+  Line GetLine(fvec2 const & facing) const;
+
   LineSegment GetLineSegment(float length) const;
   LineSegment GetLineSegment(float length, fvec2 const & facing) const;
 
@@ -37,7 +41,7 @@ public:
 
 private:
   fvec2 m_root;
-  fvec2 m_normal;
+  fvec2 m_dir;
 };
 
 #endif // DCUTILITY_MATH_SHAPES2D_RAY_H
