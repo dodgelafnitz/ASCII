@@ -6,7 +6,9 @@
 #define DCUTILITY_MATH_SHAPES2D_RAY_H
 
 #include "Math/Vector.h"
+
 #include "Math/Shapes2D/Line.h"
+#include "Math/Shapes2D/LineSegment.h"
 
 class Ray {
 public:
