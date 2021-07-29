@@ -27,6 +27,7 @@ set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/RayTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/CircleTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/RectTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/ConvexHullTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/PolygonTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/CollisionTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Containers/GridTest.cpp"
