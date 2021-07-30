@@ -9,14 +9,14 @@
 
 class Circle {
 public:
-  Circle(void);
+  Circle(void) = default;
   Circle(fvec2 const & pos, float radius);
 
   fvec2 GetPosition(void) const;
-  void  SetPosition(fvec2 const & position) const;
+  void  SetPosition(fvec2 const & position);
 
   float GetRadius(void) const;
-  void  SetRadius(float radius) const;
+  void  SetRadius(float radius);
 
   bool Contains(fvec2 const & target) const;
 
