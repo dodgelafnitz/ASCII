@@ -6,55 +6,118 @@
 #include "gtest/gtest.h"
 
 TEST(RectTest, DefautConstructed_CheckDimensions_DimensionsAreNonNegative) {
-  FAIL();
+  Rect const rect = Rect();
+
+  EXPECT_GE(rect.GetDimensions().x, 0.0f);
+  EXPECT_GE(rect.GetDimensions().y, 0.0f);
 }
 
 TEST(RectTest, ConstructedWithValues_CheckCenter_CenterIsCorrect) {
-  FAIL();
+  fvec2 const center(1.0f, 3.4f);
+  fvec2 const dimensions(0.5f, 0.8f);
+  Rect const  rect(center, dimensions);
+
+  EXPECT_EQ(rect.GetCenter(), center);
 }
 
 TEST(RectTest, ConstructedWithValues_CheckDimensions_DimensionsAreCorrect) {
-  FAIL();
+  fvec2 const center(0.3f, 9.2f);
+  fvec2 const dimensions(10.0f, 4.0f);
+  Rect const  rect(center, dimensions);
+
+  EXPECT_EQ(rect.GetDimensions(), dimensions);
 }
 
 TEST(RectTest, AnyRect_SetCenter_CenterIsCorrect) {
-  FAIL();
+  Rect rect;
+  fvec2 const center(2.4f, 0.7f);
+
+  rect.SetCenter(center);
+
+  EXPECT_EQ(rect.GetCenter(), center);
 }
 
 TEST(RectTest, AnyRect_SetDimensionsToNonNegativeValues_DimensionsAreCorrect) {
-  FAIL();
+  Rect rect;
+  fvec2 const dimensions(1.3f, 8.2f);
+
+  rect.SetDimensions(dimensions);
+
+  EXPECT_EQ(rect.GetDimensions(), dimensions);
 }
 
 TEST(RectTest, AnyRect_SetDimensionsToNegativeValues_DimensionsAreNonNegative) {
-  FAIL();
+  Rect rect;
+  fvec2 const dimensions(-2.4f, -0.3f);
+
+  rect.SetDimensions(dimensions);
+
+  EXPECT_EQ(rect.GetDimensions(), -dimensions);
 }
 
 TEST(RectTest, AnyRect_CheckContainsContainedPoint_PointIsContained) {
-  FAIL();
+  fvec2 const center(7.3f, -9.2f);
+  fvec2 const dimensions(2.4f, 1.3f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(6.4f, -9.4f);
+
+  EXPECT_TRUE(rect.Contains(target));
 }
 
 TEST(RectTest, AnyRect_CheckContainsExternalPoint_PointIsNotContained) {
-  FAIL();
+  fvec2 const center(-3.5f, 3.6f);
+  fvec2 const dimensions(0.5f, 0.8f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-3.6f, 4.2f);
+
+  EXPECT_FALSE(rect.Contains(target));
 }
 
 TEST(RectTest, AnyRect_CheckContainsBoundaryPoint_PointIsContained) {
-  FAIL();
+  fvec2 const center(8.4f, -2.0f);
+  fvec2 const dimensions(1.0f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(8.3f, -1.0f);
+
+  EXPECT_TRUE(rect.Contains(target));
 }
 
 TEST(RectTest, AnyRect_CheckDistanceToContainedPoint_DistanceIs0) {
-  FAIL();
+  fvec2 const center(-2.6f, 1.3f);
+  fvec2 const dimensions(0.2f, 8.3f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-2.6f, 5.1f);
+
+  EXPECT_EQ(rect.DistanceTo(target), 0.0f);
 }
 
 TEST(RectTest, AnyRect_CheckDistanceToExternalPoint_DistanceIsCorrect) {
-  FAIL();
+  fvec2 const center(0.0f, 1.5f);
+  fvec2 const dimensions(1.3f, 5.4f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(0.4f, 8.2f);
+
+  EXPECT_EQ(rect.DistanceTo(target), 4.0f);
 }
 
 TEST(RectTest, AnyRect_CheckDistanceToBoundaryPoint_DistanceIs0) {
-  FAIL();
+  fvec2 const center(-10.2f, 4.3f);
+  fvec2 const dimensions(8.0f, 2.6f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-12.0f, 2.0f);
+
+  EXPECT_EQ(rect.DistanceTo(target), 0.0f);
 }
 
 TEST(RectTest, AnyRect_ClampContainedPoint_PointIsUnchanged) {
-  FAIL();
+  fvec2 const center(2.3f, 8.1f);
+  fvec2 const dimensions(2.1f, 0.5f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(2.6f, 8.2f);
+
+  fvec2 const clamped = rect.Clamp(target);
+
+  EXPECT_EQ(clamped, target);
 }
 
 TEST(RectTest, AnyRect_ClampAboveExternalPoint_ClampedPointIsCorrect) {
@@ -102,6 +165,10 @@ TEST(RectTest, AnyRect_ClampLowerContainedPointToBoundary_ClampedPointIsCorrect)
 }
 
 TEST(RectTest, AnyRect_ClampLeftContainedPointToBoundary_ClampedPointIsCorrect) {
+  FAIL();
+}
+
+TEST(RectTest, AnyRect_ClampCenteredPointToBoundary_ClampedPointIsOnBoundary) {
   FAIL();
 }
 
