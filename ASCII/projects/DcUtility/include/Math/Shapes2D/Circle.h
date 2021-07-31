@@ -9,7 +9,7 @@
 
 class Circle {
 public:
-  Circle(void) = default;
+  Circle(void);
   Circle(fvec2 const & pos, float radius);
 
   fvec2 GetPosition(void) const;

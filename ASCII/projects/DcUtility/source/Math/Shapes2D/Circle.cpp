@@ -6,6 +6,10 @@
 
 #include <cmath>
 
+Circle::Circle(void) :
+  m_radius(0.0f)
+{}
+
 Circle::Circle(fvec2 const & pos, float radius) :
   m_pos(pos),
   m_radius(std::abs(radius))
