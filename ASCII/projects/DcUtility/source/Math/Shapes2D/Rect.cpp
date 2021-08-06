@@ -45,6 +45,23 @@ fvec2 Rect::Clamp(fvec2 const & target) const {
   );
 }
 
-//fvec2 Rect::ClampToBoundary(fvec2 const & target) const {
-//
-//}
+fvec2 Rect::ClampToBoundary(fvec2 const & target) const {
+  fvec2 const clamp = Clamp(target);
+
+  if (clamp != target) {
+    return clamp;
+  }
+
+  float const nearX = m_center.x + m_dims.x * (target.x < m_center.x ? -0.5f : 0.5f);
+  float const nearY = m_center.y + m_dims.y * (target.y < m_center.y ? -0.5f : 0.5f);
+
+  float const xDiff = std::abs(target.x - nearX);
+  float const yDiff = std::abs(target.y - nearY);
+
+  if (xDiff < yDiff) {
+    return fvec2(nearX, target.y);
+  }
+  else {
+    return fvec2(target.x, nearY);
+  }
+}

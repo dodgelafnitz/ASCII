@@ -189,52 +189,171 @@ TEST(RectTest, AnyRect_ClampBelowExternalPoint_ClampedPointIsCorrect) {
 }
 
 TEST(RectTest, AnyRect_ClampBelowLeftExternalPoint_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(5.2f, 0.2f);
+  fvec2 const dimensions(2.0f, 3.6f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(4.0f, -2.4f);
+
+  fvec2 const clamped = rect.Clamp(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, 4.2f);
+  EXPECT_FLOAT_EQ(clamped.y, -1.6f);
 }
 
 TEST(RectTest, AnyRect_ClampLeftExternalPoint_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(-1.2f, 0.8f);
+  fvec2 const dimensions(1.4f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-2.0f, 1.2f);
+
+  fvec2 const clamped = rect.Clamp(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, -1.9f);
+  EXPECT_FLOAT_EQ(clamped.y, 1.2f);
 }
 
 TEST(RectTest, AnyRect_ClampAboveLeftExternalPoint_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(0.1f, 10.2f);
+  fvec2 const dimensions(8.4f, 3.8f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-5.3f, 14.4f);
+
+  fvec2 const clamped = rect.Clamp(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, -4.1f);
+  EXPECT_FLOAT_EQ(clamped.y, 12.1f);
 }
 
 TEST(RectTest, AnyRect_ClampUpperContainedPointToBoundary_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(-2.3f, -5.1f);
+  fvec2 const dimensions(1.4f, 2.8f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-2.2f, -4.0f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, -2.2f);
+  EXPECT_FLOAT_EQ(clamped.y, -3.7);
 }
 
 TEST(RectTest, AnyRect_ClampRightContainedPointToBoundary_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(10.0f, 2.5f);
+  fvec2 const dimensions(6.4f, 4.2f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(12.6f, 2.7f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, 13.2f);
+  EXPECT_FLOAT_EQ(clamped.y, 2.7f);
 }
 
 TEST(RectTest, AnyRect_ClampLowerContainedPointToBoundary_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(-3.1f, -6.6f);
+  fvec2 const dimensions(2.4f, 0.8f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-3.3f, -6.8f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, -3.3f);
+  EXPECT_FLOAT_EQ(clamped.y, -7.0f);
 }
 
 TEST(RectTest, AnyRect_ClampLeftContainedPointToBoundary_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(8.4f, 9.3f);
+  fvec2 const dimensions(4.2f, 3.6f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(6.7f, 9.0f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+
+  EXPECT_FLOAT_EQ(clamped.x, 6.3f);
+  EXPECT_FLOAT_EQ(clamped.y, 9.0f);
 }
 
 TEST(RectTest, AnyRect_ClampCenteredPointToBoundary_ClampedPointIsOnBoundary) {
-  FAIL();
+  fvec2 const center(0.0f, 0.0f);
+  fvec2 const dimensions(2.0f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(0.0f, 0.0f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+
+  bool const onLeftBoundary   = clamped.x == -1.0f;
+  bool const onRightBoundary  = clamped.x == 1.0f;
+  bool const onTopBoundary    = clamped.y == 1.0f;
+  bool const onBottomBoundary = clamped.y == -1.0f;
+
+  bool const onBoundary =
+    onLeftBoundary ||
+    onRightBoundary ||
+    onTopBoundary ||
+    onBottomBoundary
+  ;
+
+  EXPECT_TRUE(onBoundary) <<
+    "  clamped: {" << clamped.x << ", " << clamped.y << "}" << std::endl <<
+    "  x or y should be -1.0f or 1.0f." << std::endl
+  ;
 }
 
 TEST(RectTest, AnyRect_ClampUpperRightContainedPointToBoundary_ClampedPointIsNotInCorner) {
-  FAIL();
+  fvec2 const center(0.0f, 0.0f);
+  fvec2 const dimensions(2.0f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(0.5f, 0.5f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+  fvec2 const corner(1.0f, 1.0f);
+
+  EXPECT_NE(clamped, corner);
 }
 
 TEST(RectTest, AnyRect_ClampLowerRightContainedPointToBoundary_ClampedPointIsNotInCorner) {
-  FAIL();
+  fvec2 const center(0.0f, 0.0f);
+  fvec2 const dimensions(2.0f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(0.5f, -0.5f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+  fvec2 const corner(1.0f, -1.0f);
+
+  EXPECT_NE(clamped, corner);
 }
 
 TEST(RectTest, AnyRect_ClampLowerLeftContainedPointToBoundary_ClampedPointIsNotInCorner) {
-  FAIL();
+  fvec2 const center(0.0f, 0.0f);
+  fvec2 const dimensions(2.0f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-0.5f, -0.5f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+  fvec2 const corner(-1.0f, -1.0f);
+
+  EXPECT_NE(clamped, corner);
 }
 
 TEST(RectTest, AnyRect_ClampUpperLeftContainedPointToBoundary_ClampedPointIsNotInCorner) {
-  FAIL();
+  fvec2 const center(0.0f, 0.0f);
+  fvec2 const dimensions(2.0f, 2.0f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(-0.5f, 0.5f);
+
+  fvec2 const clamped = rect.ClampToBoundary(target);
+  fvec2 const corner(-1.0f, 1.0f);
+
+  EXPECT_NE(clamped, corner);
 }
+
 TEST(RectTest, AnyRect_ClampExternalPointToBoundary_ClampedPointIsCorrect) {
-  FAIL();
+  fvec2 const center(-4.6f, 2.7f);
+  fvec2 const dimensions(8.2f, 3.1f);
+  Rect const  rect(center, dimensions);
+  fvec2 const target(14.2f, 6.2f);
+
+  fvec2 const boundaryClamped = rect.ClampToBoundary(target);
+  fvec2 const clamped         = rect.Clamp(target);
+
+  EXPECT_EQ(clamped, boundaryClamped);
 }
