@@ -6,27 +6,79 @@
 #include "gtest/gtest.h"
 
 TEST(CollisionTest, IntersectingCircles_CheckCollision_Intersect) {
+  Circle const circle0(fvec2(1.3f, 2.6f), 2.0f);
+  Circle const circle1(fvec2(-2.4f, 3.1f), 4.0f);
+
+  Intersection2D const intersection = Intersect(circle0, circle1);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, ContainedCircles_CheckCollision_Intersect) {
+  Circle const circle0(fvec2(-1.4f, -0.6f), 8.3f);
+  Circle const circle1(fvec2(0.1f, -1.1f), 1.2f);
+
+  Intersection2D const intersection = Intersect(circle0, circle1);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, SeparatedCircles_CheckCollision_DoNotIntersect) {
+  Circle const circle0(fvec2(10.4f, 2.6f), 2.1f);
+  Circle const circle1(fvec2(-4.3f, 4.7f), 1.4f);
+
+  Intersection2D const intersection = Intersect(circle0, circle1);
+
+  EXPECT_FALSE(intersection.intersects);
 }
 
 TEST(CollisionTest, IntersectingCircles_CheckCollisionPoint_WithinBoth) {
+  Circle const circle0(fvec2(2.1f, 4.6f), 10.1f);
+  Circle const circle1(fvec2(-3.2f, -1.2f), 1.1f);
+
+  Intersection2D const intersection = Intersect(circle0, circle1);
+
+  EXPECT_TRUE(intersection.intersects);
+  EXPECT_TRUE(circle0.Contains(intersection.point));
+  EXPECT_TRUE(circle1.Contains(intersection.point));
 }
 
 TEST(CollisionTest, IntersectingCircleAndLine_CheckCollision_Intersect) {
+  Circle const circle(fvec2(1.4f, -2.8f), 2.3f);
+  Line const   line(fvec2(-0.6f, -0.8f), 0.5f);
+
+  Intersection2D const intersection = Intersect(circle, line);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, TouchingCircleAndLine_CheckCollision_Intersect) {
+  Circle const circle(fvec2(8.2f, 1.6f), 7.2f);
+  Line const   line(fvec2(1.0f, 0.0f), 1.0f);
+
+  Intersection2D const intersection = Intersect(circle, line);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, SeparatedCircleAndLine_CheckCollision_DoNotIntersect) {
+  Circle const circle(fvec2(-2.1f, 1.7f), 0.3f);
+  Line const   line(fvec2(0.2f, 0.5f), 3.1f);
+
+  Intersection2D const intersection = Intersect(circle, line);
+
+  EXPECT_FALSE(intersection.intersects);
 }
 
 TEST(CollisionTest, IntersectingCircleAndLine_CheckCollisionPoint_WithinBoth) {
+  Circle const circle(fvec2(-0.3f, 2.8f), 1.5f);
+  Line const   line(fvec2(0.1f, 0.7f), 2.4f);
+
+  Intersection2D const intersection = Intersect(circle, line);
+
+  EXPECT_FALSE(intersection.intersects);
+  EXPECT_TRUE(circle.Contains(intersection.point));
+  EXPECT_LT(line.DistanceTo(intersection.point), 0.0001f);
 }
 
 TEST(CollisionTest, IntersectingCircleAndLineSegment_CheckCollision_Intersect) {
