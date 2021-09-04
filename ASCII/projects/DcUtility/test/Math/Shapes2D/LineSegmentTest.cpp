@@ -9,7 +9,7 @@ TEST(LineSegmentTest, CollapsedLineSegment_CheckDistanceToPoint_DistanceIsCorrec
   fvec2 const       pos(0.4f, -1.9f);
   LineSegment const lineSegment(pos, pos);
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(fvec2(3.4f, 2.1f)), 5.0f);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(fvec2(3.4f, 2.1f)), 5.0f);
 }
 
 TEST(LineSegmentTest, CollapsedLineSegment_ProjectPointOntoSegment_ResultIsCollapsedPoint) {
@@ -79,7 +79,7 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBeforeP0_Dista
 
   fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), 0.0f);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(projected), 0.0f);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentAfterP1_DistanceToResultIs0) {
@@ -88,7 +88,7 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentAfterP1_Distan
 
   fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), 0.0f);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(projected), 0.0f);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBetweenPoints_DistanceToResultIs0) {
@@ -97,7 +97,7 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBetweenPoints_
 
   fvec2 const projected = lineSegment.ProjectPointOntoLineSegment(target);
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), 0.0f);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(projected), 0.0f);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineSegmentBeforeP0_DeltaToResultIs0) {
@@ -135,7 +135,7 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineBeforeP0_DistanceToRe
   fvec2 const projected = lineSegment.ProjectPointOntoLine(target);
   float const distance  = (projected - lineSegment.p0).Length();
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), distance);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(projected), distance);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineAfterP1_DistanceToResultIsDistanceToP1) {
@@ -145,7 +145,7 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineAfterP1_DistanceToRes
   fvec2 const projected = lineSegment.ProjectPointOntoLine(target);
   float const distance = (projected - lineSegment.p1).Length();
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), distance);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(projected), distance);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineBetweenPoints_DistanceToResultIs0) {
@@ -154,7 +154,7 @@ TEST(LineSegmentTest, ValidLineSegment_ProjectPointOntoLineBetweenPoints_Distanc
 
   fvec2 const projected = lineSegment.ProjectPointOntoLine(target);
 
-  EXPECT_FLOAT_EQ(lineSegment.GetDistanceToPoint(projected), 0.0f);
+  EXPECT_FLOAT_EQ(lineSegment.DistanceTo(projected), 0.0f);
 }
 
 TEST(LineSegmentTest, ValidLineSegment_GetDeltaToPointBeforeP0_ResultIsNegative) {

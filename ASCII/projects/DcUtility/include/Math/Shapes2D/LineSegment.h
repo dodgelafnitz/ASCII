@@ -19,7 +19,7 @@ struct LineSegment {
   bool operator ==(LineSegment const &) const = default;
   bool operator !=(LineSegment const &) const = default;
 
-  float GetDistanceToPoint(fvec2 const & point) const;
+  float DistanceTo(fvec2 const & point) const;
 
   fvec2 ProjectPointOntoLineSegment(fvec2 const & point) const;
   fvec2 ProjectPointOntoLine(fvec2 const & point) const;

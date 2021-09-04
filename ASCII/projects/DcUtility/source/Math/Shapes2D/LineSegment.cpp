@@ -9,7 +9,7 @@ LineSegment::LineSegment(fvec2 const & p0, fvec2 const & p1) :
   p1(p1)
 {}
 
-float LineSegment::GetDistanceToPoint(fvec2 const & point) const {
+float LineSegment::DistanceTo(fvec2 const & point) const {
   return (ProjectPointOntoLineSegment(point) - point).Length();
 }
 
