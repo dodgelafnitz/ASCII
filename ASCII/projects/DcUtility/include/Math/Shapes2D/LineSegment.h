@@ -24,6 +24,7 @@ struct LineSegment {
   fvec2 ProjectPointOntoLineSegment(fvec2 const & point) const;
   fvec2 ProjectPointOntoLine(fvec2 const & point) const;
   float GetDeltaToProjection(fvec2 const & point) const;
+  fvec2 GetDeltaPoint(float delta) const;
 
   fvec2 GetNormal(void) const;
 

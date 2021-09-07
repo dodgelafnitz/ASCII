@@ -41,6 +41,10 @@ float LineSegment::GetDeltaToProjection(fvec2 const & point) const {
   return length == 0.0f ? 0.0f : length / diff.Length();
 }
 
+fvec2 LineSegment::GetDeltaPoint(float delta) const {
+  return (1.0f - delta) * p0 + delta * p1;
+}
+
 fvec2 LineSegment::GetNormal(void) const {
   fvec2 const diff = p1 - p0;
   return fvec2(-diff.y, diff.x).Normalize();

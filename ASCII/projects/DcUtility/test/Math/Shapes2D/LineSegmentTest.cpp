@@ -193,6 +193,36 @@ TEST(LineSegmentTest, ValidLineSegment_GetDeltaToP1_ResultIs1) {
   EXPECT_FLOAT_EQ(lineSegment.GetDeltaToProjection(lineSegment.p1), 1.0f);
 }
 
+TEST(LineSegmentTest, ValidLineSegment_GetPointAtNegativeDelta_ResultIsCorrect) {
+  LineSegment const lineSegment(fvec2(2.0f, -4.0f), fvec2(3.0f, -5.0f));
+
+  EXPECT_EQ(lineSegment.GetDeltaPoint(-1.0f), fvec2(1.0f, -3.0f));
+}
+
+TEST(LineSegmentTest, ValidLineSegment_GetPointAtDelta0_ResultIsP0) {
+  LineSegment const lineSegment(fvec2(6.1f, 2.3f), fvec2(1.2f, -5.4f));
+
+  EXPECT_EQ(lineSegment.GetDeltaPoint(0.0f), lineSegment.p0);
+}
+
+TEST(LineSegmentTest, ValidLineSegment_GetPointAtNormalDelta_ResultIsCorrect) {
+  LineSegment const lineSegment(fvec2(2.5f, -0.5f), fvec2(4.5f, -1.5f));
+
+  EXPECT_EQ(lineSegment.GetDeltaPoint(0.5f), fvec2(3.5f, -1.0f));
+}
+
+TEST(LineSegmentTest, ValidLineSegment_GetPointAtDelta1_ResultIsP1) {
+  LineSegment const lineSegment(fvec2(2.7f, -1.3f), fvec2(-1.7f, 12.8f));
+
+  EXPECT_EQ(lineSegment.GetDeltaPoint(1.0f), lineSegment.p1);
+}
+
+TEST(LineSegmentTest, ValidLineSegment_GetPointAtDeltaGreaterThan1_ResultIsCorrect) {
+  LineSegment const lineSegment(fvec2(10.5f, 2.5f), fvec2(9.5f, 4.0f));
+
+  EXPECT_EQ(lineSegment.GetDeltaPoint(2.0f), fvec2(8.5f, 5.5f));
+}
+
 TEST(LineSegmentTest, ValidLineSegment_ViewNormal_NormalHasLength1) {
   LineSegment const lineSegment(fvec2(0.0f, -1.1f), fvec2(-0.2f, -0.7f));
 
