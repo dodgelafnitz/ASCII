@@ -38,14 +38,39 @@ Intersection2D Intersect(Circle const & circle, LineSegment const & lineSegment)
 
     if (circle.Contains(closestPoint)) {
       float const yDiffSquared = (closestPoint - circle.GetPosition()).LengthSquared();
-      float const xDiff = std::sqrt(circle.GetRadius() * circle.GetRadius() - yDiffSquared);
+      float const xDiff        = std::sqrt(circle.GetRadius() * circle.GetRadius() - yDiffSquared);
 
       fvec2 const towardsP0 = (lineSegment.p0 - lineSegment.p1).Normalize();
 
       fvec2 const collisionPoint = closestPoint + towardsP0 * xDiff;
-      float const delta = lineSegment.GetDeltaToProjection(collisionPoint);
+      float const delta          = lineSegment.GetDeltaToProjection(collisionPoint);
 
       if (delta >= 0.0f && delta <= 1.0f) {
+        return Intersection2D(collisionPoint, delta);
+      }
+    }
+  }
+
+  return Intersection2D();
+}
+
+Intersection2D Intersect(Circle const & circle, Ray const & ray) {
+  if (circle.Contains(ray.GetRoot())) {
+    return Intersection2D(ray.GetRoot(), 0.0f);
+  }
+  else {
+    fvec2 const closestPoint = ray.ProjectPointOntoLine(circle.GetPosition());
+
+    if (circle.Contains(closestPoint)) {
+      float const yDiffSquared = (closestPoint - circle.GetPosition()).LengthSquared();
+      float const xDiff        = std::sqrt(circle.GetRadius() * circle.GetRadius() - yDiffSquared);
+
+      fvec2 const collisionPoint   = closestPoint - ray.GetDirection() * xDiff;
+      fvec2 const towardsCollision = collisionPoint - ray.GetRoot();
+      float const delta            = towardsCollision.Length();
+      bool const  collisionInFront = towardsCollision.Dot(ray.GetDirection()) > 0.0f;
+
+      if (collisionInFront && delta >= 0.0f) {
         return Intersection2D(collisionPoint, delta);
       }
     }
