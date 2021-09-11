@@ -74,6 +74,15 @@ TEST(DynamicArrayTest, AnyArray_Cleared_SizeIs0) {
 TEST(DynamicArrayTest, ArrayWith0Elements_CheckEmpty_IsEmpty) {
 }
 
+TEST(DynamicArrayTest, ArrayWithElements_CheckEmpty_IsNotEmpty) {
+}
+
+TEST(DynamicArrayTest, ArrayWithMaxElements_CheckFull_IsFull) {
+}
+
+TEST(DynamicArrayTest, ArrayWithNotMaxElements_CheckFull_IsNotFull) {
+}
+
 TEST(DynamicArrayTest, AnyArray_Cleared_ValuesAreDestroyed) {
 }
 
