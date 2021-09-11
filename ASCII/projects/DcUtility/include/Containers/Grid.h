@@ -30,7 +30,7 @@ public:
   }
 
   Grid(void) = default;
-  Grid(uvec<Dimensions> const & size) :
+  Grid(ivec<Dimensions> const & size) :
     m_data(size.Product()),
     m_size(size)
   {}

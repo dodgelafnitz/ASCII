@@ -260,6 +260,12 @@ TEST(CollisionTest, IntersectingCircleAndRay_CheckCollisionDelta_DeltaIsCorrect)
 }
 
 TEST(CollisionTest, IntersectingCircleAndRect_CheckCollision_Intersect) {
+  Circle const circle(fvec2(2.5f, -0.6f), 3.7f);
+  Rect const   rect(fvec2(2.7f, 3.7f), fvec2(0.5f, 2.5f));
+
+  Intersection2D const intersection = Intersect(circle, rect);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, TouchingCircleAndRectAtEdge_CheckCollision_Intersect) {

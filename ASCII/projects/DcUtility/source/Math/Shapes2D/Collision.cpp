@@ -78,3 +78,70 @@ Intersection2D Intersect(Circle const & circle, Ray const & ray) {
 
   return Intersection2D();
 }
+
+Intersection2D Intersect(Circle const & circle, Rect const & rect) {
+  fvec2 const intersect = rect.Clamp(circle.GetPosition());
+
+  if (circle.Contains(intersect)) {
+    fvec2 totalIntersect;
+    int intersectCount = 0;
+
+    fvec2 const halfSize = rect.GetDimensions() * 0.5f;
+    fvec2 const offHalfSize = fvec2(halfSize.x, -halfSize.y);
+
+    fvec2 const corners[] = {
+      rect.GetCenter() + halfSize,
+      rect.GetCenter() + offHalfSize,
+      rect.GetCenter() - halfSize,
+      rect.GetCenter() - offHalfSize,
+    };
+
+    int const edges[][2] = {
+      { 0, 1 },
+      { 1, 2 },
+      { 2, 3 },
+      { 3, 0 },
+      { 0, 3 },
+      { 3, 2 },
+      { 2, 1 },
+      { 1, 0 },
+    };
+
+    for (int i = 0; i < sizeof(edges) / sizeof(*edges); ++i) {
+      LineSegment const edge(corners[edges[i][0]], corners[edges[i][1]]);
+
+      Intersection2D intersection = Intersect(circle, edge);
+
+      if (intersection.intersects) {
+        totalIntersect += intersection.point;
+        ++intersectCount;
+      }
+    }
+
+    fvec2 const containedCircleExtents[] = {
+      circle.GetPosition() + fvec2(circle.GetRadius(),  0.0f),
+      circle.GetPosition() + fvec2(-circle.GetRadius(), 0.0f),
+      circle.GetPosition() + fvec2(0.0f,                circle.GetRadius()),
+      circle.GetPosition() + fvec2(0.0f,                -circle.GetRadius()),
+    };
+
+    for (int i = 0; i < sizeof(containedCircleExtents) / sizeof(*containedCircleExtents); ++i) {
+      if (rect.Contains(containedCircleExtents[i])) {
+        totalIntersect += 2.0f * containedCircleExtents[i];
+        intersectCount += 2;
+      }
+    }
+
+    if (intersectCount == 0) {
+      return Intersection2D(intersect);
+    }
+    else {
+      totalIntersect /= float(intersectCount);
+
+      return Intersection2D(totalIntersect);
+    }
+  }
+  else {
+    return Intersection2D();
+  }
+}

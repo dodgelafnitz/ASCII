@@ -31,6 +31,7 @@ set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/PolygonTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Math/Shapes2D/CollisionTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Containers/GridTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Containers/DynamicArrayTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/General/DelagateTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Helpers/TemplateHelpersTest.cpp"
 )
