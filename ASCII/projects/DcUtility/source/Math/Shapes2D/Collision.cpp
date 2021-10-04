@@ -83,10 +83,9 @@ Intersection2D Intersect(Circle const & circle, Rect const & rect) {
   fvec2 const intersect = rect.Clamp(circle.GetPosition());
 
   if (circle.Contains(intersect)) {
-    fvec2 totalIntersect;
-    int intersectCount = 0;
+    fvec2 const farIntersect = rect.Clamp(circle.ClampToBoundary(intersect));
 
-    fvec2 const halfSize = rect.GetDimensions() * 0.5f;
+    fvec2 const halfSize    = rect.GetDimensions() * 0.5f;
     fvec2 const offHalfSize = fvec2(halfSize.x, -halfSize.y);
 
     fvec2 const corners[] = {
@@ -107,14 +106,19 @@ Intersection2D Intersect(Circle const & circle, Rect const & rect) {
       { 1, 0 },
     };
 
+    fvec2 minVals(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    fvec2 maxVals(std::numeric_limits<float>::min(), std::numeric_limits<float>::min());
+
     for (int i = 0; i < sizeof(edges) / sizeof(*edges); ++i) {
       LineSegment const edge(corners[edges[i][0]], corners[edges[i][1]]);
 
       Intersection2D intersection = Intersect(circle, edge);
 
       if (intersection.intersects) {
-        totalIntersect += intersection.point;
-        ++intersectCount;
+        minVals.x = std::min(minVals.x, intersection.point.x);
+        minVals.y = std::min(minVals.y, intersection.point.y);
+        maxVals.x = std::max(maxVals.x, intersection.point.x);
+        maxVals.y = std::max(maxVals.y, intersection.point.y);
       }
     }
 
@@ -127,21 +131,53 @@ Intersection2D Intersect(Circle const & circle, Rect const & rect) {
 
     for (int i = 0; i < sizeof(containedCircleExtents) / sizeof(*containedCircleExtents); ++i) {
       if (rect.Contains(containedCircleExtents[i])) {
-        totalIntersect += 2.0f * containedCircleExtents[i];
-        intersectCount += 2;
+        minVals.x = std::min(minVals.x, containedCircleExtents[i].x);
+        minVals.y = std::min(minVals.y, containedCircleExtents[i].y);
+        maxVals.x = std::max(maxVals.x, containedCircleExtents[i].x);
+        maxVals.y = std::max(maxVals.y, containedCircleExtents[i].y);
       }
     }
 
-    if (intersectCount == 0) {
-      return Intersection2D(intersect);
-    }
-    else {
-      totalIntersect /= float(intersectCount);
+    fvec2 const circleBased = (intersect + farIntersect) * 0.5f;
+    fvec2 const areaBased   = (minVals + maxVals) * 0.5f;
 
-      return Intersection2D(totalIntersect);
-    }
+    //float const delta = 0.25f;
+
+    //fvec2 const reportedIntersection = circleBased * delta + areaBased * (1.0f - delta);
+
+    // TODO: Fix to be a better approximation of center of weight for shape.
+    return Intersection2D(areaBased);
   }
   else {
     return Intersection2D();
   }
+}
+
+Intersection2D Intersect(Line const & line, Circle const & circle) {
+  return Intersect(circle, line);
+}
+
+Intersection2D Intersect(Line const & line0, Line const & line1) {
+  fvec2 const normal0 = line0.GetNormal();
+  fvec2 const normal1 = line1.GetNormal();
+
+  fvec2 const root0 = line0.GetRoot();
+  fvec2 const root1 = line1.GetRoot();
+
+  if (normal0 == normal1 || normal0 == -normal1) {
+    if (root0 == root1) {
+      return Intersection2D(root0);
+    }
+    else {
+      return Intersection2D();
+    }
+  }
+
+  fvec2 const dir0(-normal0.y, normal0.x);
+
+  fvec2 const diff = root1 - root0;
+
+  float const delta0 = diff.Dot(normal1) / dir0.Dot(normal1);
+
+  return Intersection2D(root0 + dir0 * delta0);
 }

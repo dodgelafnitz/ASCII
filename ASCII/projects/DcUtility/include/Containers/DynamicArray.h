@@ -145,6 +145,4 @@ private:
   char m_data[Capacity * sizeof(T)];
 };
 
-
-
 #endif // DCUTILITY_CONTAINERS_DYNAMICARRAY_H

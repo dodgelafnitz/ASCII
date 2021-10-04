@@ -82,4 +82,75 @@ private:
   std::string m_value;
 };
 
+class DestructorCheck {
+public:
+  DestructorCheck(void) = default;
+  DestructorCheck(bool * destructed) :
+    m_destructed(destructed)
+  {}
+
+  DestructorCheck(DestructorCheck const &) = default;
+
+  DestructorCheck(DestructorCheck && check) :
+    m_destructed(check.m_destructed)
+  {
+    check.m_destructed = nullptr;
+  }
+
+  ~DestructorCheck(void) {
+    if (m_destructed) {
+      *m_destructed = true;
+    }
+  }
+
+private:
+  bool * m_destructed = nullptr;
+};
+
+class MoveCheck {
+public:
+  enum class State {
+    Default,
+    MovedTo,
+    CopiedTo,
+    MovedFrom,
+  };
+
+  MoveCheck(void) = default;
+
+  MoveCheck(MoveCheck const & check) :
+    m_state(State::CopiedTo)
+  {}
+
+  MoveCheck(MoveCheck && check) :
+    m_state(State::MovedTo)
+  {
+    check.m_state = State::MovedFrom;
+  }
+
+  MoveCheck & operator =(MoveCheck const & check) {
+    if (&check != this) {
+      m_state = State::CopiedTo;
+    }
+
+    return *this;
+  }
+
+  MoveCheck & operator =(MoveCheck && check) {
+    if (&check != this) {
+      m_state       = State::MovedTo;
+      check.m_state = State::MovedFrom;
+    }
+
+    return *this;
+  }
+
+  State GetState(void) const {
+    return m_state;
+  }
+
+private:
+  State m_state = State::Default;
+};
+
 #endif // DCTESTUTILITY_HELPERS_TESTHELPERS_H

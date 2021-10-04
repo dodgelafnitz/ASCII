@@ -269,33 +269,99 @@ TEST(CollisionTest, IntersectingCircleAndRect_CheckCollision_Intersect) {
 }
 
 TEST(CollisionTest, TouchingCircleAndRectAtEdge_CheckCollision_Intersect) {
+  Circle const circle(fvec2(1.5, 3.7f), 1.5f);
+  Rect const   rect(fvec2(4.0f, -2.4f), fvec2(2.0f, 42.5f));
+
+  Intersection2D const intersection = Intersect(circle, rect);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, TouchingCircleAndRectAtCorner_CheckCollision_Intersect) {
+  Circle const circle(fvec2(-2.5f, -1.5f), 5.0f);
+  Rect const   rect(fvec2(3.5f, 4.5f), fvec2(4.0f, 6.0f));
+
+  Intersection2D const intersection = Intersect(circle, rect);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, SeparateCircleAndRect_CheckCollision_DoNotIntersect) {
+  Circle const circle(fvec2(8.3f, -2.2f), 9.1f);
+  Rect const   rect(fvec2(-5.6f, -2.4f), fvec2(2.1f, 1.3f));
+
+  Intersection2D const intersection = Intersect(circle, rect);
+
+  EXPECT_FALSE(intersection.intersects);
 }
 
 TEST(CollisionTest, IntersectingCircleAndRect_CheckCollisionPoint_WithinBoth) {
+  Circle const circle(fvec2(0.5f, 9.2f), 5.4f);
+  Rect const   rect(fvec2(2.3f, 6.3f), fvec2(5.1f, 12.1f));
+
+  Intersection2D const intersection = Intersect(circle, rect);
+
+  ASSERT_TRUE(intersection.intersects);
+
+  EXPECT_TRUE(circle.Contains(intersection.point));
+  EXPECT_TRUE(rect.Contains(intersection.point));
 }
 
 TEST(CollisionTest, IntersectingLines_CheckCollision_Intersect) {
+  Line const line0(fvec2(1.0f, 0.0f), 3.0f);
+  Line const line1(fvec2(0.8f, 0.6f), 2.1f);
+
+  Intersection2D const intersection = Intersect(line0, line1);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, SeparateParallelLines_CheckCollision_DoNotIntersect) {
+  Line const line0(fvec2(-0.6f, 0.8f), 1.4f);
+  Line const line1(fvec2(0.6f, -0.8f), 0.3f);
+
+  Intersection2D const intersection = Intersect(line0, line1);
+
+  EXPECT_FALSE(intersection.intersects);
 }
 
 TEST(CollisionTest, IdenticalParallelLines_CheckCollision_Intersect) {
+  Line const line(fvec2(0.2f, 0.5f), 1.3f);
+
+  Intersection2D const intersection = Intersect(line, line);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, FlippedFacingIdenticalParallelLines_CheckCollision_Intersect) {
+  Line const line0(fvec2(-1.0f, 0.0f), 2.0f);
+  Line const line1(fvec2(1.0f, 0.0f), -2.0f);
+
+  Intersection2D const intersection = Intersect(line0, line1);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, IntersectingLines_CheckCollisionPoint_WithinBoth) {
+  Line const line0(fvec2(0.2f, 4.3f), 10.1f);
+  Line const line1(fvec2(-3.1f, 2.1f), -26.7f);
+
+  Intersection2D const intersection = Intersect(line0, line1);
+
+  ASSERT_TRUE(intersection.intersects);
+
+  EXPECT_LT(line0.DistanceTo(intersection.point), 0.0001f);
+  EXPECT_LT(line1.DistanceTo(intersection.point), 0.0001f);
 }
 
 TEST(CollisionTest, IdenticalParallelLines_CheckCollisionPoint_WithinBoth) {
+  Line const line(fvec2(0.2f, 0.5f), 1.3f);
+
+  Intersection2D const intersection = Intersect(line, line);
+
+  ASSERT_TRUE(intersection.intersects);
+
+  EXPECT_LT(line.DistanceTo(intersection.point), 0.0001f);
 }
 
 TEST(CollisionTest, IntersectingLineAndLineSegment_CheckCollision_Intersect) {

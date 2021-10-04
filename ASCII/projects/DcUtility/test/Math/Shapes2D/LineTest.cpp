@@ -110,6 +110,15 @@ TEST(LineTest, FacingIsSet_CheckRoot_RootIsUnchanged) {
   EXPECT_EQ(line.GetRoot(), root);
 }
 
+TEST(LineTest, AnyLine_CheckRoot_RootIsClosestToOrigin) {
+  Line const line(fvec2(1.3f, -0.2f), 12.5f);
+
+  fvec2 const root            = line.GetRoot();
+  fvec2 const projectedOrigin = line.ProjectPointOnto(fvec2());
+
+  EXPECT_EQ(root, projectedOrigin);
+}
+
 TEST(LineTest, BuiltFromPointAndNormal_CheckDistanceToPoint_DistanceIs0) {
   Line const line = Line::BuildFromPointAndNormal(fvec2(1.0f, 4.2f), fvec2(1.3f, 5.4f));
 
