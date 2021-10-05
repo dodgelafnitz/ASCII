@@ -259,10 +259,14 @@ TEST(RayTest, AnyRay_ProjectPointOntoRayBeforeRayPath_ProjectionIsRoot) {
 }
 
 TEST(RayTest, AnyRay_ProjectPointOntoRayAlongRayPath_ProjectionIsClosestPointToPoint) {
-  Ray const   ray(fvec2(1.5f,-4.5f), fvec2(1.0f, 1.0f));
+  Ray const   ray(fvec2(1.5f, -4.5f), fvec2(1.0f, 1.0f));
   fvec2 const target(4.0f, 8.0f);
 
-  EXPECT_EQ(ray.ProjectPointOntoRay(target), fvec2(9.0f, 3.0f));
+  fvec2 const projected = ray.ProjectPointOntoLine(target);
+  fvec2 const expected  = fvec2(9.0f, 3.0f);
+
+  EXPECT_FLOAT_EQ(projected.x, expected.x);
+  EXPECT_FLOAT_EQ(projected.y, expected.y);
 }
 
 TEST(RayTest, AnyRay_ProjectPointOntoLineBeforeRayPath_ProjectionIsAlongDirectionFromRoot) {

@@ -88,6 +88,7 @@ fvec2 Ray::ProjectPointOntoRay(fvec2 const & point) const {
     return dist * m_dir + m_root;
   }
 }
+
 fvec2 Ray::ProjectPointOntoLine(fvec2 const & point) const {
   fvec2 const diff = point - m_root;
   float const dist = diff.Dot(m_dir);

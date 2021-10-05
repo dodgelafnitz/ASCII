@@ -258,10 +258,10 @@ TEST(VectorTest, Length_CheckResult_ResultIsLength) {
 }
 
 TEST(VectorTest, NormalizedVector_CheckLength_LengthIs1) {
-  Vector<float, 3> vec(12.0f, 3.0f, 4.0f);
+  Vector<float, 3> vec(2.7f, -4.3f, 10.1f);
   vec.Normalize();
 
-  ASSERT_FLOAT_EQ(vec.Length(), 1.0f);
+  ASSERT_EQ(vec.Length(), 1.0f);
 }
 
 TEST(VectorTest, Normalized0Vector_CheckLength_LengthIs0) {

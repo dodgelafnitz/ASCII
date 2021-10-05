@@ -334,9 +334,13 @@ public:
   }
 
   Vector & Normalize(void) {
-    T const length = Length();
+    for (int i = 0; i < c_normalizationPasses; ++i) {
+      T const length = Length();
 
-    if (length != T(0)) {
+      if (length == T(0) || length == T(1)) {
+        break;
+      }
+
       operator /=(length);
     }
 
@@ -526,6 +530,9 @@ public:
   Vector operator %(U const & val) const {
     return Vector(*this) %= val;
   }
+
+private:
+  static int const c_normalizationPasses = 3;
 };
 
 template <typename T, typename U, int Count>

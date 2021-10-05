@@ -164,6 +164,9 @@ Intersection2D Intersect(Line const & line0, Line const & line1) {
   fvec2 const root0 = line0.GetRoot();
   fvec2 const root1 = line1.GetRoot();
 
+  float const len0 = line0.GetNormal().Length();
+  float const len1 = line1.GetNormal().Length();
+
   if (normal0 == normal1 || normal0 == -normal1) {
     if (root0 == root1) {
       return Intersection2D(root0);
@@ -173,11 +176,43 @@ Intersection2D Intersect(Line const & line0, Line const & line1) {
     }
   }
 
-  fvec2 const dir0(-normal0.y, normal0.x);
+  fvec2 const dir0      = fvec2(-normal0.y, normal0.x);
+  fvec2 const diff      = root1 - root0;
+  //float const alignment = dir0.Dot(normal1);
 
-  fvec2 const diff = root1 - root0;
-
+  //float const delta0 = (alignment == 0.0f) ? 0.0f : diff.Dot(normal1) / alignment;
   float const delta0 = diff.Dot(normal1) / dir0.Dot(normal1);
 
   return Intersection2D(root0 + dir0 * delta0);
+}
+
+// Todo: Optimize
+Intersection2D Intersect(Line const & line, LineSegment const & lineSegment) {
+  float const side0 = line.GetNormal().Dot(lineSegment.p0 - line.GetRoot());
+  float const side1 = line.GetNormal().Dot(lineSegment.p1 - line.GetRoot());
+
+  float const sideDiff = side0 * side1;
+
+  if (sideDiff > 0.0f) {
+    return Intersection2D();
+  }
+  else if (sideDiff == 0.0f) {
+    return Intersection2D(lineSegment.p0);
+  }
+
+  Intersection2D const intersection = Intersect(line, lineSegment.GetLine());
+
+  // This shouldn't happen
+  if (!intersection.intersects) {
+    return Intersection2D();
+  }
+
+  float const delta = lineSegment.GetDeltaToProjection(intersection.point);
+
+  if (delta >= 0.0f && delta <= 1.0f) {
+    return Intersection2D(intersection.point, delta);
+  }
+  else {
+    return Intersection2D();
+  }
 }
