@@ -4,6 +4,8 @@
 
 #include "Math/Shapes2D/Collision.h"
 
+#include "Containers/DynamicArray.h"
+
 Intersection2D Intersect(Circle const & circle0, Circle const & circle1) {
   fvec2 const intersectionPoint0 = circle1.Clamp(circle0.GetPosition());
   fvec2 const intersectionPoint1 = circle0.Clamp(circle1.GetPosition());
@@ -196,8 +198,11 @@ Intersection2D Intersect(Line const & line, LineSegment const & lineSegment) {
   if (sideDiff > 0.0f) {
     return Intersection2D();
   }
-  else if (sideDiff == 0.0f) {
-    return Intersection2D(lineSegment.p0);
+  else if (side0 == 0.0f) {
+    return Intersection2D(lineSegment.p0, 0.0f);
+  }
+  else if (side1 == 0.0f) {
+    return Intersection2D(lineSegment.p1, 1.0f);
   }
 
   Intersection2D const intersection = Intersect(line, lineSegment.GetLine());
@@ -214,5 +219,89 @@ Intersection2D Intersect(Line const & line, LineSegment const & lineSegment) {
   }
   else {
     return Intersection2D();
+  }
+}
+
+// Todo: Optimize
+Intersection2D Intersect(Line const & line, Ray const & ray) {
+  float const rootSide    = line.GetNormal().Dot(ray.GetRoot() - line.GetRoot());
+  float const headingSide = line.GetNormal().Dot(ray.GetDirection());
+
+  float const sideDiff = rootSide * headingSide;
+
+  if (sideDiff > 0.0f) {
+    return Intersection2D();
+  }
+  else if (rootSide == 0.0f) {
+    return Intersection2D(ray.GetRoot());
+  }
+  else if (headingSide == 0.0f) {
+    return Intersection2D();
+  }
+
+  Intersection2D const intersection = Intersect(line, ray.GetLine());
+
+  // This shouldn't happen
+  if (!intersection.intersects) {
+    return Intersection2D();
+  }
+
+  float const delta = ray.GetDirection().Dot(intersection.point - ray.GetRoot());
+
+  if (delta >= 0.0f) {
+    return Intersection2D(intersection.point, delta);
+  }
+  else {
+    return Intersection2D();
+  }
+}
+
+Intersection2D Intersect(Line const & line, Rect const & rect) {
+  fvec2 const root = line.GetRoot();
+
+  fvec2 const center      = rect.GetCenter();
+  fvec2 const halfSize    = rect.GetDimensions() * 0.5f;
+  fvec2 const offHalfSize = fvec2(-halfSize.x, halfSize.y);
+
+  fvec2 const corners[4] = {
+    center + halfSize,
+    center + offHalfSize,
+    center - halfSize,
+    center - offHalfSize,
+  };
+
+  LineSegment const edges[4] = {
+    LineSegment(corners[0], corners[1]),
+    LineSegment(corners[1], corners[2]),
+    LineSegment(corners[2], corners[3]),
+    LineSegment(corners[3], corners[0]),
+  };
+
+  DynamicArray<fvec2, 2> intersections;
+
+  for (int i = 0; i < 4; ++i) {
+    Intersection2D intersect = Intersect(line, edges[i]);
+
+    if (intersect.intersects) {
+      if (intersections.Empty()) {
+        intersections.Emplace(intersect.point);
+      }
+      else {
+        if (intersections[0] != intersect.point) {
+          intersections.Emplace(intersect.point);
+          break;
+        }
+      }
+    }
+  }
+
+  switch (intersections.Count()) {
+    default:
+    case 0:
+      return Intersection2D();
+    case 1:
+      return Intersection2D(intersections[0]);
+    case 2:
+      return Intersection2D((intersections[0] + intersections[1]) * 0.5f);
   }
 }
