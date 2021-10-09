@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.19.0)
 project(ASCII C CXX)
 
 set("ENV{DCG_ENABLE_TESTS}" TRUE)
-set("ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" TRUE)
 
 string(TIMESTAMP currentYear "%Y")
 set("ENV{DCG_COPYWRITE}" "/*\n * Copywrite ${currentYear} Dodge Lafnitzegger\n */\n\n")

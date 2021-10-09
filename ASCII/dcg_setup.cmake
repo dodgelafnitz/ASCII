@@ -14,7 +14,8 @@
 # [ ] edittable testing location/includes/name
 # [ ] correct line feeds
 # [X] file moving header guard updating
-# [ ] fix submodule externals on first pull
+# [X] fix submodule externals on first pull
+# [ ] fix submodules using dcg to have own environment vars
 ###########################
 
 function(DCG_set_default_setting setting value)
@@ -25,10 +26,12 @@ endfunction()
 
 DCG_set_default_setting(DCG_ENABLE_TESTS FALSE)
 DCG_set_default_setting(DCG_CPP_STANDARD 20)
-DCG_set_default_setting(DCG_DEBUG_PRINT_STRUCTURE FALSE)
 DCG_set_default_setting(DCG_COPYWRITE "")
 DCG_set_default_setting(DCG_ENABLE_CMAKE_REGEN TRUE)
+
+DCG_set_default_setting(DCG_DEBUG_PRINT_STRUCTURE FALSE)
 DCG_set_default_setting(DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS FALSE)
+DCG_set_default_setting(DCG_DEBUG_PRINT_FILE_ACTIONS TRUE)
 
 function(DCG_add_interface_source_group targetName)
   get_target_property(targetSourceDir "${targetName}" SOURCE_DIR)
@@ -405,7 +408,7 @@ function(DCG_create_files)
           if(NOT "$ENV{${fileId}_PREVIOUS_LOCATION}" STREQUAL "")
             set(previousFilePath "${CMAKE_SOURCE_DIR}/projects/${projectName}/${sourceArea}/$ENV{${fileId}_PREVIOUS_LOCATION}${fileSuffix}${fileType}")
             if(EXISTS "${previousFilePath}")
-              message("moving ${previousFilePath} to ${filePath}")
+              DCG_message_if("$ENV{DCG_DEBUG_PRINT_FILE_ACTIONS}" "moving ${previousFilePath} to ${filePath}")
               DCG_safe_move("${previousFilePath}" "${filePath}")
               set(fileIsPresent TRUE)
 
@@ -431,11 +434,11 @@ function(DCG_create_files)
           endif()
 
           if(NOT fileIsPresent)
-            message("creating ${filePath}")
+            DCG_message_if("$ENV{DCG_DEBUG_PRINT_FILE_ACTIONS}" "creating ${filePath}")
             file(WRITE "${filePath}" "${fileContent}")
           endif()
         elseif(NOT "$ENV{${fileId}_PREVIOUS_LOCATION}" STREQUAL "")
-          message("${filePath} already exists. Please remove _MOVED suffix from DCG command")
+          DCG_message_if("$ENV{DCG_DEBUG_PRINT_FILE_ACTIONS}" "${filePath} already exists. Please remove _MOVED suffix from DCG command")
         endif()
       endforeach()
     endforeach()
