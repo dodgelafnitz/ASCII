@@ -13,7 +13,7 @@
 class Ray {
 public:
   Ray(void);
-  Ray(fvec2 const & root, fvec2 const & diirection);
+  Ray(fvec2 const & root, fvec2 const & direction);
 
   Ray(Ray const &) = default;
 

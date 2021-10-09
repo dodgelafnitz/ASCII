@@ -12,9 +12,9 @@ Ray::Ray(void) :
   m_dir(c_defaultDirection)
 {}
 
-Ray::Ray(fvec2 const & root, fvec2 const & diirection) :
+Ray::Ray(fvec2 const & root, fvec2 const & direction) :
   m_root(root),
-  m_dir(diirection.Normal())
+  m_dir(direction.Normal())
 {}
 
 fvec2 Ray::GetRoot(void) const {

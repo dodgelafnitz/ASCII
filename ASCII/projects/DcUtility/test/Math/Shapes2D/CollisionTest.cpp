@@ -625,33 +625,101 @@ TEST(CollisionTest, TouchingLineAndRect_CheckCollision_Intersect) {
 }
 
 TEST(CollisionTest, SeparateLineAndRect_CheckCollision_DoNotIntersect) {
+  Line const line = Line(fvec2(0.1f, 0.9f), 5.2f);
+  Rect const rect = Rect(fvec2(12.3f, -4.1f), fvec2(2.1f, 5.2f));
+
+  Intersection2D const intersection = Intersect(line, rect);
+
+  EXPECT_FALSE(intersection.intersects);
 }
 
 TEST(CollisionTest, IntersectingLineAndRect_CheckCollisionPoint_WithinBoth) {
+  Line const line = Line(fvec2(-0.7f, -0.8f), 2.3f);
+  Rect const rect = Rect(fvec2(1.4f, -6.8f), fvec2(8.3f, 0.4f));
+
+  Intersection2D const intersection = Intersect(line, rect);
+
+  ASSERT_TRUE(intersection.intersects);
+
+  EXPECT_LT(line.DistanceTo(intersection.point), 0.0001f);
+  EXPECT_TRUE(rect.Contains(intersection.point));
 }
 
 TEST(CollisionTest, IntersectingLineSegments_CheckCollision_Intersect) {
+  LineSegment const lineSegment0 = LineSegment(fvec2(0.1f, 4.3f), fvec2(-1.5f, -2.6f));
+  LineSegment const lineSegment1 = LineSegment(fvec2(-3.1f, 1.2f), fvec2(8.1f, -1.2f));
+
+  Intersection2D const intersection = Intersect(lineSegment0, lineSegment1);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, TouchingLineSegments_CheckCollision_Intersect) {
+  LineSegment const lineSegment0 = LineSegment(fvec2(1.5f, 3.0f), fvec2(5.5f, 5.0f));
+  LineSegment const lineSegment1 = LineSegment(fvec2(3.5f, 4.0f), fvec2(8.0f, -10.0f));
+
+  Intersection2D const intersection = Intersect(lineSegment0, lineSegment1);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, SeparateLineSegments_CheckCollision_DoNotIntersect) {
+  LineSegment const lineSegment0 = LineSegment(fvec2(8.2f, -1.3f), fvec2(3.6f, -2.1f));
+  LineSegment const lineSegment1 = LineSegment(fvec2(-5.1f, 2.6f), fvec2(9.2f, 0.3f));
+
+  Intersection2D const intersection = Intersect(lineSegment0, lineSegment1);
+
+  EXPECT_FALSE(intersection.intersects);
 }
 
 TEST(CollisionTest, IntersectingLineSegments_CheckCollisionPoint_WithinBoth) {
+  LineSegment const lineSegment0 = LineSegment(fvec2(0.5f, 5.7f), fvec2(-6.1f, -10.1f));
+  LineSegment const lineSegment1 = LineSegment(fvec2(-3.1f, 3.2f), fvec2(5.0f, -8.3f));
+
+  Intersection2D const intersection = Intersect(lineSegment0, lineSegment1);
+
+  ASSERT_TRUE(intersection.intersects);
+
+  EXPECT_LT(lineSegment0.DistanceTo(intersection.point), 0.0001f);
+  EXPECT_LT(lineSegment1.DistanceTo(intersection.point), 0.0001f);
 }
 
 TEST(CollisionTest, IntersectingLineSegments_CheckCollisionDelta_DeltaIsCorrectForLineSegment0) {
+  LineSegment const lineSegment0 = LineSegment(fvec2(0.0f, 0.0f), fvec2(8.0f, 4.0f));
+  LineSegment const lineSegment1 = LineSegment(fvec2(3.0f, 5.0f), fvec2(1.0f, -3.0f));
+
+  Intersection2D const intersection = Intersect(lineSegment0, lineSegment1);
+
+  ASSERT_TRUE(intersection.intersects);
+
+  EXPECT_FLOAT_EQ(intersection.delta, 0.25f);
 }
 
 TEST(CollisionTest, IntersectingLineSegmentAndRay_CheckCollision_Intersect) {
+  LineSegment const lineSegment = LineSegment(fvec2(0.0f, 0.0f), fvec2(8.0f, 4.0f));
+  Ray const         ray         = Ray(fvec2(4.1f, -1.8f), fvec2(0.3f, 0.9f));
+
+  Intersection2D const intersection = Intersect(lineSegment, ray);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, TouchingLineSegmentAndRayOnLineSegmentPoint_CheckCollision_Intersect) {
+  LineSegment const lineSegment = LineSegment(fvec2(2.0f, 4.0f), fvec2(9.2f, -3.1f));
+  Ray const         ray         = Ray(fvec2(2.0f, -1.8f), fvec2(0.0f, 1.0f));
+
+  Intersection2D const intersection = Intersect(lineSegment, ray);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, TouchingLineSegmentAndRayOnRayRoot_CheckCollision_Intersect) {
+  LineSegment const lineSegment = LineSegment(fvec2(0.0f, 3.1f), fvec2(0.0f, -4.8f));
+  Ray const         ray         = Ray(fvec2(0.0f, 0.0f), fvec2(0.4f, 0.8f));
+
+  Intersection2D const intersection = Intersect(lineSegment, ray);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, ContainedLineSegmentAndRay_CheckCollision_Intersect) {
