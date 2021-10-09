@@ -14,6 +14,7 @@
 # [ ] edittable testing location/includes/name
 # [ ] correct line feeds
 # [X] file moving header guard updating
+# [ ] fix submodule externals on first pull
 ###########################
 
 function(DCG_set_default_setting setting value)
@@ -27,6 +28,7 @@ DCG_set_default_setting(DCG_CPP_STANDARD 20)
 DCG_set_default_setting(DCG_DEBUG_PRINT_STRUCTURE FALSE)
 DCG_set_default_setting(DCG_COPYWRITE "")
 DCG_set_default_setting(DCG_ENABLE_CMAKE_REGEN TRUE)
+DCG_set_default_setting(DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS FALSE)
 
 function(DCG_add_interface_source_group targetName)
   get_target_property(targetSourceDir "${targetName}" SOURCE_DIR)
@@ -56,6 +58,12 @@ function(DCG_append_env_list envList element)
   set(editList "$ENV{${envList}}")
   list(APPEND editList "${element}")
   set("ENV{${envList}}" "${editList}")
+endfunction()
+
+function(DCG_message_if condition messageVal)
+  if("${condition}")
+    message("${messageVal}")
+  endif()
 endfunction()
 
 function(DCG_PROJECT name type)
@@ -433,19 +441,34 @@ function(DCG_create_files)
     endforeach()
   endforeach()
 
+  DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "Submodule Generation Info:")
+
   set(hasSubmodules FALSE)
   foreach(externalName IN ITEMS $ENV{DCG_SOLUTION_EXTERNALS})
+    DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "  ${externalName}")
     if(NOT EXISTS "${CMAKE_SOURCE_DIR}/externals/${externalName}")
+      DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "    ${CMAKE_SOURCE_DIR}/externals/${externalName} doesn't exist")
       if("$ENV{DCG_EXTERNAL_${externalName}_TYPE}" STREQUAL DCG_SUBMODULE)
+        DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "    It's a submodule, running 'git submodule add \"$ENV{DCG_EXTERNAL_${externalName}_LOCATION}\" \"./externals/${externalName}\"'")
         execute_process(COMMAND git submodule add "$ENV{DCG_EXTERNAL_${externalName}_LOCATION}" "./externals/${externalName}")
-		set(hasSubmodules TRUE)
+        set(hasSubmodules TRUE)
       else()
+        DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "    It's not a submodule, creating '${CMAKE_SOURCE_DIR}/externals/${externalName}/CMakeLists.txt'")
         file(TOUCH "${CMAKE_SOURCE_DIR}/externals/${externalName}/CMakeLists.txt")
+      endif()
+    else()
+      DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "    ${CMAKE_SOURCE_DIR}/externals/${externalName} already exists")
+      if("$ENV{DCG_EXTERNAL_${externalName}_TYPE}" STREQUAL DCG_SUBMODULE)
+        DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "    It's a submodule")
+        set(hasSubmodules TRUE)
+      else()
+        DCG_message_if("$ENV{DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "    It's not a submodule")
       endif()
     endif()
   endforeach()
 
   if(hasSubmodules)
+    DCG_message_if("${DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS}" "  Submodules found, updating with 'git submodule update \"--init\" \"--recursive\"'")
     execute_process(COMMAND git submodule update "--init" "--recursive")
   endif()
 endfunction()
