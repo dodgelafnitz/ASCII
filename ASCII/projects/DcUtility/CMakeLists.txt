@@ -37,7 +37,6 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/DynamicArray.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Color.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Delagate.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/Helpers/TemplateHelpers.h"
 )
 
 set(src

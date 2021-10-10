@@ -43,9 +43,6 @@ DCG_BEGIN()
       DCG_FILE_CPP_NO_TEST("Color")
       DCG_FILE_CPP_HEADER_ONLY("Delagate")
     DCG_END_FOLDER()
-    DCG_FOLDER("Helpers")
-      DCG_FILE_CPP_HEADER_ONLY("TemplateHelpers")
-    DCG_END_FOLDER()
   DCG_END_PROJECT()
 
   DCG_PROJECT_LIB("Ascii"

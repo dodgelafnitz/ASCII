@@ -7,7 +7,6 @@
 
 #include <tuple>
 
-#include "Helpers/TemplateHelpers.h"
 #include "Helpers/TestHelpers.h"
 
 TEST(VectorTest, CountIs1_DefaultConstructed_ElementIsDefaultConstructed) {
