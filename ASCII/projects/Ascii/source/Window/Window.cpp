@@ -4,10 +4,15 @@
 
 #include "Window/Window.h"
 
+#include<cstring>
+
 #define _WIN32_TINNT 0x500
 #define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
+#ifndef NOMINMAX
+  #define NOMINMAX
+#endif
 #include <Windows.h>
+
 
 /*
 

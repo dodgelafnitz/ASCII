@@ -128,13 +128,13 @@ namespace {
   };
 
   template <auto T>
-  using ExpectedCountType = std::conditional_t<std::is_same_v<decltype(T), nullptr_t>, int, decltype(T)>;
+  using ExpectedCountType = std::conditional_t<std::is_same_v<decltype(T), std::nullptr_t>, int, decltype(T)>;
 
   template <typename Base, auto ExpectedCount = nullptr, typename Element, int Count>
   DataTable<Base, Element, Count, ExpectedCountType<ExpectedCount>> MakeDataTable(
     Element const (& array)[Count]
   ) {
-    if constexpr (!std::is_same_v<decltype(ExpectedCount), nullptr_t>) {
+    if constexpr (!std::is_same_v<decltype(ExpectedCount), std::nullptr_t>) {
       static_assert(int(ExpectedCount) == Count);
 
       return DataTable<Base, Element, int(ExpectedCount), decltype(ExpectedCount)>(array);
@@ -143,6 +143,20 @@ namespace {
       return DataTable<Base, Element, Count>(array);
     }
   }
+
+  class StaticMessageException : public std::exception {
+  public:
+    StaticMessageException(char const * message) :
+      m_message(message)
+    {}
+
+    virtual char const * what(void) const noexcept override {
+      return m_message;
+    }
+
+  private:
+    char const * m_message = "";
+  };
 
   template <typename Base, auto ExpectedCount = nullptr, typename Element, int Count>
   DataTable<Base, Element, Count, ExpectedCountType<ExpectedCount>> MakeDataTable(
@@ -155,7 +169,7 @@ namespace {
       int const index = int(array[i].first);
 
       if (added[index]) {
-        throw std::exception("Added duplicate index.");
+        throw StaticMessageException("Added duplicate index.");
       }
 
       arr[index] = array[i].second;

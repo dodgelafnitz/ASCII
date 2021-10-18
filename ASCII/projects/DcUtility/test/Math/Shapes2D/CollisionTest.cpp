@@ -654,6 +654,15 @@ TEST(CollisionTest, IntersectingLineSegments_CheckCollision_Intersect) {
   EXPECT_TRUE(intersection.intersects);
 }
 
+TEST(CollisionTest, OverlappingLineSegments_CheckCollision_Intersect) {
+  LineSegment const lineSegment0 = LineSegment(fvec2(0.0f, 2.1f), fvec2(0.0f, 7.2f));
+  LineSegment const lineSegment1 = LineSegment(fvec2(0.0f, 4.7f), fvec2(0.0f, 11.4f));
+
+  Intersection2D const intersection = Intersect(lineSegment0, lineSegment1);
+
+  EXPECT_TRUE(intersection.intersects);
+}
+
 TEST(CollisionTest, TouchingLineSegments_CheckCollision_Intersect) {
   LineSegment const lineSegment0 = LineSegment(fvec2(1.5f, 3.0f), fvec2(5.5f, 5.0f));
   LineSegment const lineSegment1 = LineSegment(fvec2(3.5f, 4.0f), fvec2(8.0f, -10.0f));
@@ -723,9 +732,21 @@ TEST(CollisionTest, TouchingLineSegmentAndRayOnRayRoot_CheckCollision_Intersect)
 }
 
 TEST(CollisionTest, ContainedLineSegmentAndRay_CheckCollision_Intersect) {
+  LineSegment const lineSegment = LineSegment(fvec2(8.0f, 4.5f), fvec2(10.0f, 6.5f));
+  Ray const         ray         = Ray(fvec2(1.0f, -2.5f), fvec2(1.0f, 1.0f));
+
+  Intersection2D const intersection = Intersect(lineSegment, ray);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, LineSegmentAndContainedRayRoot_CheckCollision_Intersect) {
+  LineSegment const lineSegment = LineSegment(fvec2(0.0f, 2.3f), fvec2(0.0f, -8.1f));
+  Ray const         ray         = Ray(fvec2(0.0f, -2.1f), fvec2(0.0f, 1.0f));
+
+  Intersection2D const intersection = Intersect(lineSegment, ray);
+
+  EXPECT_TRUE(intersection.intersects);
 }
 
 TEST(CollisionTest, SeparateLineSegmentAndRay_CheckCollision_DoNotIntersect) {

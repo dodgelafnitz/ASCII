@@ -43,7 +43,7 @@ public:
   }
 
 private:
-  friend class Delegate;
+  friend Delegate;
 
   class DelegatorImpl {
   public:

@@ -9,6 +9,8 @@ set("ENV{DCG_COPYWRITE}" "/*\n * Copywrite ${currentYear} Dodge Lafnitzegger\n *
 
 include("./dcg_setup.cmake")
 
+set(CMAKE_EXE_LINKER_FLAGS "-static")
+
 DCG_BEGIN()
   DCG_PROJECT_INTERFACE("DcTestUtility")
     DCG_FOLDER("Helpers")
