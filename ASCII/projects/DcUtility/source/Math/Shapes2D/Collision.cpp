@@ -31,9 +31,9 @@ Intersection2D Intersect(Circle const & circle, Line const & line) {
   }
 }
 
-Intersection2D Intersect(Circle const & circle, LineSegment const & lineSegment) {
+DeltaIntersection2D Intersect(Circle const & circle, LineSegment const & lineSegment) {
   if (circle.Contains(lineSegment.p0)) {
-    return Intersection2D(lineSegment.p0, 0.0f);
+    return DeltaIntersection2D(lineSegment.p0, 0.0f);
   }
   else {
     fvec2 const closestPoint = lineSegment.ProjectPointOntoLine(circle.GetPosition());
@@ -48,17 +48,17 @@ Intersection2D Intersect(Circle const & circle, LineSegment const & lineSegment)
       float const delta          = lineSegment.GetDeltaToProjection(collisionPoint);
 
       if (delta >= 0.0f && delta <= 1.0f) {
-        return Intersection2D(collisionPoint, delta);
+        return DeltaIntersection2D(collisionPoint, delta);
       }
     }
   }
 
-  return Intersection2D();
+  return DeltaIntersection2D();
 }
 
-Intersection2D Intersect(Circle const & circle, Ray const & ray) {
+DeltaIntersection2D Intersect(Circle const & circle, Ray const & ray) {
   if (circle.Contains(ray.GetRoot())) {
-    return Intersection2D(ray.GetRoot(), 0.0f);
+    return DeltaIntersection2D(ray.GetRoot(), 0.0f);
   }
   else {
     fvec2 const closestPoint = ray.ProjectPointOntoLine(circle.GetPosition());
@@ -73,12 +73,12 @@ Intersection2D Intersect(Circle const & circle, Ray const & ray) {
       bool const  collisionInFront = towardsCollision.Dot(ray.GetDirection()) > 0.0f;
 
       if (collisionInFront && delta >= 0.0f) {
-        return Intersection2D(collisionPoint, delta);
+        return DeltaIntersection2D(collisionPoint, delta);
       }
     }
   }
 
-  return Intersection2D();
+  return DeltaIntersection2D();
 }
 
 Intersection2D Intersect(Circle const & circle, Rect const & rect) {
@@ -114,7 +114,7 @@ Intersection2D Intersect(Circle const & circle, Rect const & rect) {
     for (int i = 0; i < sizeof(edges) / sizeof(*edges); ++i) {
       LineSegment const edge(corners[edges[i][0]], corners[edges[i][1]]);
 
-      Intersection2D intersection = Intersect(circle, edge);
+      DeltaIntersection2D const intersection = Intersect(circle, edge);
 
       if (intersection.intersects) {
         minVals.x = std::min(minVals.x, intersection.point.x);
@@ -189,70 +189,70 @@ Intersection2D Intersect(Line const & line0, Line const & line1) {
 }
 
 // Todo: Optimize
-Intersection2D Intersect(Line const & line, LineSegment const & lineSegment) {
+DeltaIntersection2D Intersect(Line const & line, LineSegment const & lineSegment) {
   float const side0 = line.GetNormal().Dot(lineSegment.p0 - line.GetRoot());
   float const side1 = line.GetNormal().Dot(lineSegment.p1 - line.GetRoot());
 
   float const sideDiff = side0 * side1;
 
   if (sideDiff > 0.0f) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
   else if (side0 == 0.0f) {
-    return Intersection2D(lineSegment.p0, 0.0f);
+    return DeltaIntersection2D(lineSegment.p0, 0.0f);
   }
   else if (side1 == 0.0f) {
-    return Intersection2D(lineSegment.p1, 1.0f);
+    return DeltaIntersection2D(lineSegment.p1, 1.0f);
   }
 
   Intersection2D const intersection = Intersect(line, lineSegment.GetLine());
 
   // This shouldn't happen
   if (!intersection.intersects) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 
   float const delta = lineSegment.GetDeltaToProjection(intersection.point);
 
   if (delta >= 0.0f && delta <= 1.0f) {
-    return Intersection2D(intersection.point, delta);
+    return DeltaIntersection2D(intersection.point, delta);
   }
   else {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 }
 
 // Todo: Optimize
-Intersection2D Intersect(Line const & line, Ray const & ray) {
+DeltaIntersection2D Intersect(Line const & line, Ray const & ray) {
   float const rootSide    = line.GetNormal().Dot(ray.GetRoot() - line.GetRoot());
   float const headingSide = line.GetNormal().Dot(ray.GetDirection());
 
   float const sideDiff = rootSide * headingSide;
 
   if (sideDiff > 0.0f) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
   else if (rootSide == 0.0f) {
-    return Intersection2D(ray.GetRoot());
+    return DeltaIntersection2D(ray.GetRoot(), 0.0f);
   }
   else if (headingSide == 0.0f) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 
   Intersection2D const intersection = Intersect(line, ray.GetLine());
 
   // This shouldn't happen
   if (!intersection.intersects) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 
   float const delta = ray.GetDirection().Dot(intersection.point - ray.GetRoot());
 
   if (delta >= 0.0f) {
-    return Intersection2D(intersection.point, delta);
+    return DeltaIntersection2D(intersection.point, delta);
   }
   else {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 }
 
@@ -280,7 +280,7 @@ Intersection2D Intersect(Line const & line, Rect const & rect) {
   DynamicArray<fvec2, 2> intersections;
 
   for (int i = 0; i < 4; ++i) {
-    Intersection2D intersect = Intersect(line, edges[i]);
+    DeltaIntersection2D const intersect = Intersect(line, edges[i]);
 
     if (intersect.intersects) {
       if (intersections.Empty()) {
@@ -306,46 +306,46 @@ Intersection2D Intersect(Line const & line, Rect const & rect) {
   }
 }
 
-Intersection2D Intersect(LineSegment const & lineSegment, Circle const & circle) {
+DeltaIntersection2D Intersect(LineSegment const & lineSegment, Circle const & circle) {
   return Intersect(circle, lineSegment);
 }
 
-Intersection2D Intersect(LineSegment const & lineSegment, Line const & line) {
+DeltaIntersection2D Intersect(LineSegment const & lineSegment, Line const & line) {
   return Intersect(line, lineSegment);
 }
 
-Intersection2D Intersect(LineSegment const & lineSegment0, LineSegment const & lineSegment1) {
+DeltaIntersection2D Intersect(LineSegment const & lineSegment0, LineSegment const & lineSegment1) {
   Intersection2D const intersection = Intersect(lineSegment0.GetLine(), lineSegment1.GetLine());
 
   if (!intersection.intersects) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 
   float const delta0 = lineSegment0.GetDeltaToProjection(intersection.point);
   float const delta1 = lineSegment1.GetDeltaToProjection(intersection.point);
 
   if (delta0 >= 0.0f && delta0 <= 1.0f && delta1 >= 0.0f && delta1 <= 1.0f) {
-    return Intersection2D(intersection.point, delta0);
+    return DeltaIntersection2D(intersection.point, delta0);
   }
   else {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 }
 
-Intersection2D Intersect(LineSegment const & lineSegment, Ray const & ray) {
+DeltaIntersection2D Intersect(LineSegment const & lineSegment, Ray const & ray) {
   Intersection2D const intersection = Intersect(lineSegment.GetLine(), ray.GetLine());
 
   if (!intersection.intersects) {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 
   float const lineSegmentDelta = lineSegment.GetDeltaToProjection(intersection.point);
   float const rayDelta         = ray.GetDirection().Dot(intersection.point - ray.GetRoot());
 
   if (lineSegmentDelta >= 0.0f && lineSegmentDelta <= 1.0f && rayDelta >= 0.0f) {
-    return Intersection2D(intersection.point, lineSegmentDelta);
+    return DeltaIntersection2D(intersection.point, lineSegmentDelta);
   }
   else {
-    return Intersection2D();
+    return DeltaIntersection2D();
   }
 }

@@ -91,7 +91,7 @@ namespace {
       for (int i = 0; i < sizeof(edges) / sizeof(*edges); ++i) {
         LineSegment const edge(corners[edges[i][0]], corners[edges[i][1]]);
 
-        Intersection2D intersection = Intersect(circle, edge);
+        DeltaIntersection2D const intersection = Intersect(circle, edge);
 
         if (intersection.intersects) {
           o_pois[o_poiCount++] = intersection.point + 0.5f;
