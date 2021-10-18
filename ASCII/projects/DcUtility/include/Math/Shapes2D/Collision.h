@@ -18,10 +18,6 @@ struct Intersection2D {
     point(point)
   {}
 
-  operator bool() const {
-    return intersects;
-  }
-
   bool  intersects = false;
   fvec2 point      = fvec2();
 };
@@ -36,10 +32,6 @@ struct DeltaIntersection2D {
 
   operator Intersection2D() const {
     return Intersection2D(point);
-  }
-
-  operator bool() const {
-    return intersects;
   }
 
   bool  intersects = false;
