@@ -1,1 +1,1 @@
-mingw32-make.exe -f ./build_mingw/Makefile
+mingw32-make.exe -C ./build_mingw -f ./Makefile
