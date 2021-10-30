@@ -2,6 +2,7 @@
  * Copywrite 2021 Dodge Lafnitzegger
  */
 
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <ctime>
@@ -10,94 +11,9 @@
 #include <string>
 #include <utility>
 
+#include "Containers/DynamicArray.h"
+
 namespace {
-}
-  template <typename T, int Cap>
-  class DynamicArr {
-  public:
-    DynamicArr(void) = default;
-    DynamicArr(int count) {
-      while (Size() < count) {
-        EmplaceBack();
-      }
-    }
-
-    DynamicArr(int count, T const & value) {
-      while (Size() < count) {
-        EmplaceBack(value);
-      }
-    }
-
-    ~DynamicArr(void) {
-      while (Size() > 0) {
-        PopBack();
-      }
-    }
-
-    bool Empty(void) const {
-      return Size() == 0;
-    }
-
-    bool Full(void) const {
-      return Size() == Capacity();
-    }
-
-    int Size(void) const {
-      return m_count;
-    }
-
-    int Capacity(void) const {
-      return Cap;
-    }
-
-    template <typename ... Params>
-    int EmplaceBack(Params &&... params) {
-      if (Full()) {
-        return -1;
-      }
-
-      new(m_data + m_count * sizeof(T)) T(std::forward<Params>(params)...);
-
-      return m_count++;
-    }
-
-    void PopBack(void) {
-      if (Empty()) {
-        return;
-      }
-
-      reinterpret_cast<T *>(m_data + (--m_count) * sizeof(T))->~T();
-    }
-
-    T const & operator [] (int index) const {
-      return *reinterpret_cast<T const *>(m_data + index * sizeof(T));
-    }
-
-    T & operator [] (int index) {
-      return *reinterpret_cast<T *>(m_data + index * sizeof(T));
-    }
-
-    T const * begin(void) const {
-      return &operator [](0);
-    }
-
-    T * begin(void) {
-      return &operator [](0);
-    }
-
-    T const * end(void) const {
-      return &operator [](Size());
-    }
-
-    T * end(void) {
-      return &operator [](Size());
-    }
-
-  private:
-    char m_data[Cap * sizeof(T)];
-    int  m_count = 0;
-  };
-
   template <typename Base, typename Element, int Count, typename Indexer = int>
   class DataTable : public Base {
   public:
@@ -124,7 +40,7 @@ namespace {
     }
 
   private:
-    DynamicArr<Element, Count> m_data;
+    DynamicArray<Element, Count> m_data;
   };
 
   template <auto T>
@@ -195,649 +111,260 @@ namespace {
     return MakeDataTable<EmptyHeader, ExpectedCount, Element, Count>(array);
   }
 
-  enum class Tier {
-    Copper,
-    Bronze,
-    Silver,
-    Gold,
-    Platinum,
-    Rhodium,
-
-    Count
+  template <typename T, typename ... Params>
+  struct MaxSize {
+    static const int value = std::max(int(sizeof(T)), MaxSize<Params...>::value);
   };
 
-  struct TierInfoHeader {
-    static Tier const defualtTier         = Tier::Bronze;
-    static int const  staringTierCount    = 3;
-    static Tier const minimumStartingTier = Tier::Bronze;
+  template <typename T>
+  struct MaxSize<T> {
+    static const int value = sizeof(T);
   };
 
-  struct TierInfoRow {
-    char const * name;
-  };
+  template <typename Indexer = int, typename ... Types>
+  class Variant {
+  private:
+    static const Indexer Count = Indexer(sizeof...(Types));
 
-  auto const c_tierTable = MakeDataTable<TierInfoHeader, Tier::Count>({
-    std::make_pair(Tier::Copper,   TierInfoRow({ "Copper"   })),
-    std::make_pair(Tier::Bronze,   TierInfoRow({ "Bronze"   })),
-    std::make_pair(Tier::Silver,   TierInfoRow({ "Silver"   })),
-    std::make_pair(Tier::Gold,     TierInfoRow({ "Gold"     })),
-    std::make_pair(Tier::Platinum, TierInfoRow({ "Platinum" })),
-    std::make_pair(Tier::Rhodium,  TierInfoRow({ "Rhodium"  })),
-  });
-
-
-  char const * GetTierName(Tier tier) {
-    return c_tierTable[tier].name;
-  };
-
-  enum class CardType {
-    Location,
-    Character,
-    Modifier,
-    Event,
-
-    Count
-  };
-
-  struct CardInfoRow {
-    char const * name;
-  };
-
-  auto const c_cardTypeTable = MakeHeaderlessDataTable<CardType::Count>({
-    std::make_pair(CardType::Location,  CardInfoRow({ "Location"  })),
-    std::make_pair(CardType::Character, CardInfoRow({ "Character" })),
-    std::make_pair(CardType::Modifier,  CardInfoRow({ "Modifier"  })),
-    std::make_pair(CardType::Event,     CardInfoRow({ "Event"     })),
-  });
-
-  char const * GetCardTypeName(CardType type) {
-    return c_cardTypeTable[type].name;
-  };
-
-  enum class ActiveEffectType {
-    Defeat,
-    Send,
-    Pull,
-    Refresh,
-    Revive,
-    Betray,
-    Surge,
-    Recall,
-    Action,
-    Draw,
-    Play,
-    Silence,
-    Shatter,
-    Steal,
-    Discover,
-    Improve,
-    Recruit,
-    Encounter,
-
-    Count
-  };
-
-  struct ActiveEffectInfoRow {
-    char const * name;
-    bool         isTiered;
-  };
-
-  auto const c_activeEffectTable = MakeHeaderlessDataTable<ActiveEffectType::Count>({
-    std::make_pair(ActiveEffectType::Defeat,    ActiveEffectInfoRow({ "Defeat",    true  })),
-    std::make_pair(ActiveEffectType::Send,      ActiveEffectInfoRow({ "Send",      true  })),
-    std::make_pair(ActiveEffectType::Pull,      ActiveEffectInfoRow({ "Pull",      true  })),
-    std::make_pair(ActiveEffectType::Refresh,   ActiveEffectInfoRow({ "Refresh",   true  })),
-    std::make_pair(ActiveEffectType::Revive,    ActiveEffectInfoRow({ "Revive",    true  })),
-    std::make_pair(ActiveEffectType::Betray,    ActiveEffectInfoRow({ "Betray",    true  })),
-    std::make_pair(ActiveEffectType::Surge,     ActiveEffectInfoRow({ "Surge",     false })),
-    std::make_pair(ActiveEffectType::Recall,    ActiveEffectInfoRow({ "Recall",    true  })),
-    std::make_pair(ActiveEffectType::Action,    ActiveEffectInfoRow({ "Action",    false })),
-    std::make_pair(ActiveEffectType::Draw,      ActiveEffectInfoRow({ "Draw",      false })),
-    std::make_pair(ActiveEffectType::Play,      ActiveEffectInfoRow({ "Play",      false })),
-    std::make_pair(ActiveEffectType::Silence,   ActiveEffectInfoRow({ "Silence",   true  })),
-    std::make_pair(ActiveEffectType::Shatter,   ActiveEffectInfoRow({ "Shatter",   true  })),
-    std::make_pair(ActiveEffectType::Steal,     ActiveEffectInfoRow({ "Steal",     true  })),
-    std::make_pair(ActiveEffectType::Discover,  ActiveEffectInfoRow({ "Discover",  true  })),
-    std::make_pair(ActiveEffectType::Improve,   ActiveEffectInfoRow({ "Improve",   true  })),
-    std::make_pair(ActiveEffectType::Recruit,   ActiveEffectInfoRow({ "Recruit",   true  })),
-    std::make_pair(ActiveEffectType::Encounter, ActiveEffectInfoRow({ "Encounter", true  })),
-  });
-
-  bool IsActiveEffectTiered(ActiveEffectType type) {
-    return c_activeEffectTable[type].isTiered;
-  }
-
-  char const * GetActiveEffectTypeName(ActiveEffectType type) {
-    return c_activeEffectTable[type].name;
-  };
-
-  enum class PassiveEffectType {
-    Rally,
-    Defender,
-    Invisible,
-    Enduring,
-    Regeneration,
-    Defile,
-    Weak,
-    Invincible,
-    Anchored,
-    Pure,
-
-    Count
-  };
-
-  struct PassiveEffectInfoRow {
-    char const * name;
-    bool         isTiered;
-  };
-
-  auto const c_passiveEffectTable = MakeHeaderlessDataTable<PassiveEffectType::Count>({
-    std::make_pair(PassiveEffectType::Rally,        PassiveEffectInfoRow({ "Rally",        true  })),
-    std::make_pair(PassiveEffectType::Defender,     PassiveEffectInfoRow({ "Defender",     false })),
-    std::make_pair(PassiveEffectType::Invisible,    PassiveEffectInfoRow({ "Invisible",    true  })),
-    std::make_pair(PassiveEffectType::Enduring,     PassiveEffectInfoRow({ "Enduring",     false })),
-    std::make_pair(PassiveEffectType::Regeneration, PassiveEffectInfoRow({ "Regeneration", false })),
-    std::make_pair(PassiveEffectType::Defile,       PassiveEffectInfoRow({ "Defile",       true  })),
-    std::make_pair(PassiveEffectType::Weak,         PassiveEffectInfoRow({ "Weak",         false })),
-    std::make_pair(PassiveEffectType::Invincible,   PassiveEffectInfoRow({ "Invincible",   false })),
-    std::make_pair(PassiveEffectType::Anchored,     PassiveEffectInfoRow({ "Anchored",     false })),
-    std::make_pair(PassiveEffectType::Pure,         PassiveEffectInfoRow({ "Pure",         false })),
-  });
-
-  bool IsPassiveEffectTiered(PassiveEffectType type) {
-    return c_passiveEffectTable[type].isTiered;
-  }
-
-  char const * GetPassiveEffectTypeName(PassiveEffectType type) {
-    return c_passiveEffectTable[type].name;
-  };
-
-  enum class ModifierType {
-    AddNew,
-    EnhancePrimary,
-    ReducePrimary,
-    RemovePrimary,
-    DuplicatePrimary,
-    EnhanceSecondaries,
-    ReduceSecondaries,
-    RemoveSecondaries,
-
-    Count
-  };
-
-  struct ModifierInfoRow {
-    char const * name;
-    bool         containsEffect;
-  };
-
-  auto const c_modifierTable = MakeHeaderlessDataTable<ModifierType::Count>({
-    std::make_pair(ModifierType::AddNew,             ModifierInfoRow({ "Add New",             true  })),
-    std::make_pair(ModifierType::EnhancePrimary,     ModifierInfoRow({ "Enhance Primary",     false })),
-    std::make_pair(ModifierType::ReducePrimary,      ModifierInfoRow({ "Reduce Primary",      false })),
-    std::make_pair(ModifierType::RemovePrimary,      ModifierInfoRow({ "Remove Primary",      false })),
-    std::make_pair(ModifierType::DuplicatePrimary,   ModifierInfoRow({ "Duplicate Primary",   false })),
-    std::make_pair(ModifierType::EnhanceSecondaries, ModifierInfoRow({ "Enhance Secondaries", false })),
-    std::make_pair(ModifierType::ReduceSecondaries,  ModifierInfoRow({ "Reduce Secondaries",  false })),
-    std::make_pair(ModifierType::RemoveSecondaries,  ModifierInfoRow({ "Remove Secondaries",  false })),
-  });
-
-  bool DoesModifierTypeContainEffect(ModifierType type) {
-    return c_modifierTable[type].containsEffect;
-  }
-
-  char const * GetModifierTypeName(ModifierType type) {
-    return c_modifierTable[type].name;
-  };
-
-  enum class EffectType {
-    Active,
-    Passive,
-
-    Count
-  };
-  int const c_effectTypes = int(EffectType::Count);
-
-  struct ActiveEffect {
-    ActiveEffectType type;
-    Tier             tier;
-  };
-
-  struct PassiveEffect {
-    PassiveEffectType type;
-    Tier              tier;
-  };
-
-  struct Effect {
-    static_assert(c_effectTypes == 2);
-    EffectType type;
-    union {
-      ActiveEffect  active;
-      PassiveEffect passive;
+    template <int Index, typename FirstParam, typename ... Params>
+    struct TypeForIndexInternal {
+      using type = TypeForIndexInternal<Index - 1, Params...>::type;
     };
-  };
 
-  bool IsEffectTiered(Effect const & effect) {
-    static_assert(c_effectTypes == 2);
-    switch (effect.type) {
-      case EffectType::Active:  return IsActiveEffectTiered(effect.active.type);
-      case EffectType::Passive: return IsPassiveEffectTiered(effect.passive.type);
-      default:                  return false;
+    template <typename FirstParam, typename ... Params>
+    struct TypeForIndexInternal<0, FirstParam, Params...> {
+      using type = FirstParam;
+    };
+
+    template <int Index>
+    struct TypeForIndexInternalStart {
+      using type = TypeForIndexInternal<Index, Types...>::type;
+    };
+
+    template <int Index>
+    using TypeForIndex = TypeForIndexInternalStart<Index>::type;
+
+    template <int Index, typename U, typename FirstParam, typename ... Params>
+    struct IndexForTypeInternal {
+      static const int value = IndexForTypeInternal<Index + 1, U, Params...>::value;
+    };
+
+    template <int Index, typename U, typename ... Params>
+    struct IndexForTypeInternal<Index, U, U, Params...> {
+      static const int value = Index;
+
+      static_assert(IndexForTypeInternal<Index + 1, U, Params...>::value == int(Count));
+    };
+
+    template <int Index, typename U>
+    struct IndexForTypeInternal<Index, U, U> {
+      static const int value = Index;
+    };
+
+    template <int Index, typename U, typename V>
+    struct IndexForTypeInternal<Index, U, V> {
+      static const int value = int(Count);
+    };
+
+    template <typename U>
+    struct IndexForTypeInternalStart {
+      static const int value = IndexForTypeInternal<0, U, Types...>::value;
+
+      static_assert(value != int(Count));
+    };
+
+    template <typename U>
+    static const Indexer IndexForType = Indexer(IndexForTypeInternalStart<U>::value);
+
+  public:
+    Variant(void) = default;
+
+    Variant(Variant const & variant) {
+      SetDynamicInternal<Types...>(int(variant.m_type), variant.m_data);
     }
-  }
 
-  struct Modifier {
-    ModifierType type;
-    Effect       effect;
-  };
+    template <typename U>
+    Variant(U const & value) {
+      Set<IndexForType<U>>(value);
+    }
 
-  enum class LocationEffectType {
-    Active,
-    Modifier,
+    ~Variant(void) {
+      Clear();
+    }
 
-    Count
-  };
-  int const c_locationEffectTypes = int(LocationEffectType::Count);
+    template <typename U>
+    Variant operator =(U const & value) {
+      Set(value);
 
-  struct LocationEffect {
-    static_assert(c_locationEffectTypes == 2);
-    LocationEffectType type;
-    union {
-      ActiveEffect active;
-      Modifier     modifier;
-    };
-  };
+      return *this;
+    }
 
-  int const c_maxSymbols = 3;
+    template<typename U>
+    void Set(U const & value) {
+      if (reinterpret_cast<char const *>(&value) == m_data) {
+        return;
+      }
 
-  struct LocationDef {
-    char const *                             subtype;
-    DynamicArr<LocationEffect, c_maxSymbols> effects;
-  };
+      Clear();
 
-  struct CharacterDef {
-    Effect                               primaryEffect;
-    DynamicArr<Effect, c_maxSymbols - 1> secondaryEffects;
-  };
+      m_type = IndexForType<U>;
+      new (reinterpret_cast<U *>(&m_data)) U(value);
+    }
 
-  struct ModifierDef {
-    char const *                       subtype;
-    DynamicArr<Modifier, c_maxSymbols> modifiers;
-  };
+    Indexer GetType(void) const {
+      return m_type;
+    }
 
-  struct EventDef {
-    DynamicArr<ActiveEffect, c_maxSymbols> effects;
-  };
+    template <Indexer Index>
+    TypeForIndex<int(Index)> const & Get(void) const {
+      return *reinterpret_cast<TypeForIndex<int(Index)> const *>(&m_data);
+    }
 
-  struct CardDef {
-    CardDef(void) :
-      type(CardType::Location),
-      location()
-    {}
+    template <Indexer Index>
+    TypeForIndex<int(Index)> & Get(void) {
+      return *reinterpret_cast<TypeForIndex<int(Index)> *>(&m_data);
+    }
 
-    ~CardDef(void) {
-      static_assert(c_cardTypeTable.Size() == 4);
-      switch (type) {
-        case CardType::Location: {
-          location.~LocationDef();
-        } break;
-        case CardType::Character: {
-          character.~CharacterDef();
-        } break;
-        case CardType::Modifier: {
-          modifier.~ModifierDef();
-        } break;
-        case CardType::Event: {
-          event.~EventDef();
-        } break;
+    void Clear(void) {
+      if (m_type == Count) {
+        return;
+      }
+
+      ClearInternal<Types...>(int(m_type));
+    }
+
+  private:
+    Indexer m_type                           = Count;
+    char    m_data[MaxSize<Types...>::value] = { 0 };
+
+    template <typename U, typename ... Params>
+    void ClearInternal(int index) {
+      if (index == 0) {
+        reinterpret_cast<U *>(m_data)->~U();
+      }
+      else if constexpr (sizeof...(Params) != 0) {
+        ClearInternal<Params...>(index - 1);
       }
     }
 
-    char const * faction = "";
-    Tier         tier    = c_tierTable.defualtTier;
-
-    static_assert(c_cardTypeTable.Size() == 4);
-    CardType     type;
-    union {
-      LocationDef  location;
-      CharacterDef character;
-      ModifierDef  modifier;
-      EventDef     event;
-    };
+    template <typename U, typename ... Params>
+    void SetDynamicInternal(int index, char const * data) {
+      if (index == 0) {
+        Set(*reinterpret_cast<U const *>(data));
+      }
+      else if constexpr (sizeof...(Params) != 0) {
+        SetDynamicInternal<Params...>(index - 1, data);
+      }
+    }
   };
 
-  int const c_maxHandSize    = 30;
-  int const c_maxDeckSize    = 30;
-  int const c_maxPlayerCount = 5;
-  int const c_maxCardsOnField = c_maxPlayerCount * c_maxHandSize;
-
-  int const c_maxCardCount = 600;
-
-  struct PlayerData {
-    int                            victoryPoints;
-    DynamicArr<int, c_maxHandSize> handCardDefIndices;
-    DynamicArr<int, c_maxDeckSize> deckCardDefIndices;
-    DynamicArr<int, c_maxDeckSize> discardCardDefIndices;
-    bool                           hasSurge;
+  enum class Emblem {
   };
 
-  struct CardPlayData {
-    int cardDefIndex;
-    int location;
+  enum class Faction {
   };
 
-  struct GameBoard {
-    int                                         currentRound;
-    int                                         currentPlayerTurn;
-    DynamicArr<PlayerData, c_maxPlayerCount>    players;
-    DynamicArr<CardPlayData, c_maxCardsOnField> cardsOnField;
+  enum class CardRequirementType {
+    Level,
+    Emblem,
+    Faction,
+    Owner,
+    Controller,
+    Lane,
+    And,
+    Or,
+    Not,
+
+    Count
   };
 
-  struct GameData {
-    DynamicArr<CardDef, c_maxCardCount> cards;
-    GameBoard                           game;
+  static const int RequirementCount = 8;
+
+  struct CardRequirementLevel;
+  struct CardRequirementEmblem;
+  struct CardRequirementFaction;
+  struct CardRequirementOwner;
+  struct CardRequirementController;
+  struct CardRequirementLane;
+  struct CardRequirementAnd;
+  struct CardRequirementOr;
+  struct CardRequirementNot;
+
+  using CardRequirement = Variant<
+    CardRequirementType,
+
+    CardRequirementLevel,
+    CardRequirementEmblem,
+    CardRequirementFaction,
+    CardRequirementOwner,
+    CardRequirementController,
+    CardRequirementLane,
+    CardRequirementAnd,
+    CardRequirementOr,
+    CardRequirementNot
+  >;
+
+  struct CardRequirementLevel {
+    int level;
   };
 
-  char const * GetRandomFaction(void) {
-    static char const * factions[] = {
-      "Children of the Queen",
-      "Mercantile Guild",
-      "Mechanosis",
-      "Xenophet",
-      "Starwise Drifters",
-      "Beleen Unifiers",
-    };
+  struct CardRequirementEmblem {
+    Emblem emblem;
+  };
 
-    return factions[std::rand() % (sizeof(factions) / sizeof(*factions))];
-  }
+  struct CardRequirementFaction {
+    Faction faction;
+  };
 
-  char const * GetRandomLocationSubtype(void) {
-    static char const * subtypes[] = {
-      "Structure",
-      "Weather",
-      "Crowd",
-      "Aura",
-    };
+  struct CardRequirementOwner {
+  };
 
-    return subtypes[std::rand() % (sizeof(subtypes) / sizeof(*subtypes))];
-  }
+  struct CardRequirementController {
+  };
 
-  char const * GetRandomModifierSubtype(void) {
-    static char const * subtypes[] = {
-      "Transformation",
-      "Gear",
-      "Attitude",
-      "Device",
-    };
+  struct CardRequirementLane {
+  };
 
-    return subtypes[std::rand() % (sizeof(subtypes) / sizeof(*subtypes))];
-  }
+  struct CardRequirementAnd {
+    DynamicArray<std::shared_ptr<CardRequirement>, RequirementCount> requirements;
+  };
 
-  Tier GetRandomStartingTier(void) {
-    return Tier(std::rand() % c_tierTable.staringTierCount + int(c_tierTable.minimumStartingTier));
-  }
+  struct CardRequirementOr {
+    DynamicArray<std::shared_ptr<CardRequirement>, RequirementCount> requirements;
+  };
 
-  ActiveEffect CreateRandomActiveEffect(void) {
-    ActiveEffect result;
+  struct CardRequirementNot {
+    std::shared_ptr<CardRequirement> requirement;
+  };
 
-    result.tier = GetRandomStartingTier();
-    result.type = ActiveEffectType(std::rand() % c_activeEffectTable.Size());
+  struct EmblemData {
+    EmblemData(
+      char const *            name,
+      int                     generationMod,
+      CardRequirement const & cardRequirement
+    ) :
+      name(name),
+      generationMod(generationMod),
+      cardRequirement(cardRequirement)
+    {}
 
-    return result;
-  }
+    char const *    name;
+    int             generationMod;
+    CardRequirement cardRequirement;
+  };
 
-  PassiveEffect CreateRandomPassiveEffect(void) {
-    PassiveEffect result;
+  static const int FactionPrimaryEmblemCount   = 5;
+  static const int FactionSecondaryEmblemCount = 12;
 
-    result.tier = GetRandomStartingTier();
-    result.type = PassiveEffectType(std::rand() % c_passiveEffectTable.Size());
-
-    return result;
-  }
-
-  Effect CreateRandomEffect(void) {
-    Effect result;
-
-    result.type = EffectType(std::rand() % c_effectTypes);
-
-    static_assert(c_effectTypes == 2);
-    switch (result.type) {
-      case EffectType::Active: {
-        result.active = CreateRandomActiveEffect();
-      } break;
-      case EffectType::Passive: {
-        result.passive = CreateRandomPassiveEffect();
-      } break;
-    }
-
-    return result;
-  }
-
-  Modifier CreateRandomModifier(void) {
-    Modifier result;
-
-    result.type = ModifierType(std::rand() % c_modifierTable.Size());
-
-    if (DoesModifierTypeContainEffect(result.type)) {
-      result.effect = CreateRandomEffect();
-    }
-
-    return result;
-  }
-
-  LocationEffect CreateRandomLocationEffect(void) {
-    LocationEffect result;
-
-    result.type = LocationEffectType(std::rand() % c_locationEffectTypes);
-
-    static_assert(c_locationEffectTypes == 2);
-    switch (result.type) {
-      case LocationEffectType::Active: {
-        result.active = CreateRandomActiveEffect();
-      } break;
-      case LocationEffectType::Modifier: {
-        result.modifier = CreateRandomModifier();
-      } break;
-    }
-
-    return result;
-  }
-
-  CardDef CreateCompletelyRandomCard(void) {
-    CardDef result;
-
-    result.faction = GetRandomFaction();
-    result.tier    = GetRandomStartingTier();
-
-    result.type = CardType(std::rand() % c_cardTypeTable.Size());
-
-    static_assert(c_cardTypeTable.Size() == 4);
-    switch (result.type) {
-      case CardType::Character: {
-        result.character.primaryEffect = CreateRandomEffect();
-
-        // intentional call of rand each loop
-        for (int i = 1; i <= std::rand() % c_maxSymbols; ++i) {
-          result.character.secondaryEffects.EmplaceBack(CreateRandomEffect());
-        }
-      } break;
-      case CardType::Location: {
-        // intentional call of rand each loop
-        for (int i = 0; i <= std::rand() % c_maxSymbols; ++i) {
-          result.location.effects.EmplaceBack(CreateRandomLocationEffect());
-        }
-        result.location.subtype = GetRandomLocationSubtype();
-      } break;
-      case CardType::Modifier: {
-        // intentional call of rand each loop
-        for (int i = 0; i <= std::rand() % c_maxSymbols; ++i) {
-          result.modifier.modifiers.EmplaceBack(CreateRandomModifier());
-        }
-        result.modifier.subtype = GetRandomModifierSubtype();
-      } break;
-      case CardType::Event: {
-        // intentional call of rand each loop
-        for (int i = 0; i <= std::rand() % c_maxSymbols; ++i) {
-          result.event.effects.EmplaceBack(CreateRandomActiveEffect());
-        }
-      } break;
-    }
-
-    return result;
-  }
-
-  std::string GetActiveEffectText(ActiveEffect const & effect) {
-    return
-      GetActiveEffectTypeName(effect.type) + (
-        IsActiveEffectTiered(effect.type) ? (
-          std::string("(") + GetTierName(effect.tier) + ")"
-        ) : (
-          ""
-        )
-      )
-    ;
-  }
-
-  std::string GetPassiveEffectText(PassiveEffect const & effect) {
-    return
-      GetPassiveEffectTypeName(effect.type) + (
-        IsPassiveEffectTiered(effect.type) ? (
-          std::string("(") + GetTierName(effect.tier) + ")"
-        ) : (
-          ""
-        )
-      )
-    ;
-  }
-
-  std::string GetEffectTypeName(Effect const & effect) {
-    switch (effect.type) {
-      case EffectType::Active:  return GetActiveEffectText(effect.active);
-      case EffectType::Passive: return GetPassiveEffectText(effect.passive);
-      default:                  return "";
-    }
-  }
-
-  std::string GetModifierText(Modifier const & modifier) {
-    return
-      GetModifierTypeName(modifier.type) + (
-        DoesModifierTypeContainEffect(modifier.type) ? (
-          " " + GetEffectTypeName(modifier.effect)
-        ) : (
-          ""
-        )
-      )
-    ;
-  }
-
+  struct FactionData {
+    char const *                                      name;
+    DynamicArray<Emblem, FactionPrimaryEmblemCount>   primaryEmblems;
+    DynamicArray<Emblem, FactionSecondaryEmblemCount> secondaryEmblems;
+  };
+}
 
 int main(void) {
   std::srand(std::time(nullptr));
-
-  while (true) {
-    CardDef card = CreateCompletelyRandomCard();
-
-    std::cout << "Faction: " << card.faction << std::endl;
-    std::cout << "Tier:    " << GetTierName(card.tier) << std::endl;
-    std::cout << "Type:    " << GetCardTypeName(card.type) << std::endl;
-
-    static_assert(c_cardTypeTable.Size() == 4);
-    switch (card.type) {
-      case CardType::Character: {
-        DynamicArr<ActiveEffect, c_maxSymbols>  activeEffects;
-        DynamicArr<PassiveEffect, c_maxSymbols> passiveEffects;
-
-        static_assert(c_effectTypes == 2);
-        for (auto & effect : card.character.secondaryEffects) {
-          switch (effect.type) {
-            case EffectType::Active: {
-              activeEffects.EmplaceBack(effect.active);
-            } break;
-            case EffectType::Passive: {
-              passiveEffects.EmplaceBack(effect.passive);
-            } break;
-          }
-        }
-
-        if (!activeEffects.Empty() || card.character.primaryEffect.type == EffectType::Active) {
-          std::cout << "Active Effects:" << std::endl;
-          if (card.character.primaryEffect.type == EffectType::Active) {
-            std::cout << "  " << GetActiveEffectText(card.character.primaryEffect.active) << "*" << std::endl;
-          }
-
-          for (auto & effect : activeEffects) {
-            std::cout << "  " << GetActiveEffectText(effect) << std::endl;
-          }
-        }
-
-        if (!passiveEffects.Empty() || card.character.primaryEffect.type == EffectType::Passive) {
-          std::cout << "Passive Effects:" << std::endl;
-          if (card.character.primaryEffect.type == EffectType::Passive) {
-            std::cout << "  " << GetPassiveEffectText(card.character.primaryEffect.passive) << "*" << std::endl;
-          }
-
-          for (auto & effect : passiveEffects) {
-            std::cout << "  " << GetPassiveEffectText(effect) << std::endl;
-          }
-        }
-
-        std::cout << std::endl;
-
-      } break;
-      case CardType::Location: {
-        std::cout << "Subtype: " << card.location.subtype << std::endl;
-
-        DynamicArr<ActiveEffect, c_maxSymbols> activeEffects;
-        DynamicArr<Modifier, c_maxSymbols>     modifiers;
-
-        for (auto & effect : card.location.effects) {
-          switch (effect.type) {
-            case LocationEffectType::Active: {
-              activeEffects.EmplaceBack(effect.active);
-            } break;
-            case LocationEffectType::Modifier: {
-              modifiers.EmplaceBack(effect.modifier);
-            } break;
-          }
-        }
-
-        if (!activeEffects.Empty()) {
-          std::cout << "Surge Effects:" << std::endl;
-          for (auto & effect : activeEffects) {
-            std::cout << "  " << GetActiveEffectText(effect) << std::endl;
-          }
-        }
-
-        if (!modifiers.Empty()) {
-          std::cout << "Modifiers:" << std::endl;
-          for (auto & modifier : modifiers) {
-            std::cout << "  " << GetModifierText(modifier) << std::endl;
-          }
-        }
-
-        std::cout << std::endl;
-      } break;
-      case CardType::Modifier: {
-        std::cout << "Subtype: " << card.modifier.subtype << std::endl;
-
-        std::cout << "Modifiers:" << std::endl;
-        for (auto & modifier : card.modifier.modifiers) {
-          std::cout << "  " << GetModifierText(modifier) << std::endl;
-        }
-
-        std::cout << std::endl;
-      } break;
-      case CardType::Event: {
-        std::cout << "Effects:" << std::endl;
-        for (auto & effect : card.event.effects) {
-          std::cout << "  " << GetActiveEffectText(effect) << std::endl;
-        }
-
-        std::cout << std::endl;
-      } break;
-    }
-
-    std::cin.get();
-  };
 
   return 0;
 };
