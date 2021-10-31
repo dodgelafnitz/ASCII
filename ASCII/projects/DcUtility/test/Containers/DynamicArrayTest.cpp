@@ -297,3 +297,11 @@ TEST(DynamicArrayTest, EmptyArray_CheckRange_BeginMatchesEnd) {
 
   EXPECT_EQ(arr.begin(), arr.end());
 }
+
+TEST(DynamicArrayTest, LargeArray_DataViewed_DataPointsToFirstElement) {
+  DynamicArray<int, 10000> const arr = { 12, 14, 32, -1003 };
+
+  ASSERT_GE(arr.Count(), 1);
+
+  EXPECT_EQ(arr.Data(), &arr[0]);
+}

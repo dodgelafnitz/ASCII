@@ -8,6 +8,9 @@
 #include <initializer_list>
 #include <utility>
 
+template <typename U, int Count, int MaxSize>
+concept FitsIn = sizeof(U) * Count <= MaxSize;
+
 template <typename T, int Capacity>
 class DynamicArray {
 public:
@@ -78,11 +81,11 @@ public:
   }
 
   T const * Data(void) const {
-    return reinterpret_cast<T const *>(m_data);
+    return reinterpret_cast<T const *>(m_data.Data());
   }
 
   T * Data(void) {
-    return reinterpret_cast<T *>(m_data);
+    return reinterpret_cast<T *>(m_data.Data());
   }
 
   int Count(void) const {
@@ -141,8 +144,56 @@ public:
   }
 
 private:
-  int  m_count = 0;
-  char m_data[Capacity * sizeof(T)];
+  static int const c_maxStackSize = 1 << 12;
+
+  template <typename U, int Size>
+  struct DataHolder;
+
+  template <typename U, int Size>
+  requires (FitsIn<U, Size, c_maxStackSize>)
+  class DataHolder<U, Size> {
+  public:
+    DataHolder(void)  = default;
+    ~DataHolder(void) = default;
+
+    char * Data(void) {
+      return m_data;
+    }
+
+    char const * Data(void) const {
+      return m_data;
+    }
+
+  private:
+    char m_data[Capacity * sizeof(T)];
+  };
+
+  template <typename U, int Size>
+  requires (!FitsIn<U, Size, c_maxStackSize>)
+  class DataHolder<U, Size> {
+  public:
+    DataHolder(void) {
+      m_data = new char[Size];
+    }
+
+    ~DataHolder(void) {
+      delete [] m_data;
+    }
+
+    char * Data(void) {
+      return m_data;
+    }
+
+    char const * Data(void) const {
+      return m_data;
+    }
+
+  private:
+    char * m_data;
+  };
+
+  int                     m_count = 0;
+  DataHolder<T, Capacity> m_data;
 };
 
 #endif // DCUTILITY_CONTAINERS_DYNAMICARRAY_H
