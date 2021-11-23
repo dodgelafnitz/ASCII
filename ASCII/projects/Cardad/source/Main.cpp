@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <functional>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
@@ -102,11 +103,11 @@ namespace {
     return MakeDataTable<EmptyHeader, ExpectedCount, Element, Count>(array);
   }
 
-  template <auto ExpectedCount = nullptr, typename Element, int Count>
-  DataTable<EmptyHeader, Element, Count, ExpectedCountType<ExpectedCount>> MakeHeaderlessDataTable(
-    std::pair<ExpectedCountType<ExpectedCount>, Element> const (&array)[Count]
+  template <typename CountType, typename Element, int Count>
+  DataTable<EmptyHeader, Element, Count, CountType> MakeHeaderlessDataTable(
+    std::pair<CountType, Element> const (&array)[Count]
   ) {
-    return MakeDataTable<EmptyHeader, ExpectedCount, Element, Count>(array);
+    return MakeDataTable<EmptyHeader, CountType(Count), Element, Count>(array);
   }
 
   template <typename T, typename ... Params>
@@ -256,64 +257,24 @@ namespace {
     }
   };
 
-  enum class Emblem {
-    Ambusher,
-    Anchored,
-    Betray,
-    Cowardly,
-    Defeat,
-    Defender,
-    Discard,
-    Draw,
-    Enduring,
-    Ephemeral,
-    Feint,
-    Follower,
-    Gift,
-    Hidden,
-    Invincible,
-    Loyal,
-    Play,
-    Prepare,
-    Pull,
-    Rally,
-    Reactive,
-    Recall,
-    Recovery,
-    Recruit,
-    Regeneration,
-    Regroup,
-    Revive,
-    Revolve,
-    Sacrifice,
-    Send,
-    Strong,
-    Supplied,
-    Unique,
-    Weak,
-
-    Count
-  };
-
-  enum class Faction {
-    GilbrandsArmory,
-    CloufaraSeers,
-    //Mountaineers,
-    //VeiledOnes,
-    //Pennywrights,
-    //StonewoodBeasts,
-    //KingdomOfOwlcliff,
-
-    Count
-  };
+  float GetRandom(void) {
+    return (std::rand() % 13091) / 13091.0f;
+  }
 
   enum class CardRequirementType {
-    Level,
     Emblem,
     Faction,
+    Style,
+    Level,
+    Resource,
+    Alignment,
+
     Owner,
     Controller,
     Lane,
+    ThisCard,
+    Activated,
+
     None,
     And,
     Or,
@@ -322,14 +283,34 @@ namespace {
     Count
   };
 
+  enum class ComparisonOperator {
+    LessThan,
+    GreaterThan,
+    Equal,
+    NotEqual,
+    LessThanOrEqual,
+    GreaterThanOrEqual,
+
+    Count
+  };
+
   static int const c_requirementCount = 8;
 
-  struct CardRequirementLevel;
+  static int const c_invalidIndex = -1;
+
   struct CardRequirementEmblem;
   struct CardRequirementFaction;
+  struct CardRequirementStyle;
+  struct CardRequirementLevel;
+  struct CardRequirementResource;
+  struct CardRequirementAlignment;
+
   struct CardRequirementOwner;
   struct CardRequirementController;
   struct CardRequirementLane;
+  struct CardRequirementThisCard;
+  struct CardRequirementActivated;
+
   struct CardRequirementNone;
   struct CardRequirementAnd;
   struct CardRequirementOr;
@@ -338,43 +319,112 @@ namespace {
   using CardRequirement = Variant<
     CardRequirementType,
 
-    CardRequirementLevel,
     CardRequirementEmblem,
     CardRequirementFaction,
+    CardRequirementStyle,
+    CardRequirementLevel,
+    CardRequirementResource,
+    CardRequirementAlignment,
     CardRequirementOwner,
     CardRequirementController,
     CardRequirementLane,
+    CardRequirementThisCard,
+    CardRequirementActivated,
     CardRequirementNone,
     CardRequirementAnd,
     CardRequirementOr,
     CardRequirementNot
   >;
 
+  enum class Alignment {
+    Fire,
+    Water,
+    Earth,
+    Air,
+    Light,
+
+    Count
+  };
+
+  std::string GetAlignmentText(Alignment alignment) {
+    char const * alignmentStrs[] = {
+      "Fire",
+      "Water",
+      "Earth",
+      "Air",
+      "Light",
+      "",
+    };
+
+    return alignmentStrs[int(alignment)];
+  }
+
+  enum class CardStyleType {
+    Level,
+    Resource,
+    Alignment,
+    Utility,
+
+    Count
+  };
+
+  struct CardRequirementEmblem {
+    CardRequirementEmblem(void) = default;
+    CardRequirementEmblem(int emblem) :
+      emblem(emblem)
+    {}
+
+    int emblem = c_invalidIndex;
+  };
+
+  struct CardRequirementFaction {
+    CardRequirementFaction(void) = default;
+    CardRequirementFaction(int faction) :
+      faction(faction)
+    {}
+
+    int faction = c_invalidIndex;
+  };
+
+  struct CardRequirementStyle {
+    CardRequirementStyle(void) = default;
+    CardRequirementStyle(CardStyleType style) :
+      style(style)
+    {}
+
+    CardStyleType style = CardStyleType::Count;
+  };
+
   struct CardRequirementLevel {
     CardRequirementLevel(void) = default;
     CardRequirementLevel(int level) :
       level(level)
     {}
-
-    int level = 0;
+    CardRequirementLevel(ComparisonOperator op, int level) :
+      op(op),
+      level(level)
+    {}
+    
+    ComparisonOperator op    = ComparisonOperator::Equal;
+    int                level = 0;
   };
 
-  struct CardRequirementEmblem {
-    CardRequirementEmblem(void) = default;
-    CardRequirementEmblem(Emblem emblem) :
-      emblem(emblem)
+  struct CardRequirementResource {
+    CardRequirementResource(void) = default;
+    CardRequirementResource(int resource) :
+      resource(resource)
     {}
 
-    Emblem emblem = Emblem::Count;
+    int resource = c_invalidIndex;
   };
 
-  struct CardRequirementFaction {
-    CardRequirementFaction(void) = default;
-    CardRequirementFaction(Faction faction) :
-      faction(faction)
+  struct CardRequirementAlignment {
+    CardRequirementAlignment(void) = default;
+    CardRequirementAlignment(Alignment alignment) :
+      alignment(alignment)
     {}
 
-    Faction faction = Faction::Count;
+    Alignment alignment = Alignment::Count;
   };
 
   struct CardRequirementOwner {
@@ -386,375 +436,527 @@ namespace {
   struct CardRequirementLane {
   };
 
+  struct CardRequirementThisCard {
+  };
+
+  struct CardRequirementActivated {
+  };
+
   struct CardRequirementNone {
   };
 
   struct CardRequirementAnd {
     CardRequirementAnd(void) = default;
-    CardRequirementAnd(DynamicArray<std::shared_ptr<CardRequirement>, c_requirementCount> const & requirements) :
-      requirements(requirements)
-    {}
+    CardRequirementAnd(DynamicArray<CardRequirement, c_requirementCount> const & i_requirements);
 
     DynamicArray<std::shared_ptr<CardRequirement>, c_requirementCount> requirements;
   };
 
   struct CardRequirementOr {
     CardRequirementOr(void) = default;
-    CardRequirementOr(DynamicArray<std::shared_ptr<CardRequirement>, c_requirementCount> const & requirements) :
-      requirements(requirements)
-    {}
+    CardRequirementOr(DynamicArray<CardRequirement, c_requirementCount> const & i_requirements);
 
     DynamicArray<std::shared_ptr<CardRequirement>, c_requirementCount> requirements;
   };
 
   struct CardRequirementNot {
     CardRequirementNot(void) = default;
-    CardRequirementNot(std::shared_ptr<CardRequirement> const & requirement) :
-      requirement(requirement)
-    {}
+    CardRequirementNot(CardRequirement const & requirement);
 
     std::shared_ptr<CardRequirement> requirement;
   };
+
+  CardRequirementAnd::CardRequirementAnd(DynamicArray<CardRequirement, c_requirementCount> const & i_requirements) {
+    for (CardRequirement const & requirement : i_requirements) {
+      requirements.Emplace(std::make_shared<CardRequirement>(requirement));
+    }
+  }
+
+  CardRequirementOr::CardRequirementOr(DynamicArray<CardRequirement, c_requirementCount> const & i_requirements) {
+    for (CardRequirement const & requirement : i_requirements) {
+      requirements.Emplace(std::make_shared<CardRequirement>(requirement));
+    }
+  }
+
+  CardRequirementNot::CardRequirementNot(CardRequirement const & requirement) :
+    requirement(std::make_shared<CardRequirement>(requirement))
+  {}
+
+  enum class EmblemTriggerType {
+    CardTrigger,
+    LaneTrigger,
+    GameTrigger,
+
+    Count
+  };
+
+  enum class EmblemCardTriggerType {
+    OnDestroy,
+    OnDraw,
+    OnPlay,
+    OnDiscard,
+    OnCycle,
+    OnActivate,
+
+    Count
+  };
+
+  enum class EmblemLaneTriggerType {
+    OnClaim,
+    OnClose,
+    OnCycle,
+
+    Count
+  };
+
+  enum class EmblemGameTriggerType {
+    OnRoundStart,
+    OnRoundEnd,
+    OnGameEnd,
+
+    Count
+  };
+
+  enum class EmblemTargetActionType {
+    Destroy,
+    Cycle,
+    MoveToLane,
+    MoveToHand,
+    MoveToDeck,
+    ChangeControl,
+
+    Count
+  };
+
+  struct EmblemTargetActionDestroy {
+  };
+
+  struct EmblemTargetActionCycle {
+  };
+
+  struct EmblemTargetActionMoveToLane {
+    EmblemTargetActionMoveToLane(void) = default;
+    EmblemTargetActionMoveToLane(bool sameLane, bool otherLane) :
+      sameLane(sameLane),
+      otherLane(otherLane)
+    {}
+
+    bool sameLane  = false;
+    bool otherLane = false;
+  };
+
+  struct EmblemTargetActionMoveToHand {
+  };
+
+  struct EmblemTargetActionMoveToDeck {
+  };
+
+  struct EmblemTargetActionChangeControl {
+    EmblemTargetActionChangeControl(void) = default;
+    EmblemTargetActionChangeControl(bool controllingPlayer, bool otherPlayer) :
+      controllingPlayer(controllingPlayer),
+      otherPlayer(otherPlayer)
+    {}
+
+    bool controllingPlayer = false;
+    bool otherPlayer       = false;
+  };
+
+  struct EmblemTargetActionActivate {
+  };
+
+  using EmblemTargetActionData = Variant<
+    EmblemTargetActionType,
+
+    EmblemTargetActionDestroy,
+    EmblemTargetActionCycle,
+    EmblemTargetActionMoveToLane,
+    EmblemTargetActionMoveToHand,
+    EmblemTargetActionMoveToDeck,
+    EmblemTargetActionChangeControl,
+    EmblemTargetActionActivate
+  >;
+
+  /*
+  emblem defeat = {
+    passiveEffects = [];
+    activeEffects = [
+      {
+        trigger = {
+          type        = triggerType.onPlay;
+          requirement = {
+            type = cardRequirementType.thisCard;
+          };
+        };
+        actions = [
+          {
+            targetRequirement = {
+              type         = cardRequirementType.and;
+              requirements = [
+                {
+                  type = cardRequirementType.sameLane;
+                },
+                {
+                  type        = NOT;
+                  requirement = {
+                    type = cardRequirementType.thisCard;
+                  };
+                },
+              ];
+            };
+            action = cardAction.destroy;
+          },
+        ];
+      },
+    ];
+  };
+  */
+
+  struct PassiveEffect {
+    PassiveEffect(void) = default;
+  };
+
+  struct EmblemCardTrigger {
+    EmblemCardTrigger(void) = default;
+
+    EmblemCardTrigger(EmblemCardTriggerType type, CardRequirement const & requirement) :
+      type(type),
+      requirement(requirement)
+    {}
+
+    EmblemCardTriggerType type;
+    CardRequirement       requirement;
+  };
+
+  struct EmblemLaneTrigger {
+    EmblemLaneTrigger(void) = default;
+
+    EmblemLaneTrigger(EmblemLaneTriggerType type) :
+      type(type)
+    {}
+
+    EmblemLaneTriggerType type;
+  };
+
+  struct EmblemGameTrigger {
+    EmblemGameTrigger(void) = default;
+
+    EmblemGameTrigger(EmblemGameTriggerType type) :
+      type(type)
+    {}
+
+    EmblemGameTriggerType type;
+  };
+
+  using EmblemTrigger = Variant<
+    EmblemTriggerType,
+
+    EmblemCardTrigger,
+    EmblemLaneTrigger,
+    EmblemGameTrigger
+  >;
+
+  struct EmblemTargetAction {
+    EmblemTargetAction(void) = default;
+
+    EmblemTargetAction(
+      CardRequirement const &        requirement,
+      EmblemTargetActionData const & data
+    ) :
+      requirement(requirement),
+      data(data)
+    {}
+
+    CardRequirement        requirement;
+    EmblemTargetActionData data;
+  };
+
+  enum EmblemPlayerActionType {
+    DrawCard,
+    Discard,
+    PlayCard,
+    PlayFromDiscard,
+    ClaimLane,
+    Redraw,
+
+    Count
+  };
+
+  struct EmblemPlayerActionDrawCard {
+  };
+
+  struct EmblemPlayerActionDiscard {
+    EmblemPlayerActionDiscard(void) = default;
+    EmblemPlayerActionDiscard(CardRequirement const & requirement) :
+      requirement(requirement)
+    {}
+
+    CardRequirement requirement;
+  };
+
+  struct EmblemPlayerActionPlayCard {
+    EmblemPlayerActionPlayCard(void) = default;
+    EmblemPlayerActionPlayCard(
+      bool                    sameLane,
+      bool                    otherLane,
+      CardRequirement const & requirement
+    ) :
+      sameLane(sameLane),
+      otherLane(otherLane),
+      requirement(requirement)
+    {}
+
+    bool            sameLane    = false;
+    bool            otherLane   = false;
+    CardRequirement requirement;
+  };
+
+  struct EmblemPlayerActionPlayFromDiscard {
+    EmblemPlayerActionPlayFromDiscard(void) = default;
+    EmblemPlayerActionPlayFromDiscard(
+      bool                    sameLane,
+      bool                    otherLane,
+      CardRequirement const & requirement
+    ) :
+      sameLane(sameLane),
+      otherLane(otherLane),
+      requirement(requirement)
+    {}
+
+    bool            sameLane    = false;
+    bool            otherLane   = false;
+    CardRequirement requirement;
+  };
+
+  struct EmblemPlayerActionClaimLane {
+    EmblemPlayerActionClaimLane(void) = default;
+    EmblemPlayerActionClaimLane(
+      bool sameLane,
+      bool otherLane
+    ) :
+      sameLane(sameLane),
+      otherLane(otherLane)
+    {}
+
+    bool sameLane  = false;
+    bool otherLane = false;
+  };
+
+  struct EmblemPlayerActionRedraw {
+  };
+
+  using EmblemPlayerAction = Variant<
+    EmblemPlayerActionType,
+
+    EmblemPlayerActionDrawCard,
+    EmblemPlayerActionDiscard,
+    EmblemPlayerActionPlayCard,
+    EmblemPlayerActionClaimLane,
+    EmblemPlayerActionPlayFromDiscard,
+    EmblemPlayerActionRedraw
+  >;
+
+  static int const c_activeEffectMaxActionCount = 3;
+
+  enum class EmblemActionType {
+    PlayerAction,
+    TargetAction,
+
+    Count
+  };
+
+  using EmblemAction = Variant<
+    EmblemActionType,
+
+    EmblemPlayerAction,
+    EmblemTargetAction
+  >;
+
+  struct ActiveEffect {
+    ActiveEffect(void) = default;
+
+    ActiveEffect(
+      EmblemTrigger const &                                            trigger,
+      DynamicArray<EmblemAction, c_activeEffectMaxActionCount> const & actions
+    ) :
+      trigger(trigger),
+      actions(actions)
+    {}
+
+    EmblemTrigger                                            trigger;
+    DynamicArray<EmblemAction, c_activeEffectMaxActionCount> actions;
+  };
+
+  static int const c_emblemMaxPassiveEffects = 2;
+  static int const c_emblemMaxActiveEffects  = 2;
 
   struct EmblemData {
     EmblemData(void) = default;
 
     EmblemData(
-      std::string const &     name,
-      int                     generationMod,
-      CardRequirement const & cardRequirement
+      std::string const &                                            name,
+      DynamicArray<PassiveEffect, c_emblemMaxPassiveEffects> const & passiveEffects,
+      DynamicArray<ActiveEffect, c_emblemMaxActiveEffects> const &   activeEffects
     ) :
       name(name),
-      generationMod(generationMod),
-      cardRequirement(cardRequirement)
+      passiveEffects(passiveEffects),
+      activeEffects(activeEffects)
     {}
 
-    std::string     name            = "";
-    int             generationMod   = 0;
-    CardRequirement cardRequirement = CardRequirementNone();
+    std::string                                            name           = "";
+    DynamicArray<PassiveEffect, c_emblemMaxPassiveEffects> passiveEffects;
+    DynamicArray<ActiveEffect, c_emblemMaxActiveEffects>   activeEffects;
   };
 
-  static auto const t_emblemData = MakeHeaderlessDataTable<Emblem::Count>({
-    std::make_pair(Emblem::Ambusher, EmblemData(
-      "Ambusher",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Anchored, EmblemData(
-      "Anchored",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Betray, EmblemData(
-      "Betray",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Cowardly, EmblemData(
-      "Cowardly",
-      +2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Defeat, EmblemData(
-      "Defeat",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Defender, EmblemData(
-      "Defender",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Discard, EmblemData(
-      "Discard",
-      +1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Draw, EmblemData(
-      "Draw",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Enduring, EmblemData(
-      "Enduring",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Ephemeral, EmblemData(
-      "Ephemeral",
-      +2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Feint, EmblemData(
-      "Feint",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Follower, EmblemData(
-      "Follower",
-      +1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Gift, EmblemData(
-      "Gift",
-      +2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Hidden, EmblemData(
-      "Hidden",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Invincible, EmblemData(
-      "Invincible",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Loyal, EmblemData(
-      "Loyal",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Play, EmblemData(
-      "Play",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Prepare, EmblemData(
-      "Prepare",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Pull, EmblemData(
-      "Pull",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Rally, EmblemData(
-      "Rally",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Reactive, EmblemData(
-      "Reactive",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Recall, EmblemData(
-      "Recall",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Recovery, EmblemData(
-      "Recovery",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Recruit, EmblemData(
-      "Recruit",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Regeneration, EmblemData(
-      "Regeneration",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Regroup, EmblemData(
-      "Regroup",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Revive, EmblemData(
-      "Revive",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Revolve, EmblemData(
-      "Revolve",
-      -4,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Sacrifice, EmblemData(
-      "Sacrifice",
-      +2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Send, EmblemData(
-      "Send",
-      -2,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Strong, EmblemData(
-      "Strong",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Supplied, EmblemData(
-      "Supplied",
-      -1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Unique, EmblemData(
-      "Unique",
-      +1,
-      CardRequirementNone()
-    )),
-    std::make_pair(Emblem::Weak, EmblemData(
-      "Weak",
-      +1,
-      CardRequirementNone()
-    )),
-  });
-
-  static int const c_cardMaxFactions = 2;
-  static int const c_cardMaxEmblems  = 5;
-
-  struct CardData {
-    CardData(void) = default;
-
-    CardData(
-      std::string const &                              name,
-      int                                              level,
-      bool                                             heroic,
-      DynamicArray<Faction, c_cardMaxFactions> const & factions,
-      DynamicArray<Emblem, c_cardMaxEmblems> const &   emblems
-    ) :
-      name(name),
-      level(level),
-      heroic(heroic),
-      factions(factions),
-      emblems(emblems)
+  struct CardLevelData {
+    CardLevelData(void) = default;
+    CardLevelData(int level) :
+      level(level)
     {}
 
-    std::string                              name;
-    int                                      level    = 0;
-    bool                                     heroic   = false;
-    DynamicArray<Faction, c_cardMaxFactions> factions;
-    DynamicArray<Emblem, c_cardMaxEmblems>   emblems;
+    int level = 0;
   };
 
-  static int const c_factionPrimaryEmblemCount   = 5;
-  static int const c_factionSecondaryEmblemCount = 12;
-
-  enum class TitlePartType {
-    Adjective,
-    Noun,
-    FormalName,
-    PossesiveName,
+  enum class CardResourceDataType {
+    Produce,
+    Consume,
 
     Count
   };
 
-  // Noun of FormalName
-  // Adjective Noun
-  // PossesiveName Noun
-
-  struct TitlePart {
-    TitlePart(void) = default;
-    TitlePart(std::string const & titlePart, TitlePartType type, CardRequirement const & requirement) :
-      titlePart(titlePart),
-      type(type),
-      requirement(requirement)
+  struct CardResourceProduceData {
+    CardResourceProduceData(void) = default;
+    CardResourceProduceData(int resourceIndex0, int resourceIndex1) :
+      resourceIndex0(resourceIndex0),
+      resourceIndex1(resourceIndex1)
     {}
 
-    std::string     titlePart   = "";
-    TitlePartType   type        = TitlePartType::Count;
-    CardRequirement requirement = CardRequirementNone();
+
+    int resourceIndex0 = c_invalidIndex;
+    int resourceIndex1 = c_invalidIndex;
   };
 
-  static int const c_maxFactionTitleParts = 50;
+  struct CardResourceConsumeData {
+    CardResourceConsumeData(void) = default;
+    CardResourceConsumeData(int resourceIndex) :
+      resourceIndex(resourceIndex)
+    {}
 
-  struct FactionGenerationData {
-    FactionGenerationData(void) = default;
+    int resourceIndex = c_invalidIndex;
+  };
 
-    FactionGenerationData(
-      std::string const & name,
-      DynamicArray<Emblem, c_factionPrimaryEmblemCount> const &   primaryEmblems,
-      DynamicArray<Emblem, c_factionSecondaryEmblemCount> const & secondaryEmblems,
-      DynamicArray<TitlePart, c_maxFactionTitleParts> const &     titleParts
+  using CardResourceData = Variant<
+    CardResourceDataType,
+
+    CardResourceProduceData,
+    CardResourceConsumeData
+  >;
+
+  struct CardAlignmentData {
+    CardAlignmentData(void) = default;
+    CardAlignmentData(Alignment alignment) :
+      alignment(alignment)
+    {}
+
+    Alignment alignment = Alignment::Count;
+  };
+
+  struct CardUtilityData {
+    CardUtilityData(void) = default;
+    CardUtilityData(int emblemIndex) :
+      emblemIndex(emblemIndex)
+    {}
+
+    int emblemIndex = c_invalidIndex;
+  };
+
+  using CardStyleData = Variant<
+    CardStyleType,
+
+    CardLevelData,
+    CardResourceData,
+    CardAlignmentData,
+    CardUtilityData
+  >;
+
+  struct CardData {
+    CardData(void) = default;
+
+    std::string   name;
+    int           factionIndex = c_invalidIndex;
+    int           emblemIndex  = c_invalidIndex;
+    CardStyleData data;
+  };
+
+  enum class CardDecisionTreeType {
+    Conditional,
+    Chain,
+    Result,
+
+    Count
+  };
+
+  template <typename T>
+  struct CardDecisionTreeConditional;
+  template <typename T>
+  struct CardDecisionTreeChain;
+  template <typename T>
+  struct CardDecisionTreeWeightedResult;
+
+  template <typename T>
+  using CardDecisionTree = Variant<
+    CardDecisionTreeType,
+
+    CardDecisionTreeConditional<T>,
+    CardDecisionTreeChain<T>,
+    CardDecisionTreeWeightedResult<T>
+  >;
+
+  template <typename T>
+  struct CardDecisionTreeConditional {
+    CardDecisionTreeConditional(void) = default;
+    CardDecisionTreeConditional(
+      CardRequirement const &     requirement,
+      CardDecisionTree<T> const & result
     ) :
-      name(name),
-      primaryEmblems(primaryEmblems),
-      secondaryEmblems(secondaryEmblems),
-      titleParts(titleParts)
+      requirement(requirement),
+      result(std::make_shared<CardDecisionTree<T>>(result))
     {}
 
-    std::string                                         name;
-    DynamicArray<Emblem, c_factionPrimaryEmblemCount>   primaryEmblems;
-    DynamicArray<Emblem, c_factionSecondaryEmblemCount> secondaryEmblems;
-    DynamicArray<TitlePart, c_maxFactionTitleParts>     titleParts;
+    CardRequirement                      requirement = CardRequirementNone();
+    std::shared_ptr<CardDecisionTree<T>> result;
   };
 
-  static auto const t_factionData = MakeHeaderlessDataTable<Faction::Count>({
-    std::make_pair(Faction::GilbrandsArmory, FactionGenerationData(
-      "Gilbrand's Armory",
-      {
-        Emblem::Loyal,
-        Emblem::Strong,
+  template <typename T>
+  struct CardDecisionTreeChain {
+    CardDecisionTreeChain(void) = default;
+    CardDecisionTreeChain(std::initializer_list<CardDecisionTree<T>> const & i_chain);
 
-        Emblem::Invincible,
-        Emblem::Recovery,
+    std::vector<CardDecisionTree<T>> chain;
+  };
 
-        Emblem::Rally,
-      },
-      {
-        Emblem::Cowardly,
+  template <typename T>
+  struct CardDecisionTreeWeightedResult {
+    CardDecisionTreeWeightedResult(void) = default;
+    CardDecisionTreeWeightedResult(float weight, T const & value) :
+      weight(weight),
+      value(value)
+    {}
 
-        Emblem::Follower,
-        Emblem::Unique,
+    float weight = 1.0f;
+    T     value  = T();
+  };
 
-        Emblem::Defender,
-        Emblem::Reactive,
-        Emblem::Supplied,
+  template <typename T>
+  CardDecisionTreeChain<T>::CardDecisionTreeChain(
+    std::initializer_list<CardDecisionTree<T>> const & i_chain
+  ) {
+    chain.reserve(i_chain.size());
 
-        Emblem::Anchored,
-        Emblem::Prepare,
-        Emblem::Send,
-
-        Emblem::Betray,
-        Emblem::Recruit,
-      },
-      {
-        TitlePart(
-          "Scouthound",
-          TitlePartType::Noun,
-          CardRequirementEmblem(Emblem::Recovery)
-        ),
-      }
-    )),
-    std::make_pair(Faction::CloufaraSeers, FactionGenerationData(
-      "Cloufara Seers",
-      {
-        Emblem::Regroup,
-        Emblem::Supplied,
-
-        Emblem::Draw,
-        Emblem::Feint,
-
-        Emblem::Revolve,
-      },
-      {
-        Emblem::Sacrifice,
-
-        Emblem::Discard,
-        Emblem::Weak,
-
-        Emblem::Defender,
-        Emblem::Hidden,
-        Emblem::Reactive,
-
-        Emblem::Play,
-        Emblem::Prepare,
-        Emblem::Recall,
-
-        Emblem::Ambusher,
-        Emblem::Revive,
-      },
-      {
-      }
-    )),
-  });
+    for (CardDecisionTree<T> const & tree : i_chain) {
+      chain.emplace_back(tree);
+    }
+  }
 
   static char const c_vowels[] = "aeiou";
   static char const c_vowelCount = sizeof(c_vowels) / sizeof(*c_vowels) - 1;
@@ -810,38 +1012,531 @@ namespace {
     return result;
   }
 
-  std::string GetRandomTitle(Faction faction) {
-    return ""; //TODO
-  };
-
+  static int const c_minLevel = 2;
   static int const c_maxLevel = 5;
 
   int GetRandomLevel(void) {
-    return std::rand() % (c_maxLevel + 1);
+    return std::rand() % (c_maxLevel - c_minLevel + 1) + c_minLevel;
   }
 
-  Faction GetRandomFaction(void) {
-    return Faction(std::rand() % int(Faction::Count));
+  static int const c_factionEmblemCount    = 7;
+  static int const c_factionResourceCount  = 4;
+  static int const c_factionAlignmentCount = 3;
+
+  struct ResourceTableRow {
+    ResourceTableRow(void) = default;
+    ResourceTableRow(std::string const & name) :
+      name(name)
+    {}
+
+    std::string name;
+  };
+
+  struct FactionTableRow {
+    FactionTableRow(void) = default;
+    FactionTableRow(
+      std::string const &                                      name,
+      DynamicArray<int, c_factionEmblemCount> const &          emblems,
+      DynamicArray<int, c_factionResourceCount> const &        resources,
+      DynamicArray<Alignment, c_factionAlignmentCount> const & alignments
+    ) :
+      name(name),
+      emblems(emblems),
+      resources(resources),
+      alignments(alignments)
+    {}
+
+    std::string                                      name;
+    DynamicArray<int, c_factionEmblemCount>          emblems;
+    DynamicArray<int, c_factionResourceCount>        resources;
+    DynamicArray<Alignment, c_factionAlignmentCount> alignments;
+  };
+
+  enum: int {
+    defeatIndex,
+    gustIndex,
+    hookIndex,
+    searchIndex,
+    recruitIndex,
+    claimIndex,
+    reviveIndex,
+    recallIndex,
+    reevaluateIndex,
+    mimicryIndex,
+
+    invincibleIndex,
+    defenderIndex,
+    anchoredIndex,
+    regenerationIndex,
+    strongIndex,
+    rallyIndex,
+    reactiveIndex,
+    flightIndex,
+    refineIndex,
+    assistantIndex,
+
+    emblemCount,
+  };
+
+  static auto const t_emblemData = MakeHeaderlessDataTable({
+    std::make_pair(int(defeatIndex), EmblemData(
+      "Defeat",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemTargetAction(
+              CardRequirementLane(),
+              EmblemTargetActionDestroy()
+            ),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(gustIndex), EmblemData(
+      "Gust",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemTargetAction(
+              CardRequirementLane(),
+              EmblemTargetActionMoveToLane(
+                false, //sameLane
+                true   //otherLane
+              )
+            ),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(hookIndex), EmblemData(
+      "Hook",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemTargetAction(
+              CardRequirementNot(CardRequirementLane()),
+              EmblemTargetActionMoveToLane(
+                true, //sameLane
+                false //otherLane
+              )
+            ),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(searchIndex), EmblemData(
+      "Search",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemPlayerAction(EmblemPlayerActionDrawCard()),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(recruitIndex), EmblemData(
+      "Recruit",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemPlayerAction(EmblemPlayerActionPlayCard(
+              true,                 //sameLane
+              false,                //otherLane
+              CardRequirementNone()
+            )),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(claimIndex), EmblemData(
+      "Claim",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemPlayerAction(EmblemPlayerActionClaimLane(
+              true, //sameLane
+              false //otherLane
+            )),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(reviveIndex), EmblemData(
+      "Revive",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemPlayerAction(EmblemPlayerActionPlayFromDiscard(
+              true,                 //sameLane
+              false,                //otherLane
+              CardRequirementNone()
+            )),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(recallIndex), EmblemData(
+      "Recall",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemTargetAction(
+              CardRequirementLane(),
+              EmblemTargetActionMoveToHand()
+            ),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(reevaluateIndex), EmblemData(
+      "Reevaluate",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemPlayerAction(EmblemPlayerActionRedraw()),
+          }
+        ),
+      }
+    )),
+    std::make_pair(int(mimicryIndex), EmblemData(
+      "Mimicry",
+      {},
+      {
+        ActiveEffect(
+          EmblemCardTrigger(
+            EmblemCardTriggerType::OnActivate,
+            CardRequirementThisCard()
+          ),
+          {
+            EmblemTargetAction(
+              CardRequirementAnd({
+                CardRequirementLane(),
+                CardRequirementNot(CardRequirementActivated())
+              }),
+              EmblemTargetActionActivate()
+            ),
+          }
+        ),
+      }
+    )),
+
+    std::make_pair(int(invincibleIndex), EmblemData(
+      "Invincible",
+      {
+        PassiveEffectCannotBeActioned(EmblemTargetActionType::Destroy),
+      },
+      {}
+    )),
+    std::make_pair(int(defenderIndex), EmblemData(
+      "Defender",
+      {
+        PassiveEffectForOthers(
+          CardRequirementAnd({
+            CardRequirementControlled(),
+            CardRequirementNot(
+              CardRequirementEmblem(defenderIndex)
+            ),
+          }),
+          PassiveEffectCannotBeTargetted()
+        ),
+      },
+      {}
+    )),
+    std::make_pair(int(anchoredIndex), EmblemData(
+      "Anchored",
+      {
+        PassiveEffectCannotBeActioned(EmblemTargetActionType::MoveToLane),
+        PassiveEffectCannotBeActioned(EmblemTargetActionType::MoveToDeck),
+        PassiveEffectCannotBeActioned(EmblemTargetActionType::MoveToHand),
+      },
+      {}
+    )),
+    std::make_pair(int(regenerationIndex), EmblemData(
+      "Regeneration",
+      {
+        PassiveEffectCanBePlayedFromDiscard(
+          CardRequirementOwner()
+        ),
+      },
+      {}
+    )),
+    std::make_pair(int(strongIndex), EmblemData(
+      "Strong",
+      {
+        PassiveEffectGrantControlPoint(
+          CardRequirementNone()
+        ),
+      },
+      {}
+    )),
+    std::make_pair(int(rallyIndex), EmblemData(
+      "Rally",
+      {},
+      {}
+    )),
+    std::make_pair(int(reactiveIndex), EmblemData(
+      "Reactive",
+      {},
+      {}
+    )),
+    std::make_pair(int(flightIndex), EmblemData(
+      "Flight",
+      {},
+      {}
+    )),
+    std::make_pair(int(refineIndex), EmblemData(
+      "Refine",
+      {},
+      {}
+    )),
+    std::make_pair(int(assistantIndex), EmblemData(
+      "Assistant",
+      {},
+      {}
+    )),
+  });
+
+  enum: int {
+    goldIndex,
+    materialsIndex,
+    animalsIndex,
+    foodIndex,
+    toolsIndex,
+    musicIndex,
+    shadowIndex,
+    plantsIndex,
+    treasureIndex,
+    peopleIndex,
+
+    resourceCount
+  };
+
+  static auto const t_resourceData = MakeHeaderlessDataTable({
+    std::make_pair(int(goldIndex),        ResourceTableRow("Gold")),
+    std::make_pair(int(materialsIndex),   ResourceTableRow("Materials")),
+    std::make_pair(int(animalsIndex),     ResourceTableRow("Animals")),
+    std::make_pair(int(foodIndex),        ResourceTableRow("Food")),
+    std::make_pair(int(toolsIndex),       ResourceTableRow("Tools")),
+    std::make_pair(int(musicIndex),       ResourceTableRow("Music")),
+    std::make_pair(int(shadowIndex),      ResourceTableRow("Shadow")),
+    std::make_pair(int(plantsIndex),      ResourceTableRow("Plants")),
+    std::make_pair(int(treasureIndex),    ResourceTableRow("Treasure")),
+    std::make_pair(int(peopleIndex),      ResourceTableRow("People")),
+  });
+
+  static auto const t_factionData = MakeHeaderlessDataTable({
+    FactionTableRow(
+      "Ranthelok Conclave",
+      {
+        flightIndex,
+        anchoredIndex,
+        recruitIndex,
+        reevaluateIndex,
+        searchIndex,
+        hookIndex,
+        regenerationIndex,
+      },
+      {
+        shadowIndex,
+        plantsIndex,
+        goldIndex,
+        treasureIndex,
+      },
+      {
+        Alignment::Fire,
+        Alignment::Earth,
+        Alignment::Water,
+      }
+    ),
+    FactionTableRow(
+      "Matheran's Seekers",
+      {
+        recallIndex,
+        flightIndex,
+        recruitIndex,
+        claimIndex,
+        reviveIndex,
+        invincibleIndex,
+        regenerationIndex,
+      },
+      {
+        peopleIndex,
+        shadowIndex,
+        plantsIndex,
+        musicIndex,
+      },
+      {
+        Alignment::Air,
+        Alignment::Fire,
+        Alignment::Light,
+      }
+    ),
+    FactionTableRow(
+      "Antathalyn Seamarket",
+      {
+        assistantIndex,
+        reevaluateIndex,
+        rallyIndex,
+        regenerationIndex,
+        recallIndex,
+        reviveIndex,
+        claimIndex,
+      },
+      {
+        peopleIndex,
+        animalsIndex,
+        materialsIndex,
+        treasureIndex,
+      },
+      {
+        Alignment::Water,
+        Alignment::Earth,
+        Alignment::Air,
+      }
+    ),
+    FactionTableRow(
+      "Embrial Overcity",
+      {
+        refineIndex,
+        recruitIndex,
+        claimIndex,
+        anchoredIndex,
+        regenerationIndex,
+        assistantIndex,
+        flightIndex,
+      },
+      {
+        materialsIndex,
+        plantsIndex,
+        shadowIndex,
+        musicIndex,
+      },
+      {
+        Alignment::Air,
+        Alignment::Light,
+        Alignment::Water,
+      }
+    ),
+    FactionTableRow(
+      "Darivaan Cliffkeep",
+      {
+        regenerationIndex,
+        searchIndex,
+        recallIndex,
+        flightIndex,
+        defeatIndex,
+        mimicryIndex,
+        hookIndex,
+      },
+      {
+        toolsIndex,
+        peopleIndex,
+        musicIndex,
+        goldIndex,
+      },
+      {
+        Alignment::Earth,
+        Alignment::Fire,
+        Alignment::Light,
+      }
+    ),
+  });
+
+  int GetRandomFactionIndex(void) {
+    return std::rand() % t_factionData.Size();
   }
 
-  bool EvaluateEmblemRequirements(int level, DynamicArray<Emblem, c_cardMaxEmblems> const & currentEmblems, CardRequirement const & requirement) {
+  bool MatchesRequirement(CardData const & currentCard, CardRequirement const & requirement) {
     switch (requirement.GetType()) {
       case CardRequirementType::Level: {
-        return level == requirement.Get<CardRequirementType::Level>().level;
+        int const cardLevel =
+          (currentCard.data.GetType() == CardStyleType::Level) ?
+          (currentCard.data.Get<CardStyleType::Level>().level) :
+          0
+        ;
+
+        int const reqLevel = requirement.Get<CardRequirementType::Level>().level;
+
+        switch (requirement.Get<CardRequirementType::Level>().op) {
+          case ComparisonOperator::LessThan:           return cardLevel <  reqLevel;
+          case ComparisonOperator::GreaterThan:        return cardLevel >  reqLevel;
+          case ComparisonOperator::Equal:              return cardLevel == reqLevel;
+          case ComparisonOperator::NotEqual:           return cardLevel != reqLevel;
+          case ComparisonOperator::LessThanOrEqual:    return cardLevel <= reqLevel;
+          case ComparisonOperator::GreaterThanOrEqual: return cardLevel >= reqLevel;
+          default:                                     return false;
+        }
       } break;
 
       case CardRequirementType::Emblem: {
-        for (Emblem emblem : currentEmblems) {
-          if (emblem == requirement.Get<CardRequirementType::Emblem>().emblem) {
+        DynamicArray<int, 2> emblemIndices;
+
+        emblemIndices.Emplace(currentCard.emblemIndex);
+
+        if (currentCard.data.GetType() == CardStyleType::Utility) {
+          emblemIndices.Emplace(currentCard.data.Get< CardStyleType::Utility>().emblemIndex);
+        }
+
+        for (int emblemIndex : emblemIndices) {
+          if (emblemIndex == requirement.Get<CardRequirementType::Emblem>().emblem) {
             return true;
           }
         }
         return false;
       } break;
 
+      case CardRequirementType::Faction: {
+        return currentCard.factionIndex == requirement.Get<CardRequirementType::Faction>().faction;
+      } break;
+
       case CardRequirementType::And: {
         for (std::shared_ptr<CardRequirement> const & require : requirement.Get<CardRequirementType::And>().requirements) {
-          if (!require || !EvaluateEmblemRequirements(level, currentEmblems, *require)) {
+          if (!require || !MatchesRequirement(currentCard, *require)) {
             return false;
           }
         }
@@ -850,7 +1545,7 @@ namespace {
 
       case CardRequirementType::Or: {
         for (std::shared_ptr<CardRequirement> const & require : requirement.Get<CardRequirementType::Or>().requirements) {
-          if (require && EvaluateEmblemRequirements(level, currentEmblems, *require)) {
+          if (require && MatchesRequirement(currentCard, *require)) {
             return true;
           }
         }
@@ -859,7 +1554,7 @@ namespace {
 
       case CardRequirementType::Not: {
         std::shared_ptr<CardRequirement> const & require = requirement.Get<CardRequirementType::Not>().requirement;
-        return !(require && EvaluateEmblemRequirements(level, currentEmblems, *require));
+        return !(require && MatchesRequirement(currentCard, *require));
       } break;
 
       default: {
@@ -868,131 +1563,339 @@ namespace {
     }
   }
 
-  template <typename T, int Count>
-  bool Contains(DynamicArray<T, Count> const & arr, T const & val) {
-    for (T const & arrVal : arr) {
-      if (val == arrVal) {
+  template <typename T, int Size>
+  T const & RandomElement(DynamicArray<T, Size> const & arr) {
+    return arr[std::rand() % arr.Count()];
+  }
+
+  template <typename T, int Size>
+  T & RandomElement(DynamicArray<T, Size> & arr) {
+    return arr[std::rand() % arr.Count()];
+  }
+
+  template <typename T, int Size>
+  bool Contains(DynamicArray<T, Size> const & arr, T const & value) {
+    for (T const & val : arr) {
+      if (val == value) {
         return true;
       }
     }
     return false;
   }
 
-  CardData CreateCard(int level = GetRandomLevel(), Faction faction = Faction::Count, bool heroic = ((std::rand() % 6) == 0)) {
+  template <typename T, int Size>
+  T const & RandomWeightedElement(
+    DynamicArray<T, Size> const &           arr,
+    std::function<float(T const &)> const & weightFunc
+  ) {
+    float     total = 0.0f;
+    T const * value = nullptr;
+
+    for (T const & val : arr) {
+      float const weight = weightFunc;
+
+      total += weight;
+
+      if (GetRandom() * total < weight) {
+        value = &val;
+      }
+    }
+
+    return *value;
+  }
+
+  template <typename T, int Size>
+  T & RandomWeightedElement(
+    DynamicArray<T, Size> &                 arr,
+    std::function<float(T const &)> const & weightFunc
+  ) {
+    return RandomWeightedElement(const_cast<DynamicArray<T, Size> const &>(arr));
+  }
+
+  std::string GetRandomTitle(CardData const &) {
+      return GetRandomName();
+  };
+
+  int GetRandomEmblem(CardData const & card) {
+    int newEmblemIndex;
+    do {
+      newEmblemIndex = RandomElement(t_factionData[card.factionIndex].emblems);
+      
+      if (MatchesRequirement(card, CardRequirementEmblem(newEmblemIndex))) {
+        newEmblemIndex = c_invalidIndex;
+      }
+    } while (newEmblemIndex == c_invalidIndex);
+    
+    return newEmblemIndex;
+  }
+
+  CardStyleData GetRandomCardStyleData(CardData const & card) {
+    CardStyleType const type = CardStyleType(std::rand() % int(CardStyleType::Count));
+
+    switch (type) {
+      case CardStyleType::Level: {
+        return CardLevelData(std::rand() % (c_maxLevel - c_minLevel + 1) + c_minLevel);
+      } break;
+
+      case CardStyleType::Resource: {
+        CardResourceDataType const resourceType = CardResourceDataType(std::rand() % int(CardResourceDataType::Count));
+
+        switch (resourceType) {
+          case CardResourceDataType::Produce: {
+            auto const & resourceTypes = t_factionData[card.factionIndex].resources;
+
+            int resourceIndex0 = RandomElement(resourceTypes);
+
+            int resourceIndex1;
+            do {
+              resourceIndex1 = RandomElement(resourceTypes);
+            } while (resourceIndex1 == resourceIndex0);
+
+            if (resourceIndex0 > resourceIndex1) {
+              std::swap(resourceIndex0, resourceIndex1);
+            }
+
+            return CardResourceData(CardResourceProduceData(resourceIndex0, resourceIndex1));
+          } break;
+
+          case CardResourceDataType::Consume: {
+            int const resourceIndex = RandomElement(t_factionData[card.factionIndex].resources);
+
+            return CardResourceData(CardResourceConsumeData(resourceIndex));
+          } break;
+
+          default: {
+            return CardResourceData();
+          } break;
+        }
+
+      } break;
+
+      case CardStyleType::Alignment: {
+        Alignment const alignment = RandomElement(t_factionData[card.factionIndex].alignments);
+        return CardAlignmentData(alignment);
+      } break;
+
+      case CardStyleType::Utility: {
+        return CardUtilityData(GetRandomEmblem(card));
+      } break;
+    }
+
+    return CardStyleData();
+  }
+
+  CardData CreateCard(int faction = c_invalidIndex) {
     CardData result;
 
-    result.name   = GetRandomName();
-    result.level  = level;
-    result.heroic = heroic;
-
-    int const factionCount = std::min((std::rand() % c_cardMaxFactions) + 1, (std::rand() % c_cardMaxFactions) + 1);
-
-    for (int i = 0; i < factionCount; ++i) {
-      if (i == 0 && faction != Faction::Count) {
-        result.factions.Emplace(faction);
-      }
-
-      Faction newFaction;
-      bool    validFaction;
-      do {
-        newFaction   = GetRandomFaction();
-        validFaction = !Contains(result.factions, newFaction);
-      } while (!validFaction);
-
-      result.factions.Emplace(newFaction);
+    if (faction == c_invalidIndex) {
+      faction = GetRandomFactionIndex();
     }
 
-    static const int c_maxAllowedEmblems = (c_factionPrimaryEmblemCount + c_factionSecondaryEmblemCount) * c_cardMaxFactions;
-    DynamicArray<Emblem, c_maxAllowedEmblems> allowedEmblems;
-
-    static const int c_maxPrimaryEmblems = c_factionPrimaryEmblemCount * c_cardMaxFactions;
-    DynamicArray<Emblem, c_maxAllowedEmblems> primaryEmblems;
-
-    for (Faction faction : result.factions) {
-      FactionGenerationData const & factionData = t_factionData[faction];
-
-      for (Emblem emblem : factionData.primaryEmblems) {
-        if (!Contains(primaryEmblems, emblem)) {
-          primaryEmblems.Emplace(emblem);
-          allowedEmblems.Emplace(emblem);
-        }
-      }
-    }
-
-    for (Faction faction : result.factions) {
-      FactionGenerationData const & factionData = t_factionData[faction];
-
-      for (Emblem emblem : factionData.secondaryEmblems) {
-        if (!Contains(allowedEmblems, emblem)) {
-          allowedEmblems.Emplace(emblem);
-        }
-      }
-    }
-
-    int currentCost = 0;
-    DynamicArray<Emblem, c_cardMaxEmblems> emblems;
-
-    while (result.level != currentCost + result.factions.Count() - (result.heroic ? 5 : 2 )) {
-      currentCost = 0;
-      emblems.Clear();
-      int const emblemCount = std::min((std::rand() % c_cardMaxEmblems) + 1, (std::rand() % c_cardMaxEmblems) + 1);
-
-      for (int i = 0; i < emblemCount; ++i) {
-        Emblem newEmblem;
-        bool   validEmblem;
-        do {
-          if (i == 0) {
-            newEmblem = primaryEmblems[std::rand() % primaryEmblems.Count()];
-          }
-          else {
-            newEmblem = allowedEmblems[std::rand() % allowedEmblems.Count()];
-          }
-
-          validEmblem =
-            !Contains(emblems, newEmblem) &&
-            EvaluateEmblemRequirements(result.level, emblems, t_emblemData[newEmblem].cardRequirement)
-          ;
-        } while (!validEmblem);
-
-        emblems.Emplace(newEmblem);
-        currentCost -= t_emblemData[newEmblem].generationMod;
-      }
-    }
-
-    result.emblems = emblems;
+    result.factionIndex = faction;
+    result.emblemIndex  = GetRandomEmblem(result);
+    result.data         = GetRandomCardStyleData(result);
+    result.name         = GetRandomTitle(result);
 
     return result;
   };
 }
 
+void CreateAndPrintCard(void) {
+  CardData card = CreateCard();
+
+  std::cout << card.name << ": " << std::endl;
+
+  std::cout << "  " << t_factionData[card.factionIndex].name << std::endl;
+
+  switch (card.data.GetType()) {
+    case CardStyleType::Level: {
+      std::cout << "  Level: " << card.data.Get<CardStyleType::Level>().level << std::endl;
+    } break;
+
+    case CardStyleType::Resource: {
+      CardResourceData const & data = card.data.Get<CardStyleType::Resource>();
+
+      switch (data.GetType()) {
+        case CardResourceDataType::Produce: {
+          CardResourceProduceData const & produce = data.Get<CardResourceDataType::Produce>();
+
+          std::cout <<
+            "  Produce: " <<
+            t_resourceData[produce.resourceIndex0].name <<
+            ", " <<
+            t_resourceData[produce.resourceIndex1].name <<
+            std::endl
+            ;
+        } break;
+        case CardResourceDataType::Consume: {
+          CardResourceConsumeData const & consume = data.Get<CardResourceDataType::Consume>();
+          std::cout << "  Consume: " << t_resourceData[consume.resourceIndex].name << std::endl;
+        } break;
+
+        default: {
+        }  break;
+      }
+    } break;
+
+    case CardStyleType::Alignment: {
+      std::cout << "  Alignment: " << GetAlignmentText(card.data.Get<CardStyleType::Alignment>().alignment) << std::endl;
+    } break;
+
+    case CardStyleType::Utility: {
+      std::cout << "  Utility" << std::endl;
+    } break;
+
+    default: {
+    }  break;
+  }
+
+  std::string utilityEmblemText = "";
+
+  if (card.data.GetType() == CardStyleType::Utility) {
+    utilityEmblemText = ", " + t_emblemData[card.data.Get<CardStyleType::Utility>().emblemIndex].name;
+  }
+
+  std::cout << "  " << t_emblemData[card.emblemIndex].name << utilityEmblemText << std::endl;
+}
+
+void CreateAndPrintFaction(void) {
+
+  std::cout << "FactionTableRow(" << std::endl;
+  std::cout << "  \"Name\"," << std::endl;
+
+  std::cout << "  {" << std::endl;
+  DynamicArray<int, c_factionEmblemCount> emblems;
+  while (!emblems.Full()) {
+    int const newEmblem = std::rand() % t_emblemData.Size();
+
+    if (!Contains(emblems, newEmblem)) {
+      emblems.Emplace(newEmblem);
+    }
+  }
+
+  for (int emblemIndex : emblems) {
+    std::string indexName = t_emblemData[emblemIndex].name + "Index";
+
+    indexName[0] += 'a' - 'A';
+
+    std::cout << "    " << indexName << "," << std::endl;
+  }
+  std::cout << "  }," << std::endl;
+
+  std::cout << "  {" << std::endl;
+  DynamicArray<int, c_factionResourceCount> resources;
+  while (!resources.Full()) {
+    int const newResource = std::rand() % t_resourceData.Size();
+
+    if (!Contains(resources, newResource)) {
+      resources.Emplace(newResource);
+    }
+  }
+
+  for (int resourceIndex : resources) {
+    std::string indexName = t_resourceData[resourceIndex].name + "Index";
+
+    indexName[0] += 'a' - 'A';
+
+    std::cout << "    " << indexName << "," << std::endl;
+  }
+  std::cout << "  }," << std::endl;
+
+  std::cout << "  {" << std::endl;
+  DynamicArray<Alignment, c_factionAlignmentCount> alignments;
+  while (!alignments.Full()) {
+    Alignment const newAlignment = Alignment(std::rand() % int(Alignment::Count));
+
+    if (!Contains(alignments, newAlignment)) {
+      alignments.Emplace(newAlignment);
+    }
+  }
+
+  for (Alignment alignment : alignments) {
+    std::cout << "    " << "Alignment::" << GetAlignmentText(alignment) << "," << std::endl;
+  }
+  std::cout << "  }" << std::endl;
+  std::cout << ")," << std::endl;
+}
+
+void CountAndPrintOccurances(void) {
+  int emblemOccurances[emblemCount]              = { 0 };
+  int resourceOccurances[resourceCount]          = { 0 };
+  int alignmentOccurances[int(Alignment::Count)] = { 0 };
+
+  for (auto const & faction : t_factionData) {
+    for (int emblemIndex : faction.emblems) {
+      ++emblemOccurances[emblemIndex];
+    }
+    for (int resourceIndex : faction.resources) {
+      ++resourceOccurances[resourceIndex];
+    }
+    for (Alignment alignment : faction.alignments) {
+      ++alignmentOccurances[int(alignment)];
+    }
+  }
+
+  int minAlignment = 0;
+
+  for (auto const & emblem : t_emblemData) {
+    if (emblem.name.length() > minAlignment) {
+      minAlignment = emblem.name.length();
+    }
+  }
+  for (auto const & resource : t_resourceData) {
+    if (resource.name.length() > minAlignment) {
+      minAlignment = resource.name.length();
+    }
+  }
+  for (int i = 0; i < int(Alignment::Count); ++i) {
+    if (GetAlignmentText(Alignment(i)).length() > minAlignment) {
+      minAlignment = GetAlignmentText(Alignment(i)).length();
+    }
+  }
+
+  minAlignment += 2;
+
+
+
+  std::cout << "Emblems:" << std::endl;
+  for (int i = 0; i < emblemCount; ++i) {
+    int const alignCount = 1 + std::max(0, minAlignment - int(t_emblemData[i].name.length()));
+    std::string const alignStr(alignCount, ' ');
+    std::string const visual(emblemOccurances[i], 'X');
+
+    std::cout << "  " << t_emblemData[i].name << ":" << alignStr << emblemOccurances[i] << " " << visual << std::endl;
+  }
+
+  std::cout << "Resources:" << std::endl;
+  for (int i = 0; i < resourceCount; ++i) {
+    int const alignCount = 1 + std::max(0, minAlignment - int(t_resourceData[i].name.length()));
+    std::string const alignStr(alignCount, ' ');
+    std::string const visual(resourceOccurances[i], 'X');
+
+    std::cout << "  " << t_resourceData[i].name << ":" << alignStr << resourceOccurances[i] << " " << visual << std::endl;
+  }
+
+  std::cout << "Alignments:" << std::endl;
+  for (int i = 0; i < int(Alignment::Count); ++i) {
+    int const alignCount = 1 + std::max(0, minAlignment - int(GetAlignmentText(Alignment(i)).length()));
+    std::string const alignStr(alignCount, ' ');
+    std::string const visual(alignmentOccurances[i], 'X');
+
+    std::cout << "  " << GetAlignmentText(Alignment(i)) << ":" << alignStr << alignmentOccurances[i] << " " << visual << std::endl;
+  }
+
+  std::cout << std::endl;
+}
+
 int main(void) {
   std::srand(std::time(nullptr));
 
+  CountAndPrintOccurances();
+  std::cin.get();
+
   while (true) {
-    CardData card = CreateCard();
-    //CardData card = CreateCard(0, Faction::GilbrandsArmory);
-
-    std::cout << card.name << ": " << card.level;
-
-    if (card.heroic) {
-      std::cout << " Heroic";
-    }
-
-    std::cout << std::endl;
-
-    std::cout << "  " << t_factionData[card.factions[0]].name;
-    for (int i = 1; i < card.factions.Count(); ++i) {
-      std::cout << " | " << t_factionData[card.factions[i]].name;
-    }
-    std::cout << std::endl;
-
-    if (!card.emblems.Empty()) {
-      std::cout << "  " << t_emblemData[card.emblems[0]].name;
-      for (int i = 1; i < card.emblems.Count(); ++i) {
-        std::cout << ", " << t_emblemData[card.emblems[i]].name;
-      }
-      std::cout << std::endl;
-    }
+    //CreateAndPrintCard();
+    CreateAndPrintFaction();
 
     std::cin.get();
   }

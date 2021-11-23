@@ -173,7 +173,7 @@ private:
   class DataHolder<U, Size> {
   public:
     DataHolder(void) {
-      m_data = new char[Size];
+      m_data = new char[Size * sizeof(U)];
     }
 
     ~DataHolder(void) {

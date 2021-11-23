@@ -305,3 +305,13 @@ TEST(DynamicArrayTest, LargeArray_DataViewed_DataPointsToFirstElement) {
 
   EXPECT_EQ(arr.Data(), &arr[0]);
 }
+
+TEST(DynamicArrayTest, LargeArray_Filled_NoHeapCorruption) {
+  DynamicArray<int, 10000> arr;
+
+  for (int i = 0; i < 10000; ++i) {
+    arr.Emplace(i);
+  }
+
+  ASSERT_TRUE(arr.Full());
+}
