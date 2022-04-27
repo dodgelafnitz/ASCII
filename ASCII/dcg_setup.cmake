@@ -12,6 +12,8 @@
 # [X] autoplacing externals
 # [X] testing as external
 # [ ] edittable testing location/includes/name
+# [ ] folders outside of projects
+# [ ] moving files between projects
 # [ ] correct line feeds
 # [X] file moving header guard updating
 # [X] fix submodule externals on first pull
@@ -430,6 +432,8 @@ function(DCG_create_files)
               DCG_append_env_list("DCG_REPLACES" "DCG_REPLACE_${uniqueVarInclude}")
               set("ENV{DCG_REPLACE_${uniqueVarInclude}_MATCH_STR}" "${oldFileDefine}")
               set("ENV{DCG_REPLACE_${uniqueVarInclude}_REPLACE_STR}" "${newFileDefine}")
+            else()
+              DCG_message_if("$ENV{DCG_DEBUG_PRINT_FILE_ACTIONS}" "${previousFilePath} does not exist")
             endif()
           endif()
 
