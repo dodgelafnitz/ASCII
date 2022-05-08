@@ -100,7 +100,7 @@ class MockUpdateManager : public IUpdateManager { \
   MOCK_METHOD(                                    \
     void,                                         \
     Update,                                       \
-    (void),                                       \
+    (),                                           \
     (override)                                    \
   );                                              \
 }

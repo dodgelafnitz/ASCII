@@ -168,7 +168,7 @@ private:
   Delegate<AsciiButton, bool>  m_buttonFunc;
   std::weak_ptr<IStateManager> m_stateManager;
   AsciiButton                  m_lastButtonPressed;
-  float                        m_timeHeld           = 0.0f;
+  float                        m_timeToNextRepeat   = 0.0f;
   float                        m_repeatInitialDelay = s_defaultTextInitialRepeatDelay;
   float                        m_repeatDelay        = s_defaultTextRepeatDelay;
 };

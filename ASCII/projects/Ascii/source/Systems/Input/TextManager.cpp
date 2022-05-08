@@ -162,12 +162,28 @@ void TextManager::SetManagers(
   SetStateManager(stateManager);
 }
 
+void TextManager::Update(float dt) {
+  if (m_lastButtonPressed != AsciiButton::Count) {
+    m_timeToNextRepeat -= dt;
+
+    while (m_timeToNextRepeat <= 0.0f) {
+      TriggerButton(m_lastButtonPressed);
+      m_timeToNextRepeat += m_repeatDelay;
+    }
+  }
+}
+
 void TextManager::SetButtonManager(
   std::shared_ptr<IButtonManager> buttonManager
 ) {
   m_buttonFunc = buttonManager->AddGenericButtonEvent([this](AsciiButton button, bool isDown) {
     if (isDown) {
       TriggerButton(button);
+      m_lastButtonPressed = button;
+      m_timeToNextRepeat = m_repeatInitialDelay;
+    }
+    else {
+      m_lastButtonPressed = AsciiButton::Count;
     }
   });
 }
