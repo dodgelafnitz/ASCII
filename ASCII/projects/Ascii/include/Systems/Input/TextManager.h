@@ -116,6 +116,11 @@ public:
 
   virtual void Update(float dt) = 0;
 
+  virtual float GetRepeatDelay(void) const = 0;
+  virtual void SetRepeatDelay(float delay) = 0;
+  virtual float GetInitialRepeatDelay(void) const = 0;
+  virtual void SetInitialRepeatDelay(float delay) = 0;
+
   virtual Delegate<TextEvent> AddTextEvent(
     DelegateFunc<TextEvent> const & func
   ) = 0;
@@ -148,6 +153,11 @@ public:
 
   virtual void Update(float dt) override;
 
+  virtual float GetRepeatDelay(void) const override;
+  virtual void SetRepeatDelay(float delay) override;
+  virtual float GetInitialRepeatDelay(void) const override;
+  virtual void SetInitialRepeatDelay(float delay) override;
+
   void SetManagers(
     std::shared_ptr<IButtonManager>        buttonManager,
     std::shared_ptr<IStateManager> const & stateManager
@@ -169,7 +179,7 @@ private:
   std::weak_ptr<IStateManager> m_stateManager;
   AsciiButton                  m_lastButtonPressed;
   float                        m_timeToNextRepeat   = 0.0f;
-  float                        m_repeatInitialDelay = s_defaultTextInitialRepeatDelay;
+  float                        m_initialRepeatDelay = s_defaultTextInitialRepeatDelay;
   float                        m_repeatDelay        = s_defaultTextRepeatDelay;
 };
 
@@ -185,6 +195,30 @@ public:                                       \
   MOCK_METHOD(                                \
     void,                                     \
     Update,                                   \
+    (float),                                  \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    float,                                    \
+    GetRepeatDelay,                           \
+    (),                                       \
+    (const, override)                         \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    SetRepeatDelay,                           \
+    (float),                                  \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    float,                                    \
+    GetInitialRepeatDelay,                    \
+    (),                                       \
+    (const, override)                         \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    SetInitialRepeatDelay,                    \
     (float),                                  \
     (override)                                \
   );                                          \

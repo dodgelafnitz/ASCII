@@ -439,23 +439,64 @@ TEST(TextManagerTest, AnyTextManager_StateManagerChanged_OldButtonManagerNotConn
 }
 
 TEST(TextManagerTest, TextManagerMadeWithRepeatTime_CheckRepeatTime_TimeIsCorrect) {
-  FAIL();
+  auto const buttonManager = std::make_shared<ButtonManager>();
+  auto const stateManager = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager, 10.0f, 0.5f);
+
+  EXPECT_EQ(textManager.GetRepeatDelay(), 0.5f);
 }
 
 TEST(TextManagerTest, TextManagerMadeWithRepeatTime_CheckInitialRepeatTime_TimeIsCorrect) {
-  FAIL();
+  auto const buttonManager = std::make_shared<ButtonManager>();
+  auto const stateManager = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager, 10.0f, 0.5f);
+
+  EXPECT_EQ(textManager.GetInitialRepeatDelay(), 10.0f);
 }
 
 TEST(TextManagerTest, AnyTextManager_ButtonHeld_TextRepeatedCorrectly) {
-  FAIL();
+  auto buttonManager = std::make_shared<ButtonManager>();
+  auto stateManager = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager, 10.0f, 0.5f);
+
+  int triggerCount = 0;
+
+  auto textDelegate = textManager.AddTextEvent([&triggerCount](TextEvent const &) {
+    ++triggerCount;
+  });
+
+  buttonManager->SetButtonState(AsciiButton::A, true);
+
+  EXPECT_EQ(triggerCount, 1);
+
+  textManager.Update(12.0f);
+
+  EXPECT_EQ(triggerCount, 6);
+
+  buttonManager->SetButtonState(AsciiButton::A, false);
+
+  textManager.Update(12.0f);
+
+  EXPECT_EQ(triggerCount, 6);
 }
 
 TEST(TextManagerTest, AnyTextManager_RepeatTimeSet_RepeatTimeIsCorrect) {
-  FAIL();
+  TextManager textManager;
+
+  textManager.SetRepeatDelay(5.0f);
+
+  EXPECT_EQ(textManager.GetRepeatDelay(), 5.0f);
 }
 
 TEST(TextManagerTest, AnyTextManager_InitialRepeatTimeSet_InitialRepeatTimeIsCorrect) {
-  FAIL();
+  TextManager textManager;
+
+  textManager.SetRepeatDelay(5.0f);
+
+  EXPECT_EQ(textManager.GetRepeatDelay(), 5.0f);
 }
 
 class TextManagerEventCorrectness : public testing::TestWithParam<TextEventExpectation> {};

@@ -148,6 +148,18 @@ TextManager::TextManager(
   SetManagers(buttonManager, stateManager);
 }
 
+TextManager::TextManager(
+  std::shared_ptr<IButtonManager>        buttonManager,
+  std::shared_ptr<IStateManager> const & stateManager,
+  float                                  initialRepeatDelay,
+  float                                  repeatDelay
+) :
+  m_initialRepeatDelay(initialRepeatDelay),
+  m_repeatDelay(repeatDelay)
+{
+  SetManagers(buttonManager, stateManager);
+}
+
 Delegate<TextEvent> TextManager::AddTextEvent(
   DelegateFunc<TextEvent> const & func
 ) {
@@ -173,6 +185,22 @@ void TextManager::Update(float dt) {
   }
 }
 
+float TextManager::GetRepeatDelay(void) const {
+  return m_repeatDelay;
+}
+
+void TextManager::SetRepeatDelay(float delay) {
+  m_repeatDelay = delay;
+}
+
+float TextManager::GetInitialRepeatDelay(void) const {
+  return m_initialRepeatDelay;
+}
+
+void TextManager::SetInitialRepeatDelay(float delay) {
+  m_initialRepeatDelay = delay;
+}
+
 void TextManager::SetButtonManager(
   std::shared_ptr<IButtonManager> buttonManager
 ) {
@@ -180,7 +208,7 @@ void TextManager::SetButtonManager(
     if (isDown) {
       TriggerButton(button);
       m_lastButtonPressed = button;
-      m_timeToNextRepeat = m_repeatInitialDelay;
+      m_timeToNextRepeat = m_initialRepeatDelay;
     }
     else {
       m_lastButtonPressed = AsciiButton::Count;
