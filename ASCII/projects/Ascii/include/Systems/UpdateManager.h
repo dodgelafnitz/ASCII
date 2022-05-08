@@ -97,6 +97,12 @@ class MockUpdateManager : public IUpdateManager { \
     (float),                                      \
     (override)                                    \
   );                                              \
+  MOCK_METHOD(                                    \
+    void,                                         \
+    Update,                                       \
+    (void),                                       \
+    (override)                                    \
+  );                                              \
 }
 
 #endif // ASCII_SYSTEMS_UPDATEMANAGER_H

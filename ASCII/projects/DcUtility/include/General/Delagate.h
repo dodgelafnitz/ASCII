@@ -105,6 +105,8 @@ public:
       return *this;
     }
 
+    Clear();
+
     m_delegator = delegate.m_delegator;
     m_id        = delegate.m_id;
 

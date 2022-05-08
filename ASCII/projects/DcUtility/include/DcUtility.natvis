@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--
+  Copywrite 2022 Dodge Lafnitzegger
+-->
+
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <!-- VC 2015 -->
   <Type Name="DynamicArray&lt;*&gt;">
     <DisplayString>{{ size = {m_count} }}</DisplayString>
     <Expand>

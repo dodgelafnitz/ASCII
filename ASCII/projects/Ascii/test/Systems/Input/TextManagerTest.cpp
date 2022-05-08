@@ -369,10 +369,92 @@ TEST(TextManagerTest, DefaultConstructed_StateManagerChanged_StateManagerConnect
 }
 
 TEST(TextManagerTest, AnyTextManager_ButtonManagerChanged_OldButtonManagerNotConnected) {
-  FAIL();
+  auto buttonManager = std::make_shared<ButtonManager>();
+  auto stateManager  = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager);
+
+  auto newButtonManager = std::make_shared<ButtonManager>();
+
+  bool triggered = false;
+  auto textDelegate = textManager.AddTextEvent([&triggered](TextEvent const &) {
+    triggered = true;
+  });
+
+  textManager.SetButtonManager(newButtonManager);
+
+  buttonManager->SetButtonState(AsciiButton::A, true);
+  buttonManager->SetButtonState(AsciiButton::A, false);
+
+  EXPECT_FALSE(triggered);
+
+  newButtonManager->SetButtonState(AsciiButton::A, true);
+  newButtonManager->SetButtonState(AsciiButton::A, false);
+
+  EXPECT_TRUE(triggered);
 }
 
 TEST(TextManagerTest, AnyTextManager_StateManagerChanged_OldButtonManagerNotConnected) {
+  auto buttonManager = std::make_shared<ButtonManager>();
+  auto stateManager = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager);
+
+  auto newStateManager = std::make_shared<StateManager>();
+
+  bool isWriteEvent = false;
+  bool isA          = false;
+  bool isCaps       = false;
+  auto textDelegate = textManager.AddTextEvent([&isWriteEvent, &isA, &isCaps](TextEvent const & event) {
+    if (event.type != TextEventType::Write) {
+      isWriteEvent = false;
+      return;
+    }
+    isWriteEvent = true;
+
+    if (event.character != 'A' && event.character != 'a') {
+      isA = false;
+      return;
+    }
+    isA = true;
+
+    isCaps = event.character == 'A';
+  });
+
+  buttonManager->SetButtonState(AsciiButton::A, true);
+  buttonManager->SetButtonState(AsciiButton::A, false);
+  EXPECT_TRUE(isWriteEvent);
+  EXPECT_TRUE(isA);
+  EXPECT_FALSE(isCaps);
+
+  stateManager->SetStateValue(AsciiState::Shift, true);
+
+  textManager.SetStateManager(newStateManager);
+
+  buttonManager->SetButtonState(AsciiButton::A, true);
+  buttonManager->SetButtonState(AsciiButton::A, false);
+  EXPECT_TRUE(isWriteEvent);
+  EXPECT_TRUE(isA);
+  EXPECT_FALSE(isCaps);
+}
+
+TEST(TextManagerTest, TextManagerMadeWithRepeatTime_CheckRepeatTime_TimeIsCorrect) {
+  FAIL();
+}
+
+TEST(TextManagerTest, TextManagerMadeWithRepeatTime_CheckInitialRepeatTime_TimeIsCorrect) {
+  FAIL();
+}
+
+TEST(TextManagerTest, AnyTextManager_ButtonHeld_TextRepeatedCorrectly) {
+  FAIL();
+}
+
+TEST(TextManagerTest, AnyTextManager_RepeatTimeSet_RepeatTimeIsCorrect) {
+  FAIL();
+}
+
+TEST(TextManagerTest, AnyTextManager_InitialRepeatTimeSet_InitialRepeatTimeIsCorrect) {
   FAIL();
 }
 

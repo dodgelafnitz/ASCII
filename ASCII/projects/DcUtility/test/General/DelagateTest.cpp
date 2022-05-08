@@ -112,3 +112,29 @@ TEST(DelegatorTest, MultipleDeligates_CheckIsEmpty_IsNotEmpty) {
 
   ASSERT_FALSE(delegator.IsEmpty());
 }
+
+TEST(DelegatorTest, MovedDelagate_TriggerDelegate_CorrectDelegateTriggered) {
+  Delegator<> delegator;
+
+  bool triggered0 = false;
+  bool triggered1 = false;
+  int triggerCount = 0;
+
+  auto delegate0 = delegator.AddDelegate([&]() {
+    ++triggerCount;
+    triggered0 = true;
+  });
+
+  auto delegate1 = delegator.AddDelegate([&]() {
+    ++triggerCount;
+    triggered1 = true;
+  });
+
+  delegate0 = std::move(delegate1);
+
+  delegator.Trigger();
+
+  EXPECT_TRUE(triggered1);
+  EXPECT_FALSE(triggered0);
+  EXPECT_EQ(triggerCount, 1);
+}

@@ -114,10 +114,15 @@ class ITextManager {
 public:
   virtual ~ITextManager(void) {}
 
+  virtual void Update(float dt) = 0;
+
   virtual Delegate<TextEvent> AddTextEvent(
     DelegateFunc<TextEvent> const & func
   ) = 0;
 };
+
+static float const s_defaultTextInitialRepeatDelay = 0.5f;
+static float const s_defaultTextRepeatDelay        = 0.1f;
 
 class TextManager : public ITextManager {
 public:
@@ -128,11 +133,20 @@ public:
     std::shared_ptr<IStateManager> const & stateManager
   );
 
+  TextManager(
+    std::shared_ptr<IButtonManager>        buttonManager,
+    std::shared_ptr<IStateManager> const & stateManager,
+    float                                  initialRepeatDelay,
+    float                                  repeatDelay
+  );
+
   virtual ~TextManager(void) override {}
 
   virtual Delegate<TextEvent> AddTextEvent(
     DelegateFunc<TextEvent> const & func
   ) override;
+
+  virtual void Update(float dt) override;
 
   void SetManagers(
     std::shared_ptr<IButtonManager>        buttonManager,
@@ -153,6 +167,10 @@ private:
   Delegator<TextEvent>         m_textDelegator;
   Delegate<AsciiButton, bool>  m_buttonFunc;
   std::weak_ptr<IStateManager> m_stateManager;
+  AsciiButton                  m_lastButtonPressed;
+  float                        m_timeHeld           = 0.0f;
+  float                        m_repeatInitialDelay = s_defaultTextInitialRepeatDelay;
+  float                        m_repeatDelay        = s_defaultTextRepeatDelay;
 };
 
 #define DEFINE_MockTextManager()              \
@@ -162,6 +180,12 @@ public:                                       \
     Delegate<TextEvent>,                      \
     AddTextEvent,                             \
     (DelegateFunc<TextEvent> const &),        \
+    (override)                                \
+  );                                          \
+  MOCK_METHOD(                                \
+    void,                                     \
+    Update,                                   \
+    (float),                                  \
     (override)                                \
   );                                          \
 }
