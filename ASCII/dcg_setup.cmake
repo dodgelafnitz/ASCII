@@ -15,6 +15,7 @@
 # [ ] folders outside of projects
 # [ ] moving files between projects
 # [ ] correct line feeds
+# [ ] support natvis or other files
 # [X] file moving header guard updating
 # [X] fix submodule externals on first pull
 # [ ] fix submodules using dcg to have own environment vars
