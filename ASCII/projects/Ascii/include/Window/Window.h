@@ -40,13 +40,12 @@ struct AsciiCell {
 
 enum class AsciiButton {
   Invalid = -1,
-  Mouse1,
+  Mouse1, MouseBegin = Mouse1,
   Mouse2,
   Mouse3,
   Mouse4,
   Mouse5,
-  MouseCount,
-  Key1 = MouseCount,
+  Key1, MouseEnd = Key1, NumberKeyBegin = Key1,
   Key2,
   Key3,
   Key4,
@@ -56,7 +55,7 @@ enum class AsciiButton {
   Key8,
   Key9,
   Key0,
-  F1,
+  F1, NumberKeyEnd = F1, FunctionKeyBegin = F1,
   F2,
   F3,
   F4,
@@ -68,7 +67,7 @@ enum class AsciiButton {
   F10,
   F11,
   F12,
-  NumPad0,
+  NumPad0, FunctionKeyEnd = NumPad0, NumPadBegin = NumPad0,
   NumPad1,
   NumPad2,
   NumPad3,
@@ -78,7 +77,14 @@ enum class AsciiButton {
   NumPad7,
   NumPad8,
   NumPad9,
-  A,
+  NumLock,
+  NumPadDivide,
+  NumPadMultiply,
+  NumPadMinus,
+  NumPadPlus,
+  NumPadEnter,
+  NumPadPeriod,
+  A, NumPadEnd = A, LettersBegin = A,
   B,
   C,
   D,
@@ -104,11 +110,11 @@ enum class AsciiButton {
   X,
   Y,
   Z,
-  Left,
+  Left, LettersEnd = Left, ArrowKeysBegin = Left,
   Right,
   Up,
   Down,
-  Delete,
+  Delete, ArrowKeysEnd = Delete, MiscBegin = Delete,
   Backspace,
   Space,
   Tab,
@@ -137,15 +143,9 @@ enum class AsciiButton {
   End,
   PageUp,
   PageDown,
-  NumLock,
-  NumPadDivide,
-  NumPadMultiply,
-  NumPadMinus,
-  NumPadPlus,
-  NumPadEnter,
-  NumPadPeriod,
-  Count,
+  Count, MiscEnd = Count,
 };
+char const * GetAsciiButtonName(AsciiButton button);
 
 enum class AsciiState {
   CapsLock,
@@ -157,6 +157,7 @@ enum class AsciiState {
   Alt,
   Count,
 };
+char const * GetAsciiStateName(AsciiState state);
 
 enum class AsciiInputType {
   Invalid,
@@ -235,8 +236,8 @@ private:
   int GetCurrentMs(void) const;
 
   int       m_startTime;
-  bool      m_currentMouseButtons[int(AsciiButton::MouseCount)] = { 0 };
-  bool      m_currentState[int(AsciiState::Count)]              = { 0 };
+  bool      m_currentMouseButtons[int(AsciiButton::MouseEnd) - int(AsciiButton::MouseBegin)] = { 0 };
+  bool      m_currentState[int(AsciiState::Count)]                                           = { 0 };
   AsciiFont m_font;
 };
 

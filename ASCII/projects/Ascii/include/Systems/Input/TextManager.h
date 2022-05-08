@@ -20,8 +20,10 @@ enum class TextEventType : char
   Indentation,
   Clipboard,
   Completion,
+  Cancellation,
   File,
   History,
+  Custom,
 
   Count
 };
@@ -31,6 +33,7 @@ enum class TextAmount : char
   Character,
   Word,
   Line,
+  Row,
   Page,
   All,
 
@@ -75,6 +78,20 @@ enum class TextHistoryActionType : char
 };
 
 struct TextEvent {
+  static TextEvent Write(char character);
+  static TextEvent Delete(TextAmount amount, TextDirection direction);
+  static TextEvent MoveCursor(TextAmount amount, TextDirection direction);
+  static TextEvent MoveSelection(TextAmount amount, TextDirection direction);
+  static TextEvent Select(TextAmount amount, TextDirection direction);
+  static TextEvent Indentation(TextDirection direction);
+  static TextEvent Clipboard(TextClipboardActionType clipboard);
+  static TextEvent Completion();
+  static TextEvent Cancellation();
+  static TextEvent File(TextFileActionType file);
+  static TextEvent History(TextHistoryActionType history);
+
+  bool operator ==(TextEvent const & event) const;
+
   TextEventType type;
   union {
     char character;
@@ -82,10 +99,14 @@ struct TextEvent {
       TextAmount    amount;
       TextDirection direction;
     } cursor;
-    char                    indentation;
+    TextDirection           indentation;
     TextClipboardActionType clipboard;
     TextFileActionType      file;
     TextHistoryActionType   history;
+    struct {
+      unsigned char value;
+      unsigned char data;
+    } custom;
   };
 };
 
@@ -93,31 +114,33 @@ class ITextManager {
 public:
   virtual ~ITextManager(void) {}
 
-  virtual Delegate<bool> AddTextEvent(
+  virtual Delegate<TextEvent> AddTextEvent(
     DelegateFunc<TextEvent> const & func
   ) = 0;
 };
 
 class TextManager : public ITextManager {
 public:
+  TextManager(void) = default;
+
   TextManager(
-    std::shared_ptr<IButtonManager> const & buttonManager,
-    std::shared_ptr<IStateManager> const &  stateManager
+    std::shared_ptr<IButtonManager>        buttonManager,
+    std::shared_ptr<IStateManager> const & stateManager
   );
 
   virtual ~TextManager(void) override {}
 
-  virtual Delegate<bool> AddTextEvent(
+  virtual Delegate<TextEvent> AddTextEvent(
     DelegateFunc<TextEvent> const & func
   ) override;
 
   void SetManagers(
-    std::shared_ptr<IButtonManager> const & buttonManager,
-    std::shared_ptr<IStateManager> const &  stateManager
+    std::shared_ptr<IButtonManager>        buttonManager,
+    std::shared_ptr<IStateManager> const & stateManager
   );
 
   void SetButtonManager(
-    std::shared_ptr<IButtonManager> const & buttonManager
+    std::shared_ptr<IButtonManager> buttonManager
   );
 
   void SetStateManager(
@@ -125,16 +148,18 @@ public:
   );
 
 private:
-  Delegator<TextEvent>                 m_textDelegator;
-  Delegate<AsciiButton, bool>          m_buttonFunc;
-  std::weak_ptr<IStateManager> const & m_stateManager;
+  void TriggerButton(AsciiButton button);
+
+  Delegator<TextEvent>         m_textDelegator;
+  Delegate<AsciiButton, bool>  m_buttonFunc;
+  std::weak_ptr<IStateManager> m_stateManager;
 };
 
 #define DEFINE_MockTextManager()              \
 class MockTextManager : public ITextManager { \
 public:                                       \
   MOCK_METHOD(                                \
-    Delegate<bool>,                           \
+    Delegate<TextEvent>,                      \
     AddTextEvent,                             \
     (DelegateFunc<TextEvent> const &),        \
     (override)                                \

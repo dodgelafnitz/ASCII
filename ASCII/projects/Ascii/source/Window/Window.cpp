@@ -105,6 +105,12 @@ namespace {
       case VK_NUMPAD7:    return AsciiButton::NumPad7;
       case VK_NUMPAD8:    return AsciiButton::NumPad8;
       case VK_NUMPAD9:    return AsciiButton::NumPad9;
+      case VK_NUMLOCK:    return AsciiButton::NumLock;
+      case VK_DIVIDE:     return AsciiButton::NumPadDivide;
+      case VK_MULTIPLY:   return AsciiButton::NumPadMultiply;
+      case VK_SUBTRACT:   return AsciiButton::NumPadMinus;
+      case VK_ADD:        return AsciiButton::NumPadPlus;
+      case VK_DECIMAL:    return AsciiButton::NumPadPeriod;
       case 'A':           return AsciiButton::A;
       case 'B':           return AsciiButton::B;
       case 'C':           return AsciiButton::C;
@@ -164,18 +170,141 @@ namespace {
       case VK_END:        return AsciiButton::End;
       case VK_PRIOR:      return AsciiButton::PageUp;
       case VK_NEXT:       return AsciiButton::PageDown;
-      case VK_NUMLOCK:    return AsciiButton::NumLock;
-      case VK_DIVIDE:     return AsciiButton::NumPadDivide;
-      case VK_MULTIPLY:   return AsciiButton::NumPadMultiply;
-      case VK_SUBTRACT:   return AsciiButton::NumPadMinus;
-      case VK_ADD:        return AsciiButton::NumPadPlus;
-      case VK_DECIMAL:    return AsciiButton::NumPadPeriod;
     }
 
     return AsciiButton::Invalid;
   }
 
   int const MaxTitleSize = 0x1000;
+
+  char const * s_asciiButtonNames[int(AsciiButton::Count) + 2] = {
+    "Invalid",
+    "Mouse1",
+    "Mouse2",
+    "Mouse3",
+    "Mouse4",
+    "Mouse5",
+    "Key1",
+    "Key2",
+    "Key3",
+    "Key4",
+    "Key5",
+    "Key6",
+    "Key7",
+    "Key8",
+    "Key9",
+    "Key0",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "NumPad0",
+    "NumPad1",
+    "NumPad2",
+    "NumPad3",
+    "NumPad4",
+    "NumPad5",
+    "NumPad6",
+    "NumPad7",
+    "NumPad8",
+    "NumPad9",
+    "NumLock",
+    "NumPadDivide",
+    "NumPadMultiply",
+    "NumPadMinus",
+    "NumPadPlus",
+    "NumPadEnter",
+    "NumPadPeriod",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    "Left",
+    "Right",
+    "Up",
+    "Down",
+    "Delete",
+    "Backspace",
+    "Space",
+    "Tab",
+    "Return",
+    "Grave",
+    "Escape",
+    "Insert",
+    "CapsLock",
+    "Dash",
+    "Equal",
+    "LeftBracket",
+    "RightBracket",
+    "BackSlash",
+    "ForwardSlash",
+    "LeftShift",
+    "RightShift",
+    "LeftControl",
+    "RightControl",
+    "LeftAlt",
+    "RightAlt",
+    "Semicolon",
+    "Apostrophe",
+    "Comma",
+    "Period",
+    "Home",
+    "End",
+    "PageUp",
+    "PageDown",
+    "Count",
+  };
+  static_assert(int(AsciiButton::Count) == 103);
+
+  char const * s_asciiStateNames[int(AsciiState::Count) + 1] = {
+    "CapsLock",
+    "NumLock",
+    "ScrollLock",
+    "Insert",
+    "Shift",
+    "Control",
+    "Alt",
+    "Count",
+  };
+  static_assert(int(AsciiState::Count) == 7);
+}
+
+char const * GetAsciiButtonName(AsciiButton button) {
+  return s_asciiButtonNames[int(button) + 1];
+}
+
+char const * GetAsciiStateName(AsciiState state) {
+  return s_asciiStateNames[int(state)];
 }
 
 AsciiWindow::AsciiWindow(void) {
@@ -321,19 +450,21 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
           result.emplace_back(event);
         }
 
-        bool mouseButtonState[int(AsciiButton::MouseCount)];
-        mouseButtonState[int(AsciiButton::Mouse1)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED;
-        mouseButtonState[int(AsciiButton::Mouse2)] = record.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED;
-        mouseButtonState[int(AsciiButton::Mouse3)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED;
-        mouseButtonState[int(AsciiButton::Mouse4)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_3RD_BUTTON_PRESSED;
-        mouseButtonState[int(AsciiButton::Mouse5)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_4TH_BUTTON_PRESSED;
+        int const c_mouseCount = int(AsciiButton::MouseEnd) - int(AsciiButton::MouseBegin);
 
-        for (int i = 0; i < int(AsciiButton::MouseCount); ++i) {
+        bool mouseButtonState[c_mouseCount];
+        mouseButtonState[int(AsciiButton::Mouse1) - int(AsciiButton::MouseBegin)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED;
+        mouseButtonState[int(AsciiButton::Mouse2) - int(AsciiButton::MouseBegin)] = record.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED;
+        mouseButtonState[int(AsciiButton::Mouse3) - int(AsciiButton::MouseBegin)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED;
+        mouseButtonState[int(AsciiButton::Mouse4) - int(AsciiButton::MouseBegin)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_3RD_BUTTON_PRESSED;
+        mouseButtonState[int(AsciiButton::Mouse5) - int(AsciiButton::MouseBegin)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_4TH_BUTTON_PRESSED;
+
+        for (int i = 0; i < c_mouseCount; ++i) {
           if (m_currentMouseButtons[i] != mouseButtonState[i]) {
             AsciiInputEvent event;
 
             event.type = AsciiInputType::Button;
-            event.buttonEvent.button = AsciiButton(i);
+            event.buttonEvent.button = AsciiButton(i + int(AsciiButton::MouseBegin));
             event.buttonEvent.isDown = mouseButtonState[i];
 
             result.emplace_back(event);

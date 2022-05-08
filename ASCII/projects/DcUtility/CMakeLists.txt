@@ -1,7 +1,6 @@
 # CMakeLists.txt file generated with DCG.
 
-# To stop file regeneration, remove the following line.
-#!DCG_REGENERATE_THIS_FILE
+#!NO_DCG_REGENERATE_THIS_FILE
 
 project(DcUtility C CXX)
 
@@ -37,6 +36,7 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Containers/DynamicArray.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Color.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Delagate.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/DcUtility.natvis"
 )
 
 set(src
