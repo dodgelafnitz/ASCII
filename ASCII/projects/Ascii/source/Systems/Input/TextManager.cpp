@@ -4,6 +4,14 @@
 
 #include "Systems/Input/TextManager.h"
 
+void ITextManager::SetManagers(
+  std::shared_ptr<IButtonManager> const & buttonManager,
+  std::shared_ptr<IStateManager> const &  stateManager
+) {
+  SetButtonManager(buttonManager);
+  SetStateManager(stateManager);
+}
+
 TextEvent TextEvent::Write(char character) {
   TextEvent result;
 
@@ -142,17 +150,17 @@ bool TextEvent::operator ==(TextEvent const & event) const {
 }
 
 TextManager::TextManager(
-  std::shared_ptr<IButtonManager>        buttonManager,
-  std::shared_ptr<IStateManager> const & stateManager
+  std::shared_ptr<IButtonManager> const & buttonManager,
+  std::shared_ptr<IStateManager> const &  stateManager
 ) {
   SetManagers(buttonManager, stateManager);
 }
 
 TextManager::TextManager(
-  std::shared_ptr<IButtonManager>        buttonManager,
-  std::shared_ptr<IStateManager> const & stateManager,
-  float                                  initialRepeatDelay,
-  float                                  repeatDelay
+  std::shared_ptr<IButtonManager> const & buttonManager,
+  std::shared_ptr<IStateManager> const &  stateManager,
+  float                                   initialRepeatDelay,
+  float                                   repeatDelay
 ) :
   m_initialRepeatDelay(initialRepeatDelay),
   m_repeatDelay(repeatDelay)
@@ -164,14 +172,6 @@ Delegate<TextEvent> TextManager::AddTextEvent(
   DelegateFunc<TextEvent> const & func
 ) {
   return m_textDelegator.AddDelegate(func);
-}
-
-void TextManager::SetManagers(
-  std::shared_ptr<IButtonManager>        buttonManager,
-  std::shared_ptr<IStateManager> const & stateManager
-) {
-  SetButtonManager(buttonManager);
-  SetStateManager(stateManager);
 }
 
 void TextManager::Update(float dt) {
@@ -202,18 +202,23 @@ void TextManager::SetInitialRepeatDelay(float delay) {
 }
 
 void TextManager::SetButtonManager(
-  std::shared_ptr<IButtonManager> buttonManager
+  std::shared_ptr<IButtonManager> const & buttonManager
 ) {
-  m_buttonFunc = buttonManager->AddGenericButtonEvent([this](AsciiButton button, bool isDown) {
-    if (isDown) {
-      TriggerButton(button);
-      m_lastButtonPressed = button;
-      m_timeToNextRepeat = m_initialRepeatDelay;
-    }
-    else {
-      m_lastButtonPressed = AsciiButton::Count;
-    }
-  });
+  if (buttonManager) {
+    m_buttonFunc = buttonManager->AddGenericButtonEvent([this](AsciiButton button, bool isDown) {
+      if (isDown) {
+        TriggerButton(button);
+        m_lastButtonPressed = button;
+        m_timeToNextRepeat = m_initialRepeatDelay;
+      }
+      else {
+        m_lastButtonPressed = AsciiButton::Count;
+      }
+    });
+  }
+  else {
+    m_buttonFunc.Clear();
+  }
 }
 
 void TextManager::SetStateManager(

@@ -114,6 +114,10 @@ class ITextManager {
 public:
   virtual ~ITextManager(void) {}
 
+  virtual Delegate<TextEvent> AddTextEvent(
+    DelegateFunc<TextEvent> const & func
+  ) = 0;
+
   virtual void Update(float dt) = 0;
 
   virtual float GetRepeatDelay(void) const = 0;
@@ -121,8 +125,17 @@ public:
   virtual float GetInitialRepeatDelay(void) const = 0;
   virtual void SetInitialRepeatDelay(float delay) = 0;
 
-  virtual Delegate<TextEvent> AddTextEvent(
-    DelegateFunc<TextEvent> const & func
+  void SetManagers(
+    std::shared_ptr<IButtonManager> const & buttonManager,
+    std::shared_ptr<IStateManager> const &  stateManager
+  );
+
+  virtual void SetButtonManager(
+    std::shared_ptr<IButtonManager> const & buttonManager
+  ) = 0;
+
+  virtual void SetStateManager(
+    std::shared_ptr<IStateManager> const & stateManager
   ) = 0;
 };
 
@@ -134,15 +147,15 @@ public:
   TextManager(void) = default;
 
   TextManager(
-    std::shared_ptr<IButtonManager>        buttonManager,
-    std::shared_ptr<IStateManager> const & stateManager
+    std::shared_ptr<IButtonManager> const & buttonManager,
+    std::shared_ptr<IStateManager> const &  stateManager
   );
 
   TextManager(
-    std::shared_ptr<IButtonManager>        buttonManager,
-    std::shared_ptr<IStateManager> const & stateManager,
-    float                                  initialRepeatDelay,
-    float                                  repeatDelay
+    std::shared_ptr<IButtonManager> const & buttonManager,
+    std::shared_ptr<IStateManager> const &  stateManager,
+    float                                   initialRepeatDelay,
+    float                                   repeatDelay
   );
 
   virtual ~TextManager(void) override {}
@@ -158,18 +171,13 @@ public:
   virtual float GetInitialRepeatDelay(void) const override;
   virtual void SetInitialRepeatDelay(float delay) override;
 
-  void SetManagers(
-    std::shared_ptr<IButtonManager>        buttonManager,
-    std::shared_ptr<IStateManager> const & stateManager
-  );
+  virtual void SetButtonManager(
+    std::shared_ptr<IButtonManager> const & buttonManager
+  ) override;
 
-  void SetButtonManager(
-    std::shared_ptr<IButtonManager> buttonManager
-  );
-
-  void SetStateManager(
+  virtual void SetStateManager(
     std::shared_ptr<IStateManager> const & stateManager
-  );
+  ) override;
 
 private:
   void TriggerButton(AsciiButton button);
@@ -183,45 +191,57 @@ private:
   float                        m_repeatDelay        = s_defaultTextRepeatDelay;
 };
 
-#define DEFINE_MockTextManager()              \
-class MockTextManager : public ITextManager { \
-public:                                       \
-  MOCK_METHOD(                                \
-    Delegate<TextEvent>,                      \
-    AddTextEvent,                             \
-    (DelegateFunc<TextEvent> const &),        \
-    (override)                                \
-  );                                          \
-  MOCK_METHOD(                                \
-    void,                                     \
-    Update,                                   \
-    (float),                                  \
-    (override)                                \
-  );                                          \
-  MOCK_METHOD(                                \
-    float,                                    \
-    GetRepeatDelay,                           \
-    (),                                       \
-    (const, override)                         \
-  );                                          \
-  MOCK_METHOD(                                \
-    void,                                     \
-    SetRepeatDelay,                           \
-    (float),                                  \
-    (override)                                \
-  );                                          \
-  MOCK_METHOD(                                \
-    float,                                    \
-    GetInitialRepeatDelay,                    \
-    (),                                       \
-    (const, override)                         \
-  );                                          \
-  MOCK_METHOD(                                \
-    void,                                     \
-    SetInitialRepeatDelay,                    \
-    (float),                                  \
-    (override)                                \
-  );                                          \
+#define DEFINE_MockTextManager()               \
+class MockTextManager : public ITextManager {  \
+public:                                        \
+  MOCK_METHOD(                                 \
+    Delegate<TextEvent>,                       \
+    AddTextEvent,                              \
+    (DelegateFunc<TextEvent> const &),         \
+    (override)                                 \
+  );                                           \
+  MOCK_METHOD(                                 \
+    void,                                      \
+    Update,                                    \
+    (float),                                   \
+    (override)                                 \
+  );                                           \
+  MOCK_METHOD(                                 \
+    float,                                     \
+    GetRepeatDelay,                            \
+    (),                                        \
+    (const, override)                          \
+  );                                           \
+  MOCK_METHOD(                                 \
+    void,                                      \
+    SetRepeatDelay,                            \
+    (float),                                   \
+    (override)                                 \
+  );                                           \
+  MOCK_METHOD(                                 \
+    float,                                     \
+    GetInitialRepeatDelay,                     \
+    (),                                        \
+    (const, override)                          \
+  );                                           \
+  MOCK_METHOD(                                 \
+    void,                                      \
+    SetInitialRepeatDelay,                     \
+    (float),                                   \
+    (override)                                 \
+  );                                           \
+  MOCK_METHOD(                                 \
+    void,                                      \
+    SetButtonManager,                          \
+    (std::shared_ptr<IButtonManager> const &), \
+    (override)                                 \
+  );                                           \
+  MOCK_METHOD(                                 \
+    void,                                      \
+    SetStateManager,                           \
+    (std::shared_ptr<IStateManager> const &),  \
+    (override)                                 \
+  );                                           \
 }
 
 #endif // ASCII_SYSTEMS_INPUT_TEXTMANAGER_H

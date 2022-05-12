@@ -308,6 +308,52 @@ namespace {
   };
 }
 
+TEST(TextManagerTest, ConstructedTextManager_WithNullButtonManager_DoesNotCrash) {
+  auto const stateManager = std::make_shared<StateManager>();
+
+  TextManager const textManager(nullptr, stateManager);
+}
+
+TEST(TextManagerTest, ConstructedTextManager_WithNullStateManager_DoesNotCrash) {
+  auto const buttonManager = std::make_shared<ButtonManager>();
+
+  TextManager const textManager(buttonManager, nullptr);
+}
+
+TEST(TextManagerTest, AnyTextManager_ButtonManagerRemoved_DoesNotCrash) {
+  auto const buttonManager = std::make_shared<ButtonManager>();
+  auto const stateManager  = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager);
+
+  textManager.SetButtonManager(nullptr);
+}
+
+TEST(TextManagerTest, AnyTextManager_StateManagerRemoved_DoesNotCrash) {
+  auto const buttonManager = std::make_shared<ButtonManager>();
+  auto const stateManager  = std::make_shared<StateManager>();
+
+  TextManager textManager(buttonManager, stateManager);
+
+  textManager.SetStateManager(nullptr);
+}
+
+TEST(TextManagerTest, TextManagerWithNoStateManager_ButtonTriggered_DoesNotCrash) {
+  auto const buttonManager = std::make_shared<ButtonManager>();
+
+  TextManager textManager(buttonManager, nullptr);
+
+  bool triggered = false;
+  auto textDelegate = textManager.AddTextEvent([&triggered](TextEvent const &) {
+    triggered = true;
+  });
+
+  buttonManager->SetButtonState(AsciiButton::A, true);
+  buttonManager->SetButtonState(AsciiButton::A, false);
+
+  EXPECT_TRUE(triggered);
+}
+
 TEST(TextManagerTest, DefaultConstructed_ButtonManagerChanged_ButtonManagerConnected) {
   TextManager textManager;
 
