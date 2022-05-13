@@ -20,8 +20,8 @@ public:
   virtual std::shared_ptr<IAsciiWindow>   GetWindow(void) const        = 0;
   virtual std::shared_ptr<IButtonManager> GetButtonManager(void) const = 0;
   virtual std::shared_ptr<IMouseManager>  GetMouseManager(void) const  = 0;
-  virtual std::shared_ptr<IStateManager>  GetStateManager(void) const = 0;
-  virtual std::shared_ptr<ITextManager>   GetTextManager(void) const = 0;
+  virtual std::shared_ptr<IStateManager>  GetStateManager(void) const  = 0;
+  virtual std::shared_ptr<ITextManager>   GetTextManager(void) const   = 0;
 };
 
 class InputManager : public IInputManager {

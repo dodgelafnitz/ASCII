@@ -77,7 +77,7 @@ int main(void) {
   AsciiFont font = window->GetFont();
   font.size = ivec2(8, 8);
 
-  font.colors[BlackIndex] = Color::Black;
+  font.colors[BlackIndex] = Color::Green;
   font.colors[WhiteIndex] = Color::White;
 
   font.colors[RedIndex] = Color::Red;

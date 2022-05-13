@@ -57,7 +57,7 @@ InputManager::InputManager(
       AsciiButton::NumPad0,
       [this](bool isDown) {
         if (isDown) {
-          if (m_stateManager->GetStateValue(AsciiState::Shift) != m_stateManager->GetStateValue(AsciiState::NumLock)) {
+          if (m_stateManager->GetStateValue(AsciiState::Shift) == m_stateManager->GetStateValue(AsciiState::NumLock)) {
             bool const insertSet = m_stateManager->GetStateValue(AsciiState::Insert);
             m_stateManager->SetStateValue(AsciiState::Insert, !insertSet);
           }

@@ -80,7 +80,13 @@ DCG_BEGIN()
     DCG_FILE_CPP_APPLICATION("Main")
   DCG_END_PROJECT()
 
+  DCG_PROJECT_EXE("VisualTest2" PRIVATE_DEPENDS "DcUtility")
+    DCG_FILE_CPP_APPLICATION("Main")
+  DCG_END_PROJECT()
+
   DCG_PROJECT_EXE("WaveFunctionCollapse" PRIVATE_DEPENDS "Ascii" "DcUtility")
     DCG_FILE_CPP_APPLICATION("Main")
   DCG_END_PROJECT()
+
+  DCG_EXTERNAL_SUBMODULE("GLFW" "https://github.com/glfw/glfw.git")
 DCG_END()
