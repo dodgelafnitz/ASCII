@@ -15,6 +15,7 @@ target_compile_features(VisualTest2 PUBLIC cxx_std_20)
 
 target_link_libraries(VisualTest2
 PRIVATE
+  glfw
   DcUtility
 )
 
