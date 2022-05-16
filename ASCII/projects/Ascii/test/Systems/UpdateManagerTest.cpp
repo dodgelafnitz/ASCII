@@ -196,7 +196,10 @@ TEST(UpdateManagerTest, DynamicUpdateDelegateRegistered_SleepForDynamicUpdate_Pr
 }
 
 TEST(UpdateManagerTest, SetFixedUpdateDt_CheckFixedDt_ValueIsCorrect) {
-  UpdateManager updateManager(0.3f, 0.1f);
+  auto asciiWindow = std::make_shared<MockAsciiWindow>();
+  EXPECT_CALL(*asciiWindow, GetRunMs());
+
+  UpdateManager updateManager(asciiWindow, 0.3f, 0.1f);
 
   updateManager.SetFixedUpdateDt(0.3f);
 
@@ -204,7 +207,10 @@ TEST(UpdateManagerTest, SetFixedUpdateDt_CheckFixedDt_ValueIsCorrect) {
 }
 
 TEST(UpdateManagerTest, SetDynamicUpdateDt_CheckDynamicDt_ValueIsCorrect) {
-  UpdateManager updateManager(0.3f, 0.1f);
+  auto asciiWindow = std::make_shared<MockAsciiWindow>();
+  EXPECT_CALL(*asciiWindow, GetRunMs());
+
+  UpdateManager updateManager(asciiWindow, 0.3f, 0.1f);
 
   updateManager.SetDynamicUpdateDt(0.2f);
 

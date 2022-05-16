@@ -52,9 +52,6 @@ private:
   std::shared_ptr<IMouseManager>  m_mouseManager;
   std::shared_ptr<IStateManager>  m_stateManager;
   std::shared_ptr<ITextManager>   m_textManager;
-
-  struct Connector;
-  std::shared_ptr<Connector> m_connector;
 };
 
 #define DEFINE_MockInputManager()               \

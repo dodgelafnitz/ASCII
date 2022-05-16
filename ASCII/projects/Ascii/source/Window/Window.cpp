@@ -13,6 +13,8 @@
 #endif
 #include <Windows.h>
 
+#include "GLFW/glfw3.h"
+#include "glad/glad.h"
 
 /*
 
@@ -175,6 +177,131 @@ namespace {
     return AsciiButton::Invalid;
   }
 
+  int GetGlfwModFromAsciiState(AsciiState state) {
+    switch (state) {
+      case AsciiState::CapsLock:    return GLFW_MOD_CAPS_LOCK;
+      case AsciiState::NumLock:     return GLFW_MOD_NUM_LOCK;
+      case AsciiState::Shift:       return GLFW_MOD_SHIFT;
+      case AsciiState::Control:     return GLFW_MOD_CONTROL;
+      case AsciiState::Alt:         return GLFW_MOD_ALT;
+      default:                      return 0;
+    }
+  }
+
+  AsciiButton GetButtonFromGlfwKey(int key) {
+    switch (key) {
+      case GLFW_KEY_0:             return AsciiButton::Key0;
+      case GLFW_KEY_1:             return AsciiButton::Key1;
+      case GLFW_KEY_2:             return AsciiButton::Key2;
+      case GLFW_KEY_3:             return AsciiButton::Key3;
+      case GLFW_KEY_4:             return AsciiButton::Key4;
+      case GLFW_KEY_5:             return AsciiButton::Key5;
+      case GLFW_KEY_6:             return AsciiButton::Key6;
+      case GLFW_KEY_7:             return AsciiButton::Key7;
+      case GLFW_KEY_8:             return AsciiButton::Key8;
+      case GLFW_KEY_9:             return AsciiButton::Key9;
+      case GLFW_KEY_F1:            return AsciiButton::F1;
+      case GLFW_KEY_F2:            return AsciiButton::F2;
+      case GLFW_KEY_F3:            return AsciiButton::F3;
+      case GLFW_KEY_F4:            return AsciiButton::F4;
+      case GLFW_KEY_F5:            return AsciiButton::F5;
+      case GLFW_KEY_F6:            return AsciiButton::F6;
+      case GLFW_KEY_F7:            return AsciiButton::F7;
+      case GLFW_KEY_F8:            return AsciiButton::F8;
+      case GLFW_KEY_F9:            return AsciiButton::F9;
+      case GLFW_KEY_F10:           return AsciiButton::F10;
+      case GLFW_KEY_F11:           return AsciiButton::F11;
+      case GLFW_KEY_F12:           return AsciiButton::F12;
+      case GLFW_KEY_KP_0:          return AsciiButton::NumPad0;
+      case GLFW_KEY_KP_1:          return AsciiButton::NumPad1;
+      case GLFW_KEY_KP_2:          return AsciiButton::NumPad2;
+      case GLFW_KEY_KP_3:          return AsciiButton::NumPad3;
+      case GLFW_KEY_KP_4:          return AsciiButton::NumPad4;
+      case GLFW_KEY_KP_5:          return AsciiButton::NumPad5;
+      case GLFW_KEY_KP_6:          return AsciiButton::NumPad6;
+      case GLFW_KEY_KP_7:          return AsciiButton::NumPad7;
+      case GLFW_KEY_KP_8:          return AsciiButton::NumPad8;
+      case GLFW_KEY_KP_9:          return AsciiButton::NumPad9;
+      case GLFW_KEY_NUM_LOCK:      return AsciiButton::NumLock;
+      case GLFW_KEY_KP_DIVIDE:     return AsciiButton::NumPadDivide;
+      case GLFW_KEY_KP_MULTIPLY:   return AsciiButton::NumPadMultiply;
+      case GLFW_KEY_KP_SUBTRACT:   return AsciiButton::NumPadMinus;
+      case GLFW_KEY_KP_ADD:        return AsciiButton::NumPadPlus;
+      case GLFW_KEY_KP_DECIMAL:    return AsciiButton::NumPadPeriod;
+      case GLFW_KEY_A:             return AsciiButton::A;
+      case GLFW_KEY_B:             return AsciiButton::B;
+      case GLFW_KEY_C:             return AsciiButton::C;
+      case GLFW_KEY_D:             return AsciiButton::D;
+      case GLFW_KEY_E:             return AsciiButton::E;
+      case GLFW_KEY_F:             return AsciiButton::F;
+      case GLFW_KEY_G:             return AsciiButton::G;
+      case GLFW_KEY_H:             return AsciiButton::H;
+      case GLFW_KEY_I:             return AsciiButton::I;
+      case GLFW_KEY_J:             return AsciiButton::J;
+      case GLFW_KEY_K:             return AsciiButton::K;
+      case GLFW_KEY_L:             return AsciiButton::L;
+      case GLFW_KEY_M:             return AsciiButton::M;
+      case GLFW_KEY_N:             return AsciiButton::N;
+      case GLFW_KEY_O:             return AsciiButton::O;
+      case GLFW_KEY_P:             return AsciiButton::P;
+      case GLFW_KEY_Q:             return AsciiButton::Q;
+      case GLFW_KEY_R:             return AsciiButton::R;
+      case GLFW_KEY_S:             return AsciiButton::S;
+      case GLFW_KEY_T:             return AsciiButton::T;
+      case GLFW_KEY_U:             return AsciiButton::U;
+      case GLFW_KEY_V:             return AsciiButton::V;
+      case GLFW_KEY_W:             return AsciiButton::W;
+      case GLFW_KEY_X:             return AsciiButton::X;
+      case GLFW_KEY_Y:             return AsciiButton::Y;
+      case GLFW_KEY_Z:             return AsciiButton::Z;
+      case GLFW_KEY_LEFT:          return AsciiButton::Left;
+      case GLFW_KEY_RIGHT:         return AsciiButton::Right;
+      case GLFW_KEY_UP:            return AsciiButton::Up;
+      case GLFW_KEY_DOWN:          return AsciiButton::Down;
+      case GLFW_KEY_DELETE:        return AsciiButton::Delete;
+      case GLFW_KEY_BACKSPACE:     return AsciiButton::Backspace;
+      case GLFW_KEY_SPACE:         return AsciiButton::Space;
+      case GLFW_KEY_TAB:           return AsciiButton::Tab;
+      case GLFW_KEY_ENTER:         return AsciiButton::Return;
+      case GLFW_KEY_GRAVE_ACCENT:  return AsciiButton::Grave;
+      case GLFW_KEY_ESCAPE:        return AsciiButton::Escape;
+      case GLFW_KEY_INSERT:        return AsciiButton::Insert;
+      case GLFW_KEY_CAPS_LOCK:     return AsciiButton::CapsLock;
+      case GLFW_KEY_MINUS:         return AsciiButton::Dash;
+      case GLFW_KEY_EQUAL:         return AsciiButton::Equal;
+      case GLFW_KEY_LEFT_BRACKET:  return AsciiButton::LeftBracket;
+      case GLFW_KEY_RIGHT_BRACKET: return AsciiButton::RightBracket;
+      case GLFW_KEY_BACKSLASH:     return AsciiButton::BackSlash;
+      case GLFW_KEY_SLASH:         return AsciiButton::ForwardSlash;
+      case GLFW_KEY_LEFT_SHIFT:    return AsciiButton::LeftShift;
+      case GLFW_KEY_RIGHT_SHIFT:   return AsciiButton::RightShift;
+      case GLFW_KEY_LEFT_CONTROL:  return AsciiButton::LeftControl;
+      case GLFW_KEY_RIGHT_CONTROL: return AsciiButton::RightControl;
+      case GLFW_KEY_LEFT_ALT:      return AsciiButton::LeftAlt;
+      case GLFW_KEY_RIGHT_ALT:     return AsciiButton::RightAlt;
+      case GLFW_KEY_SEMICOLON:     return AsciiButton::Semicolon;
+      case GLFW_KEY_APOSTROPHE:    return AsciiButton::Apostrophe;
+      case GLFW_KEY_COMMA:         return AsciiButton::Comma;
+      case GLFW_KEY_PERIOD:        return AsciiButton::Period;
+      case GLFW_KEY_HOME:          return AsciiButton::Home;
+      case GLFW_KEY_END:           return AsciiButton::End;
+      case GLFW_KEY_PAGE_UP:       return AsciiButton::PageUp;
+      case GLFW_KEY_PAGE_DOWN:     return AsciiButton::PageDown;
+      default:                     return AsciiButton::Count;
+    }
+  }
+
+  AsciiButton GetButtonFromGlfwMouseButton(int mouse) {
+    switch (mouse) {
+      case GLFW_MOUSE_BUTTON_1: return AsciiButton::Mouse1;
+      case GLFW_MOUSE_BUTTON_2: return AsciiButton::Mouse2;
+      case GLFW_MOUSE_BUTTON_3: return AsciiButton::Mouse3;
+      case GLFW_MOUSE_BUTTON_4: return AsciiButton::Mouse4;
+      case GLFW_MOUSE_BUTTON_5: return AsciiButton::Mouse5;
+      default:                  return AsciiButton::Count;
+    }
+  }
+
   int const MaxTitleSize = 0x1000;
 
   char const * s_asciiButtonNames[int(AsciiButton::Count) + 2] = {
@@ -289,15 +416,102 @@ namespace {
   char const * s_asciiStateNames[int(AsciiState::Count) + 1] = {
     "CapsLock",
     "NumLock",
-    "ScrollLock",
     "Insert",
     "Shift",
     "Control",
     "Alt",
     "Count",
   };
-  static_assert(int(AsciiState::Count) == 7);
+  static_assert(int(AsciiState::Count) == 6);
+
+  static int s_windowCount = 0;
+
+  static std::vector<AsciiInputEvent> s_pollingInput;
 }
+
+GLFWkeyfun;
+
+struct AsciiWindow::Impl {
+  static void EvaluateMods(Impl * impl, int mods) {
+    if (mods != impl->cachedModState) {
+      for (int i = 0; i < int(AsciiState::Count); ++i) {
+        AsciiState const state = AsciiState(i);
+        int const glfwMod = GetGlfwModFromAsciiState(state);
+        if (glfwMod == 0) {
+          continue;
+        }
+
+        bool const isActive = mods & glfwMod;
+
+        if (isActive != impl->currentState[i]) {
+          AsciiInputEvent newStateEvent;
+
+          newStateEvent.type = AsciiInputType::State;
+          newStateEvent.stateEvent.isActive = isActive;
+          newStateEvent.stateEvent.state = state;
+
+          impl->currentState[i] = isActive;
+          s_pollingInput.emplace_back(newStateEvent);
+        }
+      }
+
+      impl->cachedModState = mods;
+    }
+  }
+
+  static void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods) {
+    Impl * impl = reinterpret_cast<Impl *>(glfwGetWindowUserPointer(window));
+
+    EvaluateMods(impl, mods);
+
+    AsciiInputEvent event;
+    event.type               = AsciiInputType::Button;
+    event.buttonEvent.isDown = (action == GLFW_PRESS);
+    event.buttonEvent.button = GetButtonFromGlfwKey(key);
+
+    s_pollingInput.emplace_back(event);
+  }
+
+  static void MouseButtonCallback(GLFWwindow * window, int button, int action, int mods) {
+    Impl * impl = reinterpret_cast<Impl *>(glfwGetWindowUserPointer(window));
+
+    EvaluateMods(impl, mods);
+
+    AsciiInputEvent event;
+    event.type               = AsciiInputType::Button;
+    event.buttonEvent.isDown = (action == GLFW_PRESS);
+    event.buttonEvent.button = GetButtonFromGlfwMouseButton(button);
+
+    s_pollingInput.emplace_back(event);
+  }
+
+  static void MouseScrollCallback(GLFWwindow * window, double xoffset, double yoffset) {
+    AsciiInputEvent event;
+
+    event.type             = AsciiInputType::MouseScroll;
+    event.mouseScrollEvent = int(yoffset);
+
+    s_pollingInput.emplace_back(event);
+  }
+
+  static void MousePositionCallback(GLFWwindow * window, double xpos, double ypos) {
+    AsciiInputEvent event;
+
+    event.type               = AsciiInputType::MousePosition;
+    event.mousePositionEvent = ivec2(int(xpos), int(ypos)); // TODO: Scaling based on token size/font and size of window.
+
+    s_pollingInput.emplace_back(event);
+  }
+
+  GLFWwindow * window                                                                         = nullptr;
+  int          startTime                                                                      = 0;
+  bool         currentMouseButtons[int(AsciiButton::MouseEnd) - int(AsciiButton::MouseBegin)] = { 0 };
+  bool         currentState[int(AsciiState::Count)]                                           = { 0 };
+  int          cachedModState                                                                 = 0;
+  AsciiFont    font;
+  std::string  name;
+};
+
 
 char const * GetAsciiButtonName(AsciiButton button) {
   return s_asciiButtonNames[int(button) + 1];
@@ -308,6 +522,22 @@ char const * GetAsciiStateName(AsciiState state) {
 }
 
 AsciiWindow::AsciiWindow(void) {
+  if (s_windowCount == 0) {
+    glfwInit();
+    gladLoadGLLoader(GLADloadproc(glfwGetProcAddress));
+  }
+
+  m_impl = std::make_shared<Impl>();
+
+  m_impl->window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+
+  glfwSetWindowUserPointer(m_impl->window, m_impl.get());
+
+  glfwSetKeyCallback(m_impl->window, Impl::KeyCallback);
+  glfwSetMouseButtonCallback(m_impl->window, Impl::MouseButtonCallback);
+  glfwSetScrollCallback(m_impl->window, Impl::MouseScrollCallback);
+  glfwSetCursorPosCallback(m_impl->window, Impl::MousePositionCallback);
+
   if (!s_windowInitialized) {
     CONSOLE_CURSOR_INFO cursorInfo;
     cursorInfo.bVisible = FALSE;
@@ -333,19 +563,27 @@ AsciiWindow::AsciiWindow(void) {
   for (int i = 0; i < FontColorCount; ++i) {
     COLORREF const color = screenInfo.ColorTable[i];
 
-    m_font.colors[i].r = GetRValue(color);
-    m_font.colors[i].g = GetGValue(color);
-    m_font.colors[i].b = GetBValue(color);
+    m_impl->font.colors[i].r = GetRValue(color);
+    m_impl->font.colors[i].g = GetGValue(color);
+    m_impl->font.colors[i].b = GetBValue(color);
   }
 
   CONSOLE_FONT_INFOEX fontInfo;
   fontInfo.cbSize = sizeof(fontInfo);
   GetCurrentConsoleFontEx(s_outputHandle, FALSE, &fontInfo);
 
-  m_font.size.x = fontInfo.dwFontSize.X;
-  m_font.size.y = fontInfo.dwFontSize.Y;
+  m_impl->font.size.x = fontInfo.dwFontSize.X;
+  m_impl->font.size.y = fontInfo.dwFontSize.Y;
 
-  m_startTime = GetCurrentMs();
+  m_impl->startTime = GetCurrentMs();
+}
+
+AsciiWindow::~AsciiWindow(void) {
+  glfwDestroyWindow(m_impl->window);
+
+  if (--s_windowCount == 0) {
+    glfwTerminate();
+  }
 }
 
 void AsciiWindow::Draw(Grid<AsciiCell, 2> const & draw) {
@@ -381,6 +619,9 @@ void AsciiWindow::Draw(Grid<AsciiCell, 2> const & draw) {
 }
 
 std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
+  s_pollingInput.clear();
+  glfwPollEvents();
+
   DWORD eventCount;
   GetNumberOfConsoleInputEvents(s_inputHandle, &eventCount);
 
@@ -391,7 +632,7 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
 
   bool state[int(AsciiState::Count)];
   for (int i = 0; i < int(AsciiState::Count); ++i) {
-    state[i] = m_currentState[i];
+    state[i] = m_impl->currentState[i];
   }
 
   for (INPUT_RECORD const & record : buffer) {
@@ -405,7 +646,6 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
 
         result.emplace_back(event);
 
-        state[int(AsciiState::ScrollLock)] = record.Event.KeyEvent.dwControlKeyState & SCROLLLOCK_ON;
         state[int(AsciiState::CapsLock)]   = record.Event.KeyEvent.dwControlKeyState & CAPSLOCK_ON;
         state[int(AsciiState::NumLock)]    = record.Event.KeyEvent.dwControlKeyState & NUMLOCK_ON;
 
@@ -460,7 +700,7 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
         mouseButtonState[int(AsciiButton::Mouse5) - int(AsciiButton::MouseBegin)] = record.Event.MouseEvent.dwButtonState & FROM_LEFT_4TH_BUTTON_PRESSED;
 
         for (int i = 0; i < c_mouseCount; ++i) {
-          if (m_currentMouseButtons[i] != mouseButtonState[i]) {
+          if (m_impl->currentMouseButtons[i] != mouseButtonState[i]) {
             AsciiInputEvent event;
 
             event.type = AsciiInputType::Button;
@@ -469,11 +709,10 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
 
             result.emplace_back(event);
 
-            m_currentMouseButtons[i] = mouseButtonState[i];
+            m_impl->currentMouseButtons[i] = mouseButtonState[i];
           }
         }
 
-        state[int(AsciiState::ScrollLock)] = record.Event.MouseEvent.dwControlKeyState & SCROLLLOCK_ON;
         state[int(AsciiState::CapsLock)]   = record.Event.MouseEvent.dwControlKeyState & CAPSLOCK_ON;
         state[int(AsciiState::NumLock)]    = record.Event.MouseEvent.dwControlKeyState & NUMLOCK_ON;
 
@@ -481,7 +720,7 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
     }
 
     for (int i = 0; i < int(AsciiState::Count); ++i) {
-      if (m_currentState[i] != state[i]) {
+      if (m_impl->currentState[i] != state[i]) {
         AsciiInputEvent event;
 
         event.type = AsciiInputType::State;
@@ -490,7 +729,7 @@ std::vector<AsciiInputEvent> AsciiWindow::PollInput(void) {
 
         result.emplace_back(event);
 
-        m_currentState[i] = state[i];
+        m_impl->currentState[i] = state[i];
       }
     }
   }
@@ -551,22 +790,22 @@ void AsciiWindow::SetClipboard(std::string const & clipboardStr) {
 }
 
 std::string AsciiWindow::GetTitle(void) const {
-  char buffer[MaxTitleSize];
-  GetConsoleTitle(buffer, MaxTitleSize);
-
-  return std::string(buffer);
+  return m_impl->name;
 }
 
 void AsciiWindow::SetTitle(std::string const & title) {
+  m_impl->name = title;
+
+  glfwSetWindowTitle(m_impl->window, title.c_str());
   SetConsoleTitle(title.c_str());
 }
 
 AsciiFont AsciiWindow::GetFont(void) const {
-  return m_font;
+  return m_impl->font;
 }
 
 void AsciiWindow::SetFont(AsciiFont const & font) {
-  if (font == m_font) {
+  if (font == m_impl->font) {
     return;
   }
 
@@ -585,18 +824,18 @@ void AsciiWindow::SetFont(AsciiFont const & font) {
   GetConsoleScreenBufferInfoEx(s_outputHandle, &screenInfo);
 
   for (int i = 0; i < FontColorCount; ++i) {
-    COLORREF const color = RGB(m_font.colors[i].r, m_font.colors[i].g, m_font.colors[i].b);
+    COLORREF const color = RGB(m_impl->font.colors[i].r, m_impl->font.colors[i].g, m_impl->font.colors[i].b);
 
     screenInfo.ColorTable[i] = color;
   }
 
   SetConsoleScreenBufferInfoEx(s_outputHandle, &screenInfo);
 
-  m_font = font;
+  m_impl->font = font;
 }
 
 int AsciiWindow::GetRunMs(void) const {
-  return GetCurrentMs() - m_startTime;
+  return GetCurrentMs() - m_impl->startTime;
 }
 
 void AsciiWindow::Sleep(int milliseconds) {
@@ -604,15 +843,5 @@ void AsciiWindow::Sleep(int milliseconds) {
 }
 
 int AsciiWindow::GetCurrentMs(void) const {
-  LARGE_INTEGER counter;
-  if (!QueryPerformanceCounter(&counter)) {
-    return 0;
-  }
-
-  LARGE_INTEGER frequency;
-  if (!QueryPerformanceFrequency(&frequency)) {
-    return 0;
-  }
-
-  return int((counter.QuadPart * 1000) / frequency.QuadPart);
+  return int(glfwGetTime() * 1000);
 }

@@ -145,7 +145,7 @@ TEST_F(InputManagerTest, MouseScrollEventRegistered_MouseScrollEventProcessed_Ev
 
 TEST_F(InputManagerTest, StateEventRegistered_MouseScrollEventProcessed_EventTriggers) {
   std::vector<AsciiInputEvent> const events = {
-    AsciiStateEvent(AsciiState::ScrollLock, true),
+    AsciiStateEvent(AsciiState::CapsLock, true),
   };
 
   auto asciiWindow = std::make_shared<MockAsciiWindow>();
@@ -154,7 +154,7 @@ TEST_F(InputManagerTest, StateEventRegistered_MouseScrollEventProcessed_EventTri
   ;
 
   auto stateManager = std::make_shared<MockStateManager>();
-  EXPECT_CALL(*stateManager, SetStateValue(AsciiState::ScrollLock, true))
+  EXPECT_CALL(*stateManager, SetStateValue(AsciiState::CapsLock, true))
     .Times(1)
   ;
 

@@ -5,6 +5,7 @@
 #ifndef ASCII_WINDOW_WINDOW_H
 #define ASCII_WINDOW_WINDOW_H
 
+#include <memory>
 #include <string>
 
 #include "General/Color.h"
@@ -150,7 +151,6 @@ char const * GetAsciiButtonName(AsciiButton button);
 enum class AsciiState {
   CapsLock,
   NumLock,
-  ScrollLock,
   Insert,
   Shift,
   Control,
@@ -214,7 +214,7 @@ class AsciiWindow : public IAsciiWindow {
 public:
   AsciiWindow(void);
 
-  virtual ~AsciiWindow(void) override = default;
+  virtual ~AsciiWindow(void) override;
 
   virtual void Draw(Grid<AsciiCell, 2> const & draw) override;
 
@@ -233,12 +233,11 @@ public:
   virtual void Sleep(int milliseconds) override;
 
 private:
+  struct Impl;
+
   int GetCurrentMs(void) const;
 
-  int       m_startTime;
-  bool      m_currentMouseButtons[int(AsciiButton::MouseEnd) - int(AsciiButton::MouseBegin)] = { 0 };
-  bool      m_currentState[int(AsciiState::Count)]                                           = { 0 };
-  AsciiFont m_font;
+  std::shared_ptr<Impl> m_impl;
 };
 
 #define DEFINE_MockAsciiWindow()              \

@@ -26,9 +26,7 @@ public:
 
 class UpdateManager : public IUpdateManager {
 public:
-  UpdateManager(void);
   UpdateManager(std::shared_ptr<IAsciiWindow> const & window);
-  UpdateManager(float fixedDt, float dynamicDt);
   UpdateManager(std::shared_ptr<IAsciiWindow> const & window, float fixedDt, float dynamicDt);
   virtual ~UpdateManager(void) {}
 

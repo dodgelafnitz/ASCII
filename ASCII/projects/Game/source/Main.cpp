@@ -185,7 +185,7 @@ int main(void) {
     waitUntil = runTime + 10.0f;
   });
 
-  UpdateManager updateManager(0.1f, 0.0f);
+  UpdateManager updateManager(window, 0.1f, 0.0f);
 
   enum class Direction {
     Invalid,

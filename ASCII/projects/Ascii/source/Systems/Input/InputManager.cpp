@@ -4,11 +4,6 @@
 
 #include "Systems/Input/InputManager.h"
 
-struct InputManager::Connector {
-  Delegate<bool> insertButtonDelegate;
-  Delegate<bool> numpadInsertButtonDelegate;
-};
-
 InputManager::InputManager(void) :
   InputManager(std::make_shared<AsciiWindow>())
 {}
@@ -39,31 +34,6 @@ InputManager::InputManager(
 {
   if (m_textManager) {
     m_textManager->SetManagers(buttonManager, stateManager);
-  }
-
-  m_connector = std::make_shared<InputManager::Connector>();
-  if (m_buttonManager && m_stateManager) {
-    m_connector->insertButtonDelegate = m_buttonManager->AddButtonEvent(
-      AsciiButton::Insert,
-      [this](bool isDown) {
-        if (isDown) {
-          bool const insertSet = m_stateManager->GetStateValue(AsciiState::Insert);
-          m_stateManager->SetStateValue(AsciiState::Insert, !insertSet);
-        }
-      }
-    );
-
-    m_connector->numpadInsertButtonDelegate = m_buttonManager->AddButtonEvent(
-      AsciiButton::NumPad0,
-      [this](bool isDown) {
-        if (isDown) {
-          if (m_stateManager->GetStateValue(AsciiState::Shift) == m_stateManager->GetStateValue(AsciiState::NumLock)) {
-            bool const insertSet = m_stateManager->GetStateValue(AsciiState::Insert);
-            m_stateManager->SetStateValue(AsciiState::Insert, !insertSet);
-          }
-        }
-      }
-    );
   }
 }
 

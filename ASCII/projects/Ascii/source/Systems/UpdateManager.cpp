@@ -11,16 +11,8 @@ namespace {
   float const c_defaultDynamicDt = 1.0f / 60.0f;
 }
 
-UpdateManager::UpdateManager(void) :
-  UpdateManager(std::make_shared<AsciiWindow>())
-{}
-
 UpdateManager::UpdateManager(std::shared_ptr<IAsciiWindow> const & window) :
   UpdateManager(window, c_defaultFixedDt, c_defaultDynamicDt)
-{}
-
-UpdateManager::UpdateManager(float fixedDt, float dynamicDt) :
-  UpdateManager(std::make_shared<AsciiWindow>(), fixedDt, dynamicDt)
 {}
 
 UpdateManager::UpdateManager(

@@ -14,6 +14,10 @@ set_property(TARGET Ascii PROPERTY CXX_STANDARD_REQUIRED ON)
 target_compile_features(Ascii PUBLIC cxx_std_20)
 
 target_link_libraries(Ascii
+PRIVATE
+  glfw
+  glad
+  stb
 PUBLIC
   DcUtility
 )

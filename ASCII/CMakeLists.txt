@@ -50,6 +50,10 @@ DCG_BEGIN()
   DCG_PROJECT_LIB("Ascii"
     PUBLIC_DEPENDS
       "DcUtility"
+    PRIVATE_DEPENDS
+      "glfw"
+      "glad"
+      "stb"
     TEST_DEPENDS
       "DcTestUtility"
   )
@@ -88,5 +92,7 @@ DCG_BEGIN()
     DCG_FILE_CPP_APPLICATION("Main")
   DCG_END_PROJECT()
 
+  DCG_EXTERNAL_FILES("glad")
   DCG_EXTERNAL_SUBMODULE("GLFW" "https://github.com/glfw/glfw.git")
+  DCG_EXTERNAL_SUBMODULE_CUSTOM_CMAKE("stb" "https://github.com/nothings/stb.git")
 DCG_END()
