@@ -1,6 +1,0 @@
-[submodule "ASCII/externals/GoogleTest"]
-	path = ASCII/externals/GoogleTest
-	url = https://github.com/google/googletest.git
-[submodule "ASCII/externals/GLFW"]
-	path = ASCII/externals/GLFW
-	url = https://github.com/glfw/glfw.git
