@@ -1,0 +1,9 @@
+[submodule "ASCII/externals/GLFW"]
+	path = ASCII/externals/GLFW
+	url = https://github.com/glfw/glfw.git
+[submodule "ASCII/externals/stb/stb"]
+	path = ASCII/externals/stb/stb
+	url = https://github.com/nothings/stb.git
+[submodule "ASCII/externals/GoogleTest"]
+	path = ASCII/externals/GoogleTest
+	url = https://github.com/google/googletest.git

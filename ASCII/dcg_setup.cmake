@@ -33,7 +33,7 @@ DCG_set_default_setting(DCG_COPYWRITE "")
 DCG_set_default_setting(DCG_ENABLE_CMAKE_REGEN TRUE)
 
 DCG_set_default_setting(DCG_DEBUG_PRINT_STRUCTURE FALSE)
-DCG_set_default_setting(DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS TRUE)
+DCG_set_default_setting(DCG_DEBUG_PRINT_SUBMODULE_EXTERNALS FALSE)
 DCG_set_default_setting(DCG_DEBUG_PRINT_FILE_ACTIONS TRUE)
 
 function(DCG_add_interface_source_group targetName)
