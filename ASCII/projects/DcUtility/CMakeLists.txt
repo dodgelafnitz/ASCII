@@ -1,5 +1,6 @@
 # CMakeLists.txt file generated with DCG.
 
+# To stop file regeneration, remove the following line.
 #!NO_DCG_REGENERATE_THIS_FILE
 
 project(DcUtility C CXX)

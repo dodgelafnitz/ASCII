@@ -59,6 +59,7 @@ DCG_BEGIN()
   )
     DCG_FOLDER("Window")
       DCG_FILE_CPP("Window")
+      DCG_FILE_CPP_NO_TEST("BlockFont")
     DCG_END_FOLDER()
     DCG_FOLDER("Widget")
       DCG_FILE_CPP("Widget")
@@ -85,6 +86,10 @@ DCG_BEGIN()
   DCG_END_PROJECT()
 
   DCG_PROJECT_EXE("VisualTest2" PRIVATE_DEPENDS "glfw" "DcUtility")
+    DCG_FILE_CPP_APPLICATION("Main")
+  DCG_END_PROJECT()
+
+  DCG_PROJECT_EXE("VisualTest3" PRIVATE_DEPENDS "stb" "DcUtility" "Ascii")
     DCG_FILE_CPP_APPLICATION("Main")
   DCG_END_PROJECT()
 

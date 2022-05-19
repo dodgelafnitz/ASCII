@@ -29,6 +29,7 @@ PUBLIC
 
 set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Window/Window.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Window/BlockFont.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Widget/Widget.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/ButtonManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/MouseManager.h"
@@ -41,6 +42,7 @@ set(inc
 
 set(src
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Window/Window.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Window/BlockFont.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Widget/Widget.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/ButtonManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/MouseManager.cpp"

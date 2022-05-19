@@ -16,6 +16,8 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#include "Window/BlockFont.h"
+
 /*
 
 Make Cursor Invisile:
@@ -424,9 +426,13 @@ namespace {
   };
   static_assert(int(AsciiState::Count) == 6);
 
-  static int s_windowCount = 0;
+  static int  s_windowCount = 0;
+  static bool s_gladInitialized = false;
 
   static std::vector<AsciiInputEvent> s_pollingInput;
+
+  static int c_defaultWindowWidth  = 640;
+  static int c_defaultWindowHeight = 360;
 }
 
 GLFWkeyfun;
@@ -524,12 +530,20 @@ char const * GetAsciiStateName(AsciiState state) {
 AsciiWindow::AsciiWindow(void) {
   if (s_windowCount == 0) {
     glfwInit();
-    gladLoadGLLoader(GLADloadproc(glfwGetProcAddress));
   }
+  ++s_windowCount;
 
   m_impl = std::make_shared<Impl>();
 
-  m_impl->window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+  m_impl->window = glfwCreateWindow(c_defaultWindowWidth, c_defaultWindowHeight, "", nullptr, nullptr);
+
+  glfwMakeContextCurrent(m_impl->window);
+
+  // must happen after creating our first window.
+  if (!s_gladInitialized) {
+    gladLoadGLLoader(GLADloadproc(glfwGetProcAddress));
+    s_gladInitialized = true;
+  }
 
   glfwSetWindowUserPointer(m_impl->window, m_impl.get());
 
@@ -537,6 +551,8 @@ AsciiWindow::AsciiWindow(void) {
   glfwSetMouseButtonCallback(m_impl->window, Impl::MouseButtonCallback);
   glfwSetScrollCallback(m_impl->window, Impl::MouseScrollCallback);
   glfwSetCursorPosCallback(m_impl->window, Impl::MousePositionCallback);
+
+  glfwMakeContextCurrent(nullptr);
 
   if (!s_windowInitialized) {
     CONSOLE_CURSOR_INFO cursorInfo;
@@ -587,6 +603,25 @@ AsciiWindow::~AsciiWindow(void) {
 }
 
 void AsciiWindow::Draw(Grid<AsciiCell, 2> const & draw) {
+  {
+    ivec2 const size = draw.GetSize() * ivec2(GetGlyphWidth(), GetGlyphHeight());
+
+    glfwSetWindowAspectRatio(m_impl->window, draw.GetSize().x, draw.GetSize().y);
+
+    // Set every pixel in the frame buffer to the current clear color.
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Drawing is done by specifying a sequence of vertices.  The way these
+    // vertices are connected (or not connected) depends on the argument to
+    // glBegin.  GL_POLYGON constructs a filled polygon.
+    glBegin(GL_POLYGON);
+      glColor3f(1, 0, 0); glVertex3f(-0.6, -0.75, 0.5);
+      glColor3f(0, 1, 0); glVertex3f(0.6, -0.75, 0);
+      glColor3f(0, 0, 1); glVertex3f(0, 0.75, 0);
+    glEnd();
+
+  }
+
   COORD size;
   size.X = draw.GetSize().x;
   size.Y = draw.GetSize().y;
