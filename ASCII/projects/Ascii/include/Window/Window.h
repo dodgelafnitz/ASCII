@@ -34,9 +34,9 @@ struct AsciiCell {
     backgroundColor(backgroundColor)
   {}
 
-  unsigned char foregroundColor : 3;
-  unsigned char backgroundColor : 3;
-  char          character           = ' ';
+  unsigned char foregroundColor;
+  unsigned char backgroundColor;
+  char          character        = ' ';
 };
 
 enum class AsciiButton {
@@ -214,7 +214,7 @@ class AsciiWindow : public IAsciiWindow {
 public:
   AsciiWindow(void);
 
-  virtual ~AsciiWindow(void) override;
+  virtual ~AsciiWindow(void) override = default;
 
   virtual void Draw(Grid<AsciiCell, 2> const & draw) override;
 

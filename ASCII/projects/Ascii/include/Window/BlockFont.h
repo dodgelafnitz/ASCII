@@ -5,8 +5,9 @@
 #ifndef ASCII_WINDOW_BLOCKFONT_H
 #define ASCII_WINDOW_BLOCKFONT_H
 
-int          GetGlyphWidth(void);
-int          GetGlyphHeight(void);
-bool const * GetGlyphForChar(char character);
+int                   GetGlyphWidth(void);
+int                   GetGlyphHeight(void);
+bool const *          GetGlyphForChar(char character);
+unsigned char const * GetGlyphSheet(void);
 
 #endif // ASCII_WINDOW_BLOCKFONT_H

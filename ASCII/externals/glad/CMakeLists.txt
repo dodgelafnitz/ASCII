@@ -8,12 +8,12 @@ PUBLIC
 )
 
 set(inc
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/glad/glad.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/KHR/khrplatform.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/glad.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/khrplatform.h"
 )
 
 set(src
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/glad.c"
 )
 
 target_sources(glad
@@ -24,4 +24,4 @@ PRIVATE
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "include" FILES ${inc})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "source" FILES ${src})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/source" PREFIX "source" FILES ${src})

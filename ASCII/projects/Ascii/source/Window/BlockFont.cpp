@@ -1691,18 +1691,50 @@ namespace {
     { 0 }, // char 255
   };
 
-  static int s_glyphWidth  = 12;
-  static int s_glyphHeight = 12;
+  static const int c_glyphsPerRow    = 16;
+  static const int c_glyphsPerColumn = 16;
+
+  static_assert(sizeof(s_glyphs) / sizeof(*s_glyphs) == c_glyphsPerRow * c_glyphsPerColumn);
+
+  static const int c_glyphWidth  = 12;
+  static const int c_glyphHeight = 12;
+
+  static unsigned char s_glyphSheet[256 * c_glyphWidth * c_glyphHeight] = { 0 };
+  static bool          s_glyphSheetInitialized                          = false;
 }
 
 int GetGlyphWidth(void) {
-  return s_glyphWidth;
+  return c_glyphWidth;
 }
 
 int GetGlyphHeight(void) {
-  return s_glyphHeight;
+  return c_glyphHeight;
 }
 
 bool const * GetGlyphForChar(char character) {
   return s_glyphs[character];
+}
+
+unsigned char const * GetGlyphSheet(void) {
+  if (!s_glyphSheetInitialized) {
+    for (int i = 0; i < sizeof(s_glyphs) / sizeof(*s_glyphs); ++i) {
+      int const glyphXPos  = i % c_glyphsPerRow;
+      int const glyphYPos  = i / c_glyphsPerRow;
+
+      int const startIndex = glyphXPos * c_glyphWidth + glyphYPos * c_glyphWidth * c_glyphsPerRow * c_glyphHeight;
+
+      for (int j = 0; j < c_glyphHeight; ++j) {
+        for (int k = 0; k < c_glyphWidth; ++k) {
+          int const sheetIndex = startIndex + k + j * c_glyphWidth * c_glyphsPerRow;
+          int const glyphIndex = k + j * c_glyphWidth;
+
+          s_glyphSheet[sheetIndex] = GetGlyphForChar(i)[glyphIndex] ? 255 : 0;
+        }
+      }
+    }
+
+    s_glyphSheetInitialized = true;
+  }
+
+  return s_glyphSheet;
 }

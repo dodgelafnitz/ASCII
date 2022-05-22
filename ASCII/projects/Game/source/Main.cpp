@@ -12,6 +12,7 @@ namespace {
   int const BlackIndex = 0;
   int const WhiteIndex = 1;
   int const RedIndex   = 2;
+  int const GreenIndex = 3;
 
   float const Pi = 3.141592653589793238462643383279;
 
@@ -77,10 +78,11 @@ int main(void) {
   AsciiFont font = window->GetFont();
   font.size = ivec2(8, 8);
 
-  font.colors[BlackIndex] = Color::Green;
+  font.colors[BlackIndex] = Color::Black;
   font.colors[WhiteIndex] = Color::White;
 
-  font.colors[RedIndex] = Color::Red;
+  font.colors[RedIndex]   = Color::Red;
+  font.colors[GreenIndex] = Color::Green;
 
   window->SetFont(font);
 
@@ -89,6 +91,9 @@ int main(void) {
 
   float const colorRotSpeed          = 0.01f;
   int   const colorRotUpdateThrottle = 16;
+
+  ivec2 const displayCharLocation = ivec2(3, 3);
+  char        displayChar = ' ';
 
   float colorRot = 0.0f;
 
@@ -185,7 +190,29 @@ int main(void) {
     waitUntil = runTime + 10.0f;
   });
 
-  UpdateManager updateManager(window, 0.1f, 0.0f);
+  auto onO = buttonManager->AddButtonEvent(AsciiButton::O, [&](bool isDown) {
+    if (isDown) {
+      --displayChar;
+      if (displayChar < ' ') {
+        displayChar = '~';
+      }
+
+      window->SetTitle(std::string(1, displayChar));
+    }
+  });
+
+  auto onP = buttonManager->AddButtonEvent(AsciiButton::P, [&](bool isDown) {
+    if (isDown) {
+      ++displayChar;
+      if (displayChar > '~') {
+        displayChar = ' ';
+      }
+
+      window->SetTitle(std::string(1, displayChar));
+    }
+  });
+
+  UpdateManager updateManager(window, 0.1f, 1.0f / 60.0f);
 
   enum class Direction {
     Invalid,
@@ -470,7 +497,7 @@ int main(void) {
       player->lastPos * (1.0f - progress) +
       player->pos * progress +
       0.5f
-    ;
+      ;
 
     Grid<AsciiCell, 2> grid(ivec2(width, height));
 
@@ -478,6 +505,31 @@ int main(void) {
     grid.Data()[xCell].character = 'X';
     grid.Data()[xCell].foregroundColor = WhiteIndex;
     grid.Data()[xCell].backgroundColor = BlackIndex;
+
+    for (int i = 0; i < width; ++i) {
+      grid[ivec2(i, 0)].character = '-';
+      grid[ivec2(i, 0)].foregroundColor = WhiteIndex;
+      grid[ivec2(i, 0)].backgroundColor = BlackIndex;
+
+      grid[ivec2(i, height - 1)].character = '-';
+      grid[ivec2(i, height - 1)].foregroundColor = WhiteIndex;
+      grid[ivec2(i, height - 1)].backgroundColor = BlackIndex;
+    }
+
+    for (int i = 0; i < height; ++i) {
+      grid[ivec2(0, i)].character = '|';
+      grid[ivec2(0, i)].foregroundColor = WhiteIndex;
+      grid[ivec2(0, i)].backgroundColor = BlackIndex;
+
+      grid[ivec2(width - 1, i)].character = '|';
+      grid[ivec2(width - 1, i)].foregroundColor = WhiteIndex;
+      grid[ivec2(width - 1, i)].backgroundColor = BlackIndex;
+    }
+
+    grid[ivec2(0, 0)].character = '+';
+    grid[ivec2(0, height - 1)].character = '+';
+    grid[ivec2(width - 1, 0)].character = '+';
+    grid[ivec2(width - 1, height - 1)].character = '+';
 
     for (auto const & entity : entities) {
       if (entity->type != EntityType::Shot) {
@@ -512,10 +564,12 @@ int main(void) {
         ivec2 const animCell(j, i);
         ivec2 const worldCell(charDrawPos.x + j, charDrawPos.y + i);
 
-        if (anim[animCell] != ' ') {
-          grid[worldCell].character = anim[animCell];
-          grid[worldCell].foregroundColor = RedIndex;
-          grid[worldCell].backgroundColor = BlackIndex;
+        if (worldCell.x >= 0 && worldCell.x < width && worldCell.y >= 0 && worldCell.y < height) {
+          if (anim[animCell] != ' ') {
+            grid[worldCell].character = anim[animCell];
+            grid[worldCell].foregroundColor = RedIndex;
+            grid[worldCell].backgroundColor = BlackIndex;
+          }
         }
       }
     }
@@ -537,11 +591,23 @@ int main(void) {
           }
 
           ivec2 const cell(j, i);
-          grid[cell].character = (i + j) % 2 ? '[' : ']';
+          grid[cell].character       = (i + j) % 2 ? '[' : ']';
           grid[cell].foregroundColor = WhiteIndex;
           grid[cell].backgroundColor = BlackIndex;
         }
       }
+    }
+
+    grid[displayCharLocation].character       = displayChar;
+    grid[displayCharLocation].foregroundColor = WhiteIndex;
+    grid[displayCharLocation].backgroundColor = BlackIndex;
+
+    ivec2 mousePos = inputManager.GetMouseManager()->GetMousePosition();
+
+    if (mousePos.x >= 0 && mousePos.x < width && mousePos.y >= 0 && mousePos.y < height) {
+      grid[mousePos].character       = 'X';
+      grid[mousePos].foregroundColor = GreenIndex;
+      grid[mousePos].backgroundColor = BlackIndex;
     }
 
     window->Draw(grid);

@@ -33,12 +33,16 @@ public:
   Grid(ivec<Dimensions> const & size) :
     m_data(size.Product()),
     m_size(size)
-  {}
+  {
+    EvaluateIndexer();
+  }
 
   Grid(ivec<Dimensions> const & size, T const & value) :
     m_data(size.Product(), value),
     m_size(size)
-  {}
+  {
+    EvaluateIndexer();
+  }
 
   Grid(Grid const &) = default;
   Grid(Grid &&) = default;
@@ -47,12 +51,12 @@ public:
   Grid & operator =(Grid &&) = default;
 
   T const & operator [](ivec<Dimensions> const & location) const {
-    int const index = location.Dot(GetIndexerDot());
+    int const index = location.Dot(m_indexer);
     return m_data[index];
   }
 
   T & operator [](ivec<Dimensions> const & location) {
-    int const index = location.Dot(GetIndexerDot());
+    int const index = location.Dot(m_indexer);
     return m_data[index];
   }
 
@@ -80,6 +84,8 @@ public:
       newGrid[i] = (*this)[i];
     }
     *this = std::move(newGrid);
+
+    EvaluateIndexer();
   }
 
   bool Empty(void) const {
@@ -110,19 +116,16 @@ public:
   }
 
 private:
-  ivec<Dimensions> GetIndexerDot(void) const {
-    ivec<Dimensions> result;
-
-    result[0] = 1;
+  void EvaluateIndexer(void) {
+    m_indexer[0] = 1;
     for (int i = 1; i < Dimensions; ++i) {
-      result[i] = m_size[i - 1] * result[i - 1];
+      m_indexer[i] = m_size[i - 1] * m_indexer[i - 1];
     }
-
-    return result;
   }
 
   std::vector<T>   m_data;
   ivec<Dimensions> m_size;
+  ivec<Dimensions> m_indexer;
 };
 
 #endif // DCUTILITY_CONTAINERS_GRID_H
