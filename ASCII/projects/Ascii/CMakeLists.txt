@@ -37,7 +37,7 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/StateManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/Input/InputManager.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/UpdateManager.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/FocusManager.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Systems/WidgetManager.h"
 )
 
 set(src
@@ -50,7 +50,7 @@ set(src
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/StateManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/Input/InputManager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/UpdateManager.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/FocusManager.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Systems/WidgetManager.cpp"
 )
 
 target_sources(Ascii

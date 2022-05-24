@@ -121,9 +121,9 @@ public:
   virtual void Update(float dt) = 0;
 
   virtual float GetRepeatDelay(void) const = 0;
-  virtual void SetRepeatDelay(float delay) = 0;
+  virtual void  SetRepeatDelay(float delay) = 0;
   virtual float GetInitialRepeatDelay(void) const = 0;
-  virtual void SetInitialRepeatDelay(float delay) = 0;
+  virtual void  SetInitialRepeatDelay(float delay) = 0;
 
   void SetManagers(
     std::shared_ptr<IButtonManager> const & buttonManager,
@@ -167,9 +167,9 @@ public:
   virtual void Update(float dt) override;
 
   virtual float GetRepeatDelay(void) const override;
-  virtual void SetRepeatDelay(float delay) override;
+  virtual void  SetRepeatDelay(float delay) override;
   virtual float GetInitialRepeatDelay(void) const override;
-  virtual void SetInitialRepeatDelay(float delay) override;
+  virtual void  SetInitialRepeatDelay(float delay) override;
 
   virtual void SetButtonManager(
     std::shared_ptr<IButtonManager> const & buttonManager

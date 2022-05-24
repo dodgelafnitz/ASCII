@@ -28,7 +28,7 @@ set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/StateManagerTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/InputManagerTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/UpdateManagerTest.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/FocusManagerTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Systems/WidgetManagerTest.cpp"
 )
 
 target_sources(AsciiTest

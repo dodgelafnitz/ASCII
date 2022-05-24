@@ -571,7 +571,7 @@ struct AsciiWindow::Impl {
       GLuint fontSheet;
       glGenTextures(1, &fontSheet);
       glBindTexture(GL_TEXTURE_RECTANGLE, fontSheet);
-      glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8, 16 * GetGlyphWidth(), 16 * GetGlyphHeight(), 0, GL_RED, GL_UNSIGNED_BYTE, GetGlyphSheet());
+      glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8, 16 * GetGlyphSize().x, 16 * GetGlyphSize().y, 0, GL_RED, GL_UNSIGNED_BYTE, GetGlyphSheet());
 
       glBindFragDataLocation(impl->shader, 0, "outColor");
 
@@ -647,8 +647,8 @@ void AsciiWindow::Draw(Grid<AsciiCell, 2> const & draw) {
     if (m_impl->size != size) {
       m_impl->size = size;
 
-      glfwSetWindowSize(m_impl->window, size.x * GetGlyphWidth(), size.y * GetGlyphHeight());
-      glViewport(0, 0, size.x * GetGlyphWidth(), size.y * GetGlyphHeight());
+      glfwSetWindowSize(m_impl->window, size.x * GetGlyphSize().x, size.y * GetGlyphSize().y);
+      glViewport(0, 0, size.x * GetGlyphSize().x, size.y * GetGlyphSize().y);
     }
 
     glBufferData(GL_ARRAY_BUFFER, draw.Count() * sizeof(AsciiCell), draw.Data(), GL_STREAM_DRAW);
@@ -657,7 +657,7 @@ void AsciiWindow::Draw(Grid<AsciiCell, 2> const & draw) {
     glVertexAttribIPointer(m_impl->colorAttr, 2, GL_BYTE, sizeof(AsciiCell), &((AsciiCell *)0)->foregroundColor);
 
     glUniform2i(m_impl->gridSizeUniform, size.x, size.y);
-    glUniform2i(m_impl->glyphSizeUniform, GetGlyphWidth(), GetGlyphHeight());
+    glUniform2i(m_impl->glyphSizeUniform, GetGlyphSize().x, GetGlyphSize().y);
     glUniform2i(m_impl->fontSheetSizeUniform, 16, 16);
 
     // Set colors
