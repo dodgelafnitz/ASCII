@@ -9,12 +9,10 @@
 
 #include "Containers/Grid.h"
 #include "General/Delagate.h"
+#include "Window/Window.h"
+#include "Systems/Input/TextManager.h"
 
 class IInputManager;
-
-class AsciiButton;
-class AsciiCell;
-class TextEvent;
 class Widget;
 
 class IWidgetManager {
@@ -35,7 +33,10 @@ public:
 
 class WidgetManager : public IWidgetManager {
 public:
-  virtual ~WidgetManager(void) = default;
+  WidgetManager(void) = default;
+  WidgetManager(std::shared_ptr<IInputManager> const & inputManager);
+
+  virtual ~WidgetManager(void) override = default;
 
   virtual std::shared_ptr<IInputManager> GetInputManager(void) const override;
   virtual void                           SetInputManager(std::shared_ptr<IInputManager> const & inputManager) override;
@@ -102,7 +103,7 @@ public:                                           \
   MOCK_METHOD(                                    \
     void,                                         \
     Draw,                                         \
-    (Grid<AsciiCell, 2> &),                       \
+    ((Grid<AsciiCell, 2> &)),                     \
     (const, override)                             \
   );                                              \
 }

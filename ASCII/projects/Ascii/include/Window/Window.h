@@ -24,19 +24,28 @@ struct AsciiFont {
 };
 
 struct AsciiCell {
-  AsciiCell(void) : AsciiCell(0, 0) {}
+  AsciiCell(void) : AsciiCell(' ', 0, 0) {}
+
+  AsciiCell(
+    char          character,
+    unsigned char foregroundColor,
+    unsigned char backgroundColor
+  ) :
+    character(character),
+    foregroundColor(foregroundColor),
+    backgroundColor(backgroundColor)
+  {}
 
   AsciiCell(
     unsigned char foregroundColor,
     unsigned char backgroundColor
   ) :
-    foregroundColor(foregroundColor),
-    backgroundColor(backgroundColor)
+    AsciiCell(' ', foregroundColor, backgroundColor)
   {}
 
+  char          character;
   unsigned char foregroundColor;
   unsigned char backgroundColor;
-  char          character        = ' ';
 };
 
 enum class AsciiButton {

@@ -22,6 +22,7 @@ PRIVATE
 set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Window/WindowTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Widget/WidgetTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Widget/DrawParamsTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/ButtonManagerTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/MouseManagerTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Systems/Input/TextManagerTest.cpp"
