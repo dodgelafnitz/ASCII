@@ -86,15 +86,25 @@ ivec2 Widget::GetControlledSize(void) const {
 }
 
 int Widget::GetChildCount(void) const {
-  return 0;
+  return m_children.size();
 }
 
 std::shared_ptr<Widget> Widget::GetChild(int index) const {
-  return nullptr;
+  if (index == InvalidIndex) {
+    return nullptr;
+  }
+  else {
+    return m_children[index].widget;
+  }
 }
 
-int Widget::GetChildIndex(std::shared_ptr<Widget> const & child) const {
-  return 0;
+int Widget::GetChildsIndex(std::shared_ptr<Widget> const & child) const {
+  if (child->GetParent().lock() == shared_from_this()) {
+    return child->GetIndex();
+  }
+  else {
+    return InvalidIndex;
+  }
 }
 
 fvec2 Widget::GetChildScaledOffset(int index) const {
@@ -113,7 +123,7 @@ std::weak_ptr<Widget> Widget::GetParent(void) const {
   return m_parent;
 }
 
-int Widget::GetChildIndex(void) const {
+int Widget::GetIndex(void) const {
   return m_childIndex;
 }
 
@@ -140,10 +150,10 @@ void Widget::SetChildConstantOffset(int index, ivec2 constantOffset) {
 int Widget::AddChild(fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget) {
   if (std::shared_ptr<Widget> const oldParent = widget->GetParent().lock()) {
     if (oldParent == shared_from_this()) {
-      return widget->GetChildIndex();
+      return widget->GetIndex();
     }
     else {
-      oldParent->RemoveChild(widget->GetChildIndex());
+      oldParent->RemoveChild(widget->GetIndex());
     }
   }
 

@@ -17,7 +17,7 @@ class IWidgetManager;
 
 class Widget : public std::enable_shared_from_this<Widget> {
 public:
-  int const InvalidIndex = -1;
+  static int const InvalidIndex = -1;
 
   virtual ~Widget(void) = default;
 
@@ -88,13 +88,13 @@ public:
 
   int                     GetChildCount(void) const;
   std::shared_ptr<Widget> GetChild(int index) const;
-  int                     GetChildIndex(std::shared_ptr<Widget> const & child) const;
+  int                     GetChildsIndex(std::shared_ptr<Widget> const & child) const;
   fvec2                   GetChildScaledOffset(int index) const;
   ivec2                   GetChildConstantOffset(int index) const;
   ivec2                   GetChildOffset(int index) const;
 
   std::weak_ptr<Widget> GetParent(void) const;
-  int                   GetChildIndex(void) const;
+  int                   GetIndex(void) const;
 
   void RemoveChild(int index);
   void SetChildScaledOffset(int index, fvec2 scaledOffset);

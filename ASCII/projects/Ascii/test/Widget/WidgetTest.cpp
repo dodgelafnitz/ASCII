@@ -6,8 +6,10 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
+#include "Systems/Input/InputManager.h"
 #include "Systems/WidgetManager.h"
 
+DEFINE_MockInputManager();
 DEFINE_MockWidget();
 DEFINE_MockWidgetManager();
 
@@ -34,12 +36,12 @@ TEST(WidgetTest, DefaultWidgetWithNoParent_CheckInputManager_ManagerIsNull) {
 TEST(WidgetTest, DefaultWidgetWithParent_CheckWidgetManager_ManagerIsParentsManager) {
   auto const parentWidgetManager = std::make_shared<MockWidgetManager>();
 
-  auto parent = std::make_shared<MockWidget>();
+  auto const parent = std::make_shared<MockWidget>();
   EXPECT_CALL(*parent, GetWidgetManager())
     .WillOnce(Return(parentWidgetManager))
   ;
 
-  auto widget = std::make_shared<Widget>();
+  auto const widget = std::make_shared<Widget>();
 
   parent->AddChild(fvec2(), ivec2(), widget);
 
@@ -50,27 +52,117 @@ TEST(WidgetTest, DefaultWidgetWithParent_CheckWidgetManager_ManagerIsParentsMana
 }
 
 TEST(WidgetTest, DefaultWidgetWithParent_CheckInputManager_ManagerIsParentsManager) {
+  auto const parentInputManager = std::make_shared<MockInputManager>();
+
+  auto parent = std::make_shared<MockWidget>();
+  EXPECT_CALL(*parent, GetInputManager())
+    .WillOnce(Return(parentInputManager))
+  ;
+
+  auto const widget = std::make_shared<Widget>();
+
+  parent->AddChild(fvec2(), ivec2(), widget);
+
+  std::weak_ptr<IInputManager> const inputtManager = widget->GetInputManager();
+
+  ASSERT_FALSE(inputtManager.expired());
+  EXPECT_EQ(inputtManager.lock(), parentInputManager);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildren_ChildrenExist) {
+  auto const widget = std::make_shared<Widget>();
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  ASSERT_EQ(widget->GetChildCount(), 3);
+
+  EXPECT_NE(widget->GetChild(0), nullptr);
+  EXPECT_NE(widget->GetChild(1), nullptr);
+  EXPECT_NE(widget->GetChild(2), nullptr);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckParentOfChildren_ParentIsWidget) {
+  auto const widget = std::make_shared<Widget>();
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+
+  std::shared_ptr<Widget> const child = widget->GetChild(0);
+
+  ASSERT_FALSE(child->GetParent().expired());
+
+  EXPECT_EQ(child->GetParent().lock(), widget);
 }
 
 TEST(WidgetTest, WidgetWithNoChildren_CheckChildrenCount_NoChildren) {
+  auto const widget = std::make_shared<Widget>();
+
+  EXPECT_EQ(widget->GetChildCount(), 0);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildrenCount_CountIsCorrect) {
+  auto const widget = std::make_shared<Widget>();
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  EXPECT_EQ(widget->GetChildCount(), 5);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildrenIndices_ChildrenIndicesAreCorrect) {
+  auto const widget = std::make_shared<Widget>();
+
+  auto const child0 = std::make_shared<Widget>();
+  auto const child1 = std::make_shared<Widget>();
+  auto const child2 = std::make_shared<Widget>();
+
+  int const childIndex0 = widget->AddChild(fvec2(), ivec2(), child0);
+  int const childIndex1 = widget->AddChild(fvec2(), ivec2(), child1);
+  int const childIndex2 = widget->AddChild(fvec2(), ivec2(), child2);
+
+  ASSERT_EQ(widget->GetChildCount(), 3);
+
+  EXPECT_EQ(childIndex0, 0);
+  EXPECT_EQ(childIndex1, 1);
+  EXPECT_EQ(childIndex2, 2);
+
+  EXPECT_EQ(widget->GetChildsIndex(child0), 0);
+  EXPECT_EQ(widget->GetChildsIndex(child1), 1);
+  EXPECT_EQ(widget->GetChildsIndex(child2), 2);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildIndexFromChild_IndexIsCorrect) {
+  auto const widget = std::make_shared<Widget>();
+
+  auto const child0 = std::make_shared<Widget>();
+  auto const child1 = std::make_shared<Widget>();
+
+  int const childIndex0 = widget->AddChild(fvec2(), ivec2(), child0);
+  int const childIndex1 = widget->AddChild(fvec2(), ivec2(), child1);
+
+  ASSERT_EQ(widget->GetChildCount(), 2);
+
+  EXPECT_EQ(childIndex0, 0);
+  EXPECT_EQ(childIndex1, 1);
+
+  EXPECT_EQ(child0->GetIndex(), 0);
+  EXPECT_EQ(child1->GetIndex(), 1);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildIndexFromNonChild_IndexIsInvalid) {
+  auto const widget   = std::make_shared<Widget>();
+  auto const nonChild = std::make_shared<Widget>();
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  EXPECT_EQ(widget->GetChildsIndex(nonChild), Widget::InvalidIndex);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildsScaledOffset_OffsetIsCorrect) {
@@ -95,6 +187,15 @@ TEST(WidgetTest, WidgetWithChildren_RemoveChild_ChildIsRemoved) {
 }
 
 TEST(WidgetTest, WidgetWithChildren_RemoveChild_ChildsParentIsNull) {
+}
+
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsChildOfCorrectWidget) {
+}
+
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsNotChildOfOldParent) {
+}
+
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildHasNewIndex) {
 }
 
 TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildIsChild) {
