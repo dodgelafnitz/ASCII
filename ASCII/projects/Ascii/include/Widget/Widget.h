@@ -97,8 +97,8 @@ public:
   int                   GetIndex(void) const;
 
   void RemoveChild(int index);
-  void SetChildScaledOffset(int index, fvec2 scaledOffset);
-  void SetChildConstantOffset(int index, ivec2 constantOffset);
+  void SetChildScaledOffset(int index, fvec2 const & scaledOffset);
+  void SetChildConstantOffset(int index, ivec2 const & constantOffset);
 
   int  AddChild(fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget);
   void InsertChild(int childIndex, fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget);

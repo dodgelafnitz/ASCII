@@ -5,7 +5,7 @@
 #include "Widget/Widget.h"
 
 std::weak_ptr<IInputManager> Widget::GetInputManager(void) const {
-  std::shared_ptr<Widget> parent = m_parent.lock();
+  std::shared_ptr<Widget> const parent = m_parent.lock();
   if (parent) {
     return parent->GetInputManager();
   }
@@ -15,7 +15,7 @@ std::weak_ptr<IInputManager> Widget::GetInputManager(void) const {
 }
 
 std::weak_ptr<IWidgetManager> Widget::GetWidgetManager(void) const {
-  std::shared_ptr<Widget> parent = m_parent.lock();
+  std::shared_ptr<Widget> const parent = m_parent.lock();
   if (parent) {
     return parent->GetWidgetManager();
   }
@@ -108,15 +108,16 @@ int Widget::GetChildsIndex(std::shared_ptr<Widget> const & child) const {
 }
 
 fvec2 Widget::GetChildScaledOffset(int index) const {
-  return fvec2();
+  return m_children[index].scaledOffset;
 }
 
 ivec2 Widget::GetChildConstantOffset(int index) const {
-  return ivec2();
+  return m_children[index].constantOffset;
 }
 
 ivec2 Widget::GetChildOffset(int index) const {
-  return ivec2();
+  ChildData const & child = m_children[index];
+  return child.scaledOffset * GetSize() + child.constantOffset;
 }
 
 std::weak_ptr<Widget> Widget::GetParent(void) const {
@@ -133,18 +134,31 @@ void Widget::RemoveChild(int index) {
   }
 
   for (int i = index + 1; i < m_children.size(); ++i) {
-    std::shared_ptr<Widget> & child = m_children[i].widget;
+    std::shared_ptr<Widget> const & child = m_children[i].widget;
 
     --child->m_childIndex;
   }
 
+  std::shared_ptr<Widget> const & child = m_children[index].widget;
+  child->SetParent(std::weak_ptr<Widget>(), InvalidIndex);
+
   m_children.erase(m_children.begin() + index);
 }
 
-void Widget::SetChildScaledOffset(int index, fvec2 scaledOffset) {
+void Widget::SetChildScaledOffset(int index, fvec2 const & scaledOffset) {
+  if (index == InvalidIndex) {
+    return;
+  }
+
+  m_children[index].scaledOffset = scaledOffset;
 }
 
-void Widget::SetChildConstantOffset(int index, ivec2 constantOffset) {
+void Widget::SetChildConstantOffset(int index, ivec2 const & constantOffset) {
+  if (index == InvalidIndex) {
+    return;
+  }
+
+  m_children[index].constantOffset = constantOffset;
 }
 
 int Widget::AddChild(fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget) {

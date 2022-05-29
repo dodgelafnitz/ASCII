@@ -166,48 +166,182 @@ TEST(WidgetTest, WidgetWithChildren_CheckChildIndexFromNonChild_IndexIsInvalid) 
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildsScaledOffset_OffsetIsCorrect) {
+  auto const  widget       = std::make_shared<Widget>();
+  fvec2 const scaledOffset = fvec2(1.0f, 0.5f);
+
+  widget->AddChild<Widget>(scaledOffset, ivec2());
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+  EXPECT_EQ(widget->GetChildScaledOffset(0), scaledOffset);
 }
 
 TEST(WidgetTest, WidgetWithChildren_SetChildsScaledOffset_OffsetIsCorrect) {
+  auto const  widget       = std::make_shared<Widget>();
+  fvec2 const scaledOffset = fvec2(1.0f, 0.5f);
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+
+  widget->SetChildScaledOffset(0, scaledOffset);
+
+  EXPECT_EQ(widget->GetChildScaledOffset(0), scaledOffset);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildsConstantOffset_OffsetIsCorrect) {
+  auto const  widget         = std::make_shared<Widget>();
+  ivec2 const constantOffset = ivec2(10, 20);
+
+  widget->AddChild<Widget>(fvec2(), constantOffset);
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+  EXPECT_EQ(widget->GetChildConstantOffset(0), constantOffset);
 }
 
 TEST(WidgetTest, WidgetWithChildren_SetChildsConstantOffset_OffsetIsCorrect) {
+  auto const  widget         = std::make_shared<Widget>();
+  ivec2 const constantOffset = ivec2(10, 20);
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+
+  widget->SetChildConstantOffset(0, constantOffset);
+
+  EXPECT_EQ(widget->GetChildConstantOffset(0), constantOffset);
 }
 
 TEST(WidgetTest, WidgetWithChildren_CheckChildsOffset_OffsetIsCorrect) {
-}
+  auto const widget = std::make_shared<MockWidget>();
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(ivec2(60, 60)))
+  ;
 
-TEST(WidgetTest, WidgetWithChildren_SetChildsOffset_OffsetIsCorrect) {
+  fvec2 const scaledOffset   = fvec2(0.75, -0.5f);
+  ivec2 const constantOffset = ivec2(10, 20);
+
+  widget->AddChild<Widget>(scaledOffset, constantOffset);
+
+  EXPECT_EQ(widget->GetChildOffset(0), ivec2(55, -10));
 }
 
 TEST(WidgetTest, WidgetWithChildren_RemoveChild_ChildIsRemoved) {
+  auto const widget = std::make_shared<Widget>();
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  widget->RemoveChild(0);
+
+  EXPECT_EQ(widget->GetChildCount(), 0);
 }
 
 TEST(WidgetTest, WidgetWithChildren_RemoveChild_ChildsParentIsNull) {
+  auto const widget = std::make_shared<Widget>();
+  auto const child  = std::make_shared<Widget>();
+
+  widget->AddChild(fvec2(), ivec2(), child);
+
+  widget->RemoveChild(0);
+
+  EXPECT_EQ(widget->GetChildCount(), 0);
+  EXPECT_TRUE(child->GetParent().expired());
 }
 
 TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsChildOfCorrectWidget) {
+  auto const widget    = std::make_shared<Widget>();
+  auto const oldParent = std::make_shared<Widget>();
+  auto const child     = std::make_shared<Widget>();
+
+  oldParent->AddChild(fvec2(), ivec2(), child);
+
+  widget->AddChild(fvec2(), ivec2(), child);
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+  EXPECT_EQ(widget->GetChild(0), child);
+  EXPECT_EQ(widget->GetChild(0)->GetParent().lock(), widget);
 }
 
 TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsNotChildOfOldParent) {
+  auto const widget    = std::make_shared<Widget>();
+  auto const oldParent = std::make_shared<Widget>();
+  auto const child     = std::make_shared<Widget>();
+
+  oldParent->AddChild(fvec2(), ivec2(), child);
+  widget->AddChild(fvec2(), ivec2(), child);
+
+  ASSERT_EQ(oldParent->GetChildCount(), 0);
 }
 
 TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildHasNewIndex) {
+  auto const widget    = std::make_shared<Widget>();
+  auto const oldParent = std::make_shared<Widget>();
+  auto const child     = std::make_shared<Widget>();
+
+  oldParent->AddChild<Widget>(fvec2(), ivec2());
+  oldParent->AddChild<Widget>(fvec2(), ivec2());
+
+  int const oldIndex = oldParent->AddChild(fvec2(), ivec2(), child);
+  int const newIndex = widget->AddChild(fvec2(), ivec2(), child);
+
+  EXPECT_NE(oldIndex, newIndex);
+  EXPECT_EQ(newIndex, child->GetIndex());
 }
 
 TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildIsChild) {
+  auto const widget = std::make_shared<Widget>();
+  auto const child  = std::make_shared<Widget>();
+
+  widget->AddChild(fvec2(), ivec2(), child);
+
+  ASSERT_EQ(widget->GetChildCount(), 1);
+  EXPECT_EQ(widget->GetChild(0), child);
 }
 
 TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildsParentIsCorrect) {
+  auto const widget = std::make_shared<Widget>();
+  auto const child  = std::make_shared<Widget>();
+
+  widget->AddChild(fvec2(), ivec2(), child);
+
+  EXPECT_EQ(child->GetParent().lock(), widget);
 }
 
 TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildsIndexIsAtEndOfChildren) {
+  auto const widget = std::make_shared<Widget>();
+  auto const child  = std::make_shared<Widget>();
+
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+  widget->AddChild<Widget>(fvec2(), ivec2());
+
+  widget->AddChild(fvec2(), ivec2(), child);
+
+  EXPECT_EQ(child->GetIndex(), 4);
 }
 
 TEST(WidgetTest, AnyWidget_AddChildInPlace_ChildIsChild) {
+  class UniqueWidget : public Widget {
+  public:
+    UniqueWidget(bool & trigger) :
+      m_trigger(trigger)
+    {}
+
+    virtual bool HasChildModifiers(void) const override { m_trigger = true; return false; }
+
+  private:
+    bool & m_trigger;
+  };
+
+  bool triggered = false;
+
+  auto const widget = std::make_shared<Widget>();
+
+  widget->AddChild<UniqueWidget>(fvec2(), ivec2(), triggered);
+
+  widget->GetChild(0)->HasChildModifiers();
+
+  EXPECT_TRUE(triggered);
 }
 
 TEST(WidgetTest, AnyWidget_AddChildInPlace_ChildsParentIsCorrect) {
@@ -244,6 +378,12 @@ TEST(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawn) {
 }
 
 TEST(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawnWithCorrectOffsets) {
+}
+
+TEST(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingToSameLocation_EarlierChildsCellIsDrawn) {
+}
+
+TEST(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingOverWidgetDrawnLocation_ChildsCellIsDrawn) {
 }
 
 TEST(WidgetTest, WidgetWithChildrenAndChildModifiers_Draw_ChildrenAreDrawnWithModifiers) {
