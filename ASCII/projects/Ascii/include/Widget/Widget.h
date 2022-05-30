@@ -24,9 +24,9 @@ public:
   virtual std::weak_ptr<IInputManager>  GetInputManager(void) const;
   virtual std::weak_ptr<IWidgetManager> GetWidgetManager(void) const;
 
-  virtual void       OnDraw(Grid<AsciiCell, 2> & io_screen, DrawParams const & params) const {}
-  virtual bool       HasChildModifiers(void) const                                           { return false; }
-  virtual DrawParams GetChildModifiers(void) const                                           { return DrawParams(); }
+  virtual void       OnDraw(DrawParams const & params) const {}
+  virtual bool       HasChildModifiers(void) const           { return false; }
+  virtual DrawParams GetChildModifiers(void) const           { return DrawParams(); }
 
   // Focussing Actions
   virtual bool OnPress(ivec2 const & subposition, AsciiButton button, int clickCount)                     { return false; }
@@ -59,7 +59,7 @@ public:
   virtual bool  CanSetSize(void) const           { return false; }
   virtual bool  OnTrySetSize(ivec2 const & size) { return false; }
 
-  void Draw(Grid<AsciiCell, 2> & io_screen, DrawParams const & params) const;
+  void Draw(DrawParams const & params) const;
 
   // Focussing Actions
   std::shared_ptr<Widget> Press(ivec2 const & subposition, AsciiButton button, int clickCount);
@@ -93,6 +93,8 @@ public:
   ivec2                   GetChildConstantOffset(int index) const;
   ivec2                   GetChildOffset(int index) const;
 
+  ivec2                 GetPosition(void) const;
+  std::weak_ptr<Widget> GetRoot(void) const;
   std::weak_ptr<Widget> GetParent(void) const;
   int                   GetIndex(void) const;
 
@@ -158,7 +160,7 @@ public:                                               \
   MOCK_METHOD(                                        \
     void,                                             \
     OnDraw,                                           \
-    ((Grid<AsciiCell, 2> &), DrawParams const &),     \
+    (DrawParams const &),                             \
     (const, override)                                 \
   );                                                  \
   MOCK_METHOD(                                        \

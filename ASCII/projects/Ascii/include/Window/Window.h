@@ -43,6 +43,8 @@ struct AsciiCell {
     AsciiCell(' ', foregroundColor, backgroundColor)
   {}
 
+  bool operator ==(AsciiCell const &) const = default;
+
   char          character;
   unsigned char foregroundColor;
   unsigned char backgroundColor;

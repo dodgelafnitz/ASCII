@@ -24,7 +24,23 @@ std::weak_ptr<IWidgetManager> Widget::GetWidgetManager(void) const {
   }
 }
 
-void Widget::Draw(Grid<AsciiCell, 2> & io_screen, DrawParams const & params) const {
+void Widget::Draw(DrawParams const & params) const {
+  OnDraw(params);
+
+  DrawParams childrenParams = params;
+
+  if (HasChildModifiers()) {
+    childrenParams = params.Constrain(GetChildModifiers());
+  }
+
+  for (int i = GetChildCount() - 1; i >= 0; --i) {
+    std::shared_ptr<Widget> const & child = m_children[i].widget;
+
+    ivec2 const offset           = GetChildOffset(i);
+    DrawParams const childParams = childrenParams.Constrain(DrawParams(offset));
+
+    child->Draw(childParams);
+  }
 }
 
 std::shared_ptr<Widget> Widget::Press(ivec2 const & subposition, AsciiButton button, int clickCount) {
@@ -162,24 +178,35 @@ void Widget::SetChildConstantOffset(int index, ivec2 const & constantOffset) {
 }
 
 int Widget::AddChild(fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget) {
+  InsertChild(GetChildCount(), scaledOffset, constantOffset, widget);
+
+  if (widget->GetParent().lock().get() == this) {
+    return widget->GetIndex();
+  }
+  else {
+    return InvalidIndex;
+  }
+}
+
+void Widget::InsertChild(int childIndex, fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget) {
+  if (childIndex > GetChildCount() || childIndex < 0) {
+    return;
+  }
+
   if (std::shared_ptr<Widget> const oldParent = widget->GetParent().lock()) {
     if (oldParent == shared_from_this()) {
-      return widget->GetIndex();
+      return;
     }
     else {
       oldParent->RemoveChild(widget->GetIndex());
     }
   }
 
-  int const index = m_children.size();
+  m_children.insert(m_children.begin() + childIndex, ChildData(widget, scaledOffset, constantOffset));
 
-  m_children.emplace_back(widget, scaledOffset, constantOffset);
-  widget->SetParent(weak_from_this(), index);
-
-  return index;
-}
-
-void Widget::InsertChild(int childIndex, fvec2 const & scaledOffset, ivec2 const & constantOffset, std::shared_ptr<Widget> const & widget) {
+  for (int i = childIndex; i < GetChildCount(); ++i) {
+    m_children[i].widget->SetParent(weak_from_this(), i);
+  }
 }
 
 void Widget::OnChildResize(int childId) {
