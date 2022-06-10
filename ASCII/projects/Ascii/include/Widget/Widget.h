@@ -131,7 +131,9 @@ private:
     ivec2                   constantOffset;
   };
 
-  void OnChildResize(int childId);
+  void OnChildResize(int childId, bool notifyParent);
+  void AppendControlledArea(ivec2 const & offset, ivec2 const & size, bool notifyParent);
+  void ResetControlledArea(void);
   void SetParent(std::weak_ptr<Widget> const & widget, int childIndex);
 
   std::vector<ChildData> m_children;

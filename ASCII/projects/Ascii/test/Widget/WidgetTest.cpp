@@ -13,11 +13,11 @@ DEFINE_MockInputManager();
 DEFINE_MockWidget();
 DEFINE_MockWidgetManager();
 
+using ::testing::AtLeast;
 using ::testing::Return;
 using ::testing::_;
 
-class WidgetTest : public ::testing::Test {
-protected:
+namespace {
   struct DrawValue {};
   struct DrawModifiers {};
 
@@ -61,25 +61,26 @@ protected:
     DrawParams const m_modifiers;
   };
 };
-TEST_F(WidgetTest, DefaultConstructedDefaultWidget_CheckParent_ParentIsNull) {
+
+TEST(WidgetTest, DefaultConstructedDefaultWidget_CheckParent_ParentIsNull) {
   Widget const widget;
 
   EXPECT_TRUE(widget.GetParent().expired());
 }
 
-TEST_F(WidgetTest, DefaultWidgetWithNoParent_CheckWidgetManager_ManagerIsNull) {
+TEST(WidgetTest, DefaultWidgetWithNoParent_CheckWidgetManager_ManagerIsNull) {
   Widget const widget;
 
   EXPECT_TRUE(widget.GetWidgetManager().expired());
 }
 
-TEST_F(WidgetTest, DefaultWidgetWithNoParent_CheckInputManager_ManagerIsNull) {
+TEST(WidgetTest, DefaultWidgetWithNoParent_CheckInputManager_ManagerIsNull) {
   Widget const widget;
 
   EXPECT_TRUE(widget.GetInputManager().expired());
 }
 
-TEST_F(WidgetTest, DefaultWidgetWithParent_CheckWidgetManager_ManagerIsParentsManager) {
+TEST(WidgetTest, DefaultWidgetWithParent_CheckWidgetManager_ManagerIsParentsManager) {
   auto const parentWidgetManager = std::make_shared<MockWidgetManager>();
 
   auto const parent = std::make_shared<MockWidget>();
@@ -97,7 +98,7 @@ TEST_F(WidgetTest, DefaultWidgetWithParent_CheckWidgetManager_ManagerIsParentsMa
   EXPECT_EQ(widgetManager.lock(), parentWidgetManager);
 }
 
-TEST_F(WidgetTest, DefaultWidgetWithParent_CheckInputManager_ManagerIsParentsManager) {
+TEST(WidgetTest, DefaultWidgetWithParent_CheckInputManager_ManagerIsParentsManager) {
   auto const parentInputManager = std::make_shared<MockInputManager>();
 
   auto parent = std::make_shared<MockWidget>();
@@ -115,7 +116,7 @@ TEST_F(WidgetTest, DefaultWidgetWithParent_CheckInputManager_ManagerIsParentsMan
   EXPECT_EQ(inputtManager.lock(), parentInputManager);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildren_ChildrenExist) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildren_ChildrenExist) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -129,7 +130,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildren_ChildrenExist) {
   EXPECT_NE(widget->GetChild(2), nullptr);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckParentOfChildren_ParentIsWidget) {
+TEST(WidgetTest, WidgetWithChildren_CheckParentOfChildren_ParentIsWidget) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -143,13 +144,13 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckParentOfChildren_ParentIsWidget) {
   EXPECT_EQ(child->GetParent().lock(), widget);
 }
 
-TEST_F(WidgetTest, WidgetWithNoChildren_CheckChildrenCount_NoChildren) {
+TEST(WidgetTest, WidgetWithNoChildren_CheckChildrenCount_NoChildren) {
   auto const widget = std::make_shared<Widget>();
 
   EXPECT_EQ(widget->GetChildCount(), 0);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildrenCount_CountIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildrenCount_CountIsCorrect) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -161,7 +162,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildrenCount_CountIsCorrect) {
   EXPECT_EQ(widget->GetChildCount(), 5);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildrenIndices_ChildrenIndicesAreCorrect) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildrenIndices_ChildrenIndicesAreCorrect) {
   auto const widget = std::make_shared<Widget>();
 
   auto const child0 = std::make_shared<Widget>();
@@ -183,7 +184,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildrenIndices_ChildrenIndicesAreCor
   EXPECT_EQ(widget->GetChildsIndex(child2), 2);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildIndexFromChild_IndexIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildIndexFromChild_IndexIsCorrect) {
   auto const widget = std::make_shared<Widget>();
 
   auto const child0 = std::make_shared<Widget>();
@@ -201,7 +202,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildIndexFromChild_IndexIsCorrect) {
   EXPECT_EQ(child1->GetIndex(), 1);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildIndexFromNonChild_IndexIsInvalid) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildIndexFromNonChild_IndexIsInvalid) {
   auto const widget   = std::make_shared<Widget>();
   auto const nonChild = std::make_shared<Widget>();
 
@@ -211,7 +212,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildIndexFromNonChild_IndexIsInvalid
   EXPECT_EQ(widget->GetChildsIndex(nonChild), Widget::InvalidIndex);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildsScaledOffset_OffsetIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildsScaledOffset_OffsetIsCorrect) {
   auto const  widget       = std::make_shared<Widget>();
   fvec2 const scaledOffset = fvec2(1.0f, 0.5f);
 
@@ -221,7 +222,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildsScaledOffset_OffsetIsCorrect) {
   EXPECT_EQ(widget->GetChildScaledOffset(0), scaledOffset);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_SetChildsScaledOffset_OffsetIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_SetChildsScaledOffset_OffsetIsCorrect) {
   auto const  widget       = std::make_shared<Widget>();
   fvec2 const scaledOffset = fvec2(1.0f, 0.5f);
 
@@ -234,7 +235,7 @@ TEST_F(WidgetTest, WidgetWithChildren_SetChildsScaledOffset_OffsetIsCorrect) {
   EXPECT_EQ(widget->GetChildScaledOffset(0), scaledOffset);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildsConstantOffset_OffsetIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildsConstantOffset_OffsetIsCorrect) {
   auto const  widget         = std::make_shared<Widget>();
   ivec2 const constantOffset = ivec2(10, 20);
 
@@ -244,7 +245,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildsConstantOffset_OffsetIsCorrect)
   EXPECT_EQ(widget->GetChildConstantOffset(0), constantOffset);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_SetChildsConstantOffset_OffsetIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_SetChildsConstantOffset_OffsetIsCorrect) {
   auto const  widget         = std::make_shared<Widget>();
   ivec2 const constantOffset = ivec2(10, 20);
 
@@ -257,10 +258,10 @@ TEST_F(WidgetTest, WidgetWithChildren_SetChildsConstantOffset_OffsetIsCorrect) {
   EXPECT_EQ(widget->GetChildConstantOffset(0), constantOffset);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_CheckChildsOffset_OffsetIsCorrect) {
+TEST(WidgetTest, WidgetWithChildren_CheckChildsOffset_OffsetIsCorrect) {
   auto const widget = std::make_shared<MockWidget>();
   EXPECT_CALL(*widget, GetSize())
-    .WillOnce(Return(ivec2(60, 60)))
+    .WillRepeatedly(Return(ivec2(60, 60)))
   ;
 
   fvec2 const scaledOffset   = fvec2(0.75, -0.5f);
@@ -271,7 +272,7 @@ TEST_F(WidgetTest, WidgetWithChildren_CheckChildsOffset_OffsetIsCorrect) {
   EXPECT_EQ(widget->GetChildOffset(0), ivec2(55, -10));
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_RemoveChild_ChildIsRemoved) {
+TEST(WidgetTest, WidgetWithChildren_RemoveChild_ChildIsRemoved) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -281,7 +282,7 @@ TEST_F(WidgetTest, WidgetWithChildren_RemoveChild_ChildIsRemoved) {
   EXPECT_EQ(widget->GetChildCount(), 0);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_RemoveChild_ChildsParentIsNull) {
+TEST(WidgetTest, WidgetWithChildren_RemoveChild_ChildsParentIsNull) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -293,7 +294,7 @@ TEST_F(WidgetTest, WidgetWithChildren_RemoveChild_ChildsParentIsNull) {
   EXPECT_TRUE(child->GetParent().expired());
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsChildOfCorrectWidget) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsChildOfCorrectWidget) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -307,7 +308,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsChildOfCorrectWi
   EXPECT_EQ(widget->GetChild(0)->GetParent().lock(), widget);
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsNotChildOfOldParent) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsNotChildOfOldParent) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -318,7 +319,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildIsNotChildOfOldPar
   ASSERT_EQ(oldParent->GetChildCount(), 0);
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildHasNewIndex) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildHasNewIndex) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -333,7 +334,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_AddChild_ChildHasNewIndex) {
   EXPECT_EQ(newIndex, child->GetIndex());
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParentAndSilblings_AddChild_OldSilbingsHaveCorrectIndices) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParentAndSilblings_AddChild_OldSilbingsHaveCorrectIndices) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -355,7 +356,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParentAndSilblings_AddChild_OldSilbings
   EXPECT_EQ(oldParent->GetChild(3)->GetIndex(), 3);
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_InsertChild_ChildIsNotChildOfOldParent) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_InsertChild_ChildIsNotChildOfOldParent) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -373,7 +374,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_InsertChild_ChildIsNotChildOfOld
   EXPECT_EQ(oldParent->GetChildCount(), 0);
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_InsertChild_ChildHasNewIndex) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParent_InsertChild_ChildHasNewIndex) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -393,7 +394,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParent_InsertChild_ChildHasNewIndex) {
   EXPECT_EQ(child->GetIndex(), 1);
 }
 
-TEST_F(WidgetTest, AnyWidgetAndWidgetWithParentAndSilblings_InsertChild_OldSilbingsHaveCorrectIndices) {
+TEST(WidgetTest, AnyWidgetAndWidgetWithParentAndSilblings_InsertChild_OldSilbingsHaveCorrectIndices) {
   auto const widget    = std::make_shared<Widget>();
   auto const oldParent = std::make_shared<Widget>();
   auto const child     = std::make_shared<Widget>();
@@ -422,7 +423,7 @@ TEST_F(WidgetTest, AnyWidgetAndWidgetWithParentAndSilblings_InsertChild_OldSilbi
   EXPECT_EQ(oldParent->GetChild(3)->GetIndex(), 3);
 }
 
-TEST_F(WidgetTest, AnyWidget_AddChildByPointer_ChildIsChild) {
+TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildIsChild) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -432,7 +433,7 @@ TEST_F(WidgetTest, AnyWidget_AddChildByPointer_ChildIsChild) {
   EXPECT_EQ(widget->GetChild(0), child);
 }
 
-TEST_F(WidgetTest, AnyWidget_AddChildByPointer_ChildsParentIsCorrect) {
+TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildsParentIsCorrect) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -441,7 +442,7 @@ TEST_F(WidgetTest, AnyWidget_AddChildByPointer_ChildsParentIsCorrect) {
   EXPECT_EQ(child->GetParent().lock(), widget);
 }
 
-TEST_F(WidgetTest, AnyWidget_AddChildByPointer_ChildsIndexIsAtEndOfChildren) {
+TEST(WidgetTest, AnyWidget_AddChildByPointer_ChildsIndexIsAtEndOfChildren) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -455,7 +456,7 @@ TEST_F(WidgetTest, AnyWidget_AddChildByPointer_ChildsIndexIsAtEndOfChildren) {
   EXPECT_EQ(child->GetIndex(), 4);
 }
 
-TEST_F(WidgetTest, AnyWidget_AddChildInPlace_ChildIsChild) {
+TEST(WidgetTest, AnyWidget_AddChildInPlace_ChildIsChild) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<UniqueWidget>(fvec2(), ivec2());
@@ -463,7 +464,7 @@ TEST_F(WidgetTest, AnyWidget_AddChildInPlace_ChildIsChild) {
   EXPECT_TRUE(std::dynamic_pointer_cast<UniqueWidget>(widget->GetChild(0)));
 }
 
-TEST_F(WidgetTest, AnyWidget_AddChildInPlace_ChildsParentIsCorrect) {
+TEST(WidgetTest, AnyWidget_AddChildInPlace_ChildsParentIsCorrect) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -473,7 +474,7 @@ TEST_F(WidgetTest, AnyWidget_AddChildInPlace_ChildsParentIsCorrect) {
   EXPECT_EQ(widget->GetChild(0)->GetParent().lock(), widget);
 }
 
-TEST_F(WidgetTest, AnyWidget_AddChildInPlace_ChildsIndexIsAtEndOfChildren) {
+TEST(WidgetTest, AnyWidget_AddChildInPlace_ChildsIndexIsAtEndOfChildren) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -489,7 +490,7 @@ TEST_F(WidgetTest, AnyWidget_AddChildInPlace_ChildsIndexIsAtEndOfChildren) {
   EXPECT_EQ(index, widget->GetChildCount() - 1);
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildByPointer_ChildIsChild) {
+TEST(WidgetTest, AnyWidget_InsertChildByPointer_ChildIsChild) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -501,7 +502,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildByPointer_ChildIsChild) {
   EXPECT_EQ(widget->GetChild(1), child);
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildByPointer_ChildsParentIsCorrect) {
+TEST(WidgetTest, AnyWidget_InsertChildByPointer_ChildsParentIsCorrect) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -510,7 +511,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildByPointer_ChildsParentIsCorrect) {
   EXPECT_EQ(child->GetParent().lock(), widget);
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildByPointer_ChildIsInCorrectLocation) {
+TEST(WidgetTest, AnyWidget_InsertChildByPointer_ChildIsInCorrectLocation) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -526,7 +527,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildByPointer_ChildIsInCorrectLocation) {
   EXPECT_EQ(widget->GetChild(1), child);
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildInPlace_ChildIsChild) {
+TEST(WidgetTest, AnyWidget_InsertChildInPlace_ChildIsChild) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -542,7 +543,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildInPlace_ChildIsChild) {
   EXPECT_TRUE(std::dynamic_pointer_cast<UniqueWidget>(widget->GetChild(2)));
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildInPlace_ChildsParentIsCorrect) {
+TEST(WidgetTest, AnyWidget_InsertChildInPlace_ChildsParentIsCorrect) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -556,7 +557,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildInPlace_ChildsParentIsCorrect) {
   EXPECT_EQ(widget->GetChild(1)->GetParent().lock(), widget);
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildInPlace_ChildIsInCorrectLocation) {
+TEST(WidgetTest, AnyWidget_InsertChildInPlace_ChildIsInCorrectLocation) {
   auto const widget = std::make_shared<Widget>();
 
   widget->AddChild<Widget>(fvec2(), ivec2());
@@ -573,7 +574,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildInPlace_ChildIsInCorrectLocation) {
   EXPECT_EQ(std::dynamic_pointer_cast<UniqueWidget>(widget->GetChild(2))->GetIndex(), 2);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_InsertChild_ChildrenPreviouslyAtThatPointOrAfterHaveIncrementedIndices) {
+TEST(WidgetTest, WidgetWithChildren_InsertChild_ChildrenPreviouslyAtThatPointOrAfterHaveIncrementedIndices) {
   auto const widget   = std::make_shared<Widget>();
   auto const child0   = std::make_shared<Widget>();
   auto const child1   = std::make_shared<Widget>();
@@ -602,7 +603,7 @@ TEST_F(WidgetTest, WidgetWithChildren_InsertChild_ChildrenPreviouslyAtThatPointO
   EXPECT_EQ(widget->GetChildsIndex(inserted), 2);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_InsertChild_ChildrenPreviouslyAtThatPointOrAfterHaveIncrementedIndicesOnSelf) {
+TEST(WidgetTest, WidgetWithChildren_InsertChild_ChildrenPreviouslyAtThatPointOrAfterHaveIncrementedIndicesOnSelf) {
   auto const widget   = std::make_shared<Widget>();
   auto const child0   = std::make_shared<Widget>();
   auto const child1   = std::make_shared<Widget>();
@@ -625,7 +626,7 @@ TEST_F(WidgetTest, WidgetWithChildren_InsertChild_ChildrenPreviouslyAtThatPointO
   EXPECT_EQ(inserted->GetIndex(), 1);
 }
 
-TEST_F(WidgetTest, AnyWidget_InsertChildAtSize_ChildIsAtEndOfChildren) {
+TEST(WidgetTest, AnyWidget_InsertChildAtSize_ChildIsAtEndOfChildren) {
   auto const widget = std::make_shared<Widget>();
   auto const child  = std::make_shared<Widget>();
 
@@ -640,7 +641,7 @@ TEST_F(WidgetTest, AnyWidget_InsertChildAtSize_ChildIsAtEndOfChildren) {
   EXPECT_EQ(child->GetIndex(), 3);
 }
 
-TEST_F(WidgetTest, AnyWidget_Draw_OnDrawIsCalled) {
+TEST(WidgetTest, AnyWidget_Draw_OnDrawIsCalled) {
   auto const widget = std::make_shared<MockWidget>();
 
   EXPECT_CALL(*widget, OnDraw(_));
@@ -648,7 +649,7 @@ TEST_F(WidgetTest, AnyWidget_Draw_OnDrawIsCalled) {
   widget->Draw(DrawParams());
 }
 
-TEST_F(WidgetTest, AnyWidget_DrawWithModifiers_OnDrawIsCalledWithCorrectModifiers) {
+TEST(WidgetTest, AnyWidget_DrawWithModifiers_OnDrawIsCalledWithCorrectModifiers) {
   auto const widget = std::make_shared<MockWidget>();
 
   DrawParams const params(ivec2(1, 5), ivec2(-1, 6), ivec2(DrawParams::NoClamp, 10));
@@ -658,7 +659,7 @@ TEST_F(WidgetTest, AnyWidget_DrawWithModifiers_OnDrawIsCalledWithCorrectModifier
   widget->Draw(params);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawn) {
+TEST(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawn) {
   auto const widget = std::make_shared<MockWidget>();
   auto const child0 = std::make_shared<MockWidget>();
   auto const child1 = std::make_shared<MockWidget>();
@@ -675,7 +676,7 @@ TEST_F(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawn) {
   widget->Draw(params);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawnWithCorrectOffsets) {
+TEST(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawnWithCorrectOffsets) {
   Grid<AsciiCell, 2> screen(ivec2(12, 12));
 
   auto const widget = std::make_shared<UniqueWidget>(DrawValue(), 0);
@@ -695,7 +696,7 @@ TEST_F(WidgetTest, WidgetWithChildren_Draw_ChildrenAreDrawnWithCorrectOffsets) {
   EXPECT_EQ(screen[ivec2(11, 6)].character, '3');
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingToSameLocation_EarlierChildsCellIsDrawn) {
+TEST(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingToSameLocation_EarlierChildsCellIsDrawn) {
   Grid<AsciiCell, 2> screen(ivec2(1, 1));
 
   auto const widget = std::make_shared<Widget>();
@@ -708,7 +709,7 @@ TEST_F(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingToSameLocation_Earl
   EXPECT_EQ(screen[ivec2()].character, '0');
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingOverWidgetDrawnLocation_ChildsCellIsDrawn) {
+TEST(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingOverWidgetDrawnLocation_ChildsCellIsDrawn) {
   Grid<AsciiCell, 2> screen(ivec2(1, 1));
 
   auto const widget = std::make_shared<UniqueWidget>(DrawValue(), 0);
@@ -720,7 +721,7 @@ TEST_F(WidgetTest, WidgetWithChildren_DrawWithChildrenDrawingOverWidgetDrawnLoca
   EXPECT_EQ(screen[ivec2()].character, '1');
 }
 
-TEST_F(WidgetTest, WidgetWithChildrenAndChildModifiers_Draw_ChildrenAreDrawnWithModifiers) {
+TEST(WidgetTest, WidgetWithChildrenAndChildModifiers_Draw_ChildrenAreDrawnWithModifiers) {
   Grid<AsciiCell, 2> screen(ivec2(3, 1));
 
   DrawParams const modifiers = DrawParams(
@@ -742,431 +743,455 @@ TEST_F(WidgetTest, WidgetWithChildrenAndChildModifiers_Draw_ChildrenAreDrawnWith
   EXPECT_EQ(screen[ivec2(2, 0)].character, 'C');
 }
 
-TEST_F(WidgetTest, WidgetWithChildrenAndChildModifiers_DrawWithModifiers_ChildrenAreDrawnWithStackedModifiers) {
-}
-
-TEST_F(WidgetTest, WidgetWithNoChildren_Press_OnPressIsCalled) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressNotOverChild_OnPressIsCalled) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressHandledByChild_OnPressNotCalled) {
-}
-
-TEST_F(WidgetTest, AnyWidget_PressHandled_PressReturnsHandler) {
-}
-
-TEST_F(WidgetTest, AnyWidget_PressNotHandled_PressReturnsNull) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressHandledByChild_PressReturnsHandler) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressOverChildWidget_ChildPressCalled) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnPressCalled) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnPressNotCalled) {
-}
-
-TEST_F(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnPressCalled) {
-}
+TEST(WidgetTest, WidgetWithChildrenAndChildModifiers_DrawWithModifiers_ChildrenAreDrawnWithStackedModifiers) {
+  Grid<AsciiCell, 2> screen(ivec2(1, 1));
 
-TEST_F(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnPressNotCalled) {
-}
-
-TEST_F(WidgetTest, WidgetWithNoChildren_Hold_OnHoldIsCalled) {
-}
+  DrawParams const modifiers0 = DrawParams(
+    ivec2(), [](AsciiCell const & cell) {
+      return AsciiCell(cell.character == '2' ? '3' : 'C', cell.foregroundColor, cell.backgroundColor);
+    }
+  );
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldNotOverChild_OnHoldIsCalled) {
-}
+  DrawParams const modifiers1 = DrawParams(
+    ivec2(), [](AsciiCell const & cell) {
+      return AsciiCell(cell.character == '1' ? '2' : 'B', cell.foregroundColor, cell.backgroundColor);
+    }
+  );
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldHandledByChild_OnHoldNotCalled) {
-}
+  DrawParams const modifiers2 = DrawParams(
+    ivec2(), [](AsciiCell const & cell) {
+      return AsciiCell(cell.character == '0' ? '1' : 'A', cell.foregroundColor, cell.backgroundColor);
+    }
+  );
 
-TEST_F(WidgetTest, AnyWidget_HoldHandled_HoldReturnsHandler) {
-}
+  auto const diplayMapping = [](AsciiCell const & cell) {
+    return AsciiCell(cell.character == '3' ? '!' : '?', cell.foregroundColor, cell.backgroundColor);
+  };
 
-TEST_F(WidgetTest, AnyWidget_HoldNotHandled_HoldReturnsNull) {
-}
+  auto const widget = std::make_shared<UniqueWidget>(DrawModifiers(), modifiers0);
+  auto const child0 = std::make_shared<UniqueWidget>(DrawModifiers(), modifiers1);
+  auto const child1 = std::make_shared<UniqueWidget>(DrawModifiers(), modifiers2);
+  auto const child2 = std::make_shared<UniqueWidget>(DrawValue(), 0);
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldHandledByChild_HoldReturnsHandler) {
-}
+  widget->AddChild(fvec2(), ivec2(), child0);
+  child0->AddChild(fvec2(), ivec2(), child1);
+  child1->AddChild(fvec2(), ivec2(), child2);
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldOverChildWidget_ChildHoldCalled) {
-}
+  DrawParams const params(ivec2(), ivec2(), ivec2(DrawParams::NoClamp, DrawParams::NoClamp), diplayMapping, &screen);
+  widget->Draw(params);
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnHoldCalled) {
+  EXPECT_EQ(screen[ivec2(0, 0)].character, '!');
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnHoldNotCalled) {
-}
+TEST(WidgetTest, WidgetWithNoChildren_PressInWidget_OnPressIsCalled) {
+  auto const widget = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnHoldCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(1, 3)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_HoldOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnHoldNotCalled) {
-}
+  ivec2       subposition = ivec2(0, 1);
+  AsciiButton button      = AsciiButton::Grave;
+  int         clickCount  = 4;
 
-TEST_F(WidgetTest, WidgetWithNoChildren_Drag_OnDragIsCalled) {
-}
+  EXPECT_CALL(*widget, OnPress(subposition, button, clickCount));
 
-TEST_F(WidgetTest, WidgetWithChildren_DragNotOverChild_OnDragIsCalled) {
+  widget->Press(subposition, button, clickCount);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_DragHandledByChild_OnDragNotCalled) {
-}
+TEST(WidgetTest, WidgetWithNoChildren_PressOutOfWidget_OnPressNotCalled) {
+  auto const widget = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, AnyWidget_DragHandled_DragReturnsHandler) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(3, 4)))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_DragNotHandled_DragReturnsNull) {
-}
+  ivec2       subposition = ivec2(2, 6);
+  AsciiButton button      = AsciiButton::Key7;
+  int         clickCount  = 1;
 
-TEST_F(WidgetTest, WidgetWithChildren_DragHandledByChild_DragReturnsHandler) {
-}
+  EXPECT_CALL(*widget, OnPress(_, _, _))
+    .Times(0)
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_DragOverChildWidget_ChildDragCalled) {
+  widget->Press(subposition, button, clickCount);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_DragOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnDragCalled) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressNotOverChildInWidget_OnPressIsCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child  = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_DragOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnDragNotCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(4, 4)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_DragOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnDragCalled) {
-}
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(ivec2(2, 2)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_DragOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnDragNotCalled) {
-}
+  widget->AddChild(fvec2(), ivec2(4, 0), child);
 
-TEST_F(WidgetTest, AnyWidget_HandlesTextEvent_OnTextCalled) {
-}
+  ivec2       subposition = ivec2(1, 2);
+  AsciiButton button      = AsciiButton::Mouse1;
+  int         clickCount  = 1;
 
-TEST_F(WidgetTest, AnyWidget_HandlesTextEvent_HandlerReturned) {
-}
+  EXPECT_CALL(*widget, OnPress(subposition, button, clickCount));
 
-TEST_F(WidgetTest, WidgetWithParent_HandlesTextEvent_ParentTextNotCalled) {
+  widget->Press(subposition, button, clickCount);
 }
 
-TEST_F(WidgetTest, WidgetWithNoParent_DoesNotHandleTextEvent_NullReturned) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressNotOverChildOutOfWidget_OnPressNotCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child  = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithParent_DoesNotHandleTextEvent_ParentTextCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(3, 5)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithManager_TriesToGainFocus_ManagerSetsFocusToWidget) {
-}
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(ivec2(1, 1)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithManager_TriesToGainFocus_OnFocusCalled) {
-}
+  widget->AddChild(fvec2(), ivec2(8, 7), child);
 
-TEST_F(WidgetTest, WidgetWithNoManager_TriesToGainFocus_DoesNothing) {
-}
+  ivec2       subposition = ivec2(4, 4);
+  AsciiButton button      = AsciiButton::Mouse3;
+  int         clickCount  = 2;
 
-TEST_F(WidgetTest, WidgetWithManagerWithPreviousFocus_TriesToGainFocus_PreviousFocussedLosesFocus) {
-}
+  EXPECT_CALL(*widget, OnPress(_, _, _))
+    .Times(0)
+  ;
 
-TEST_F(WidgetTest, FocussedWidget_TriesToGainFocus_NothingHappens) {
+  widget->Press(subposition, button, clickCount);
 }
 
-TEST_F(WidgetTest, AnyWidget_GainsFocus_HasFocus) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressHandledByChild_OnPressNotCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child  = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, AnyWidget_LosesFocus_DoesNotHasFocus) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(6, 6)))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_GainsFocus_OnGainedFocusCalled) {
-}
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(ivec2(6, 4)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithAncestors_GainsFocus_AncestorsOnDecendantGainedFocusCalled) {
-}
+  widget->AddChild(fvec2(), ivec2(0, 2), child);
 
-TEST_F(WidgetTest, AnyWidget_LosesFocus_OnLoseFocusCalled) {
-}
+  ivec2       subposition = ivec2(1, 3);
+  AsciiButton button      = AsciiButton::D;
+  int         clickCount  = 2;
 
-TEST_F(WidgetTest, WidgetWithAncestors_LosesFocus_AncestorsOnDecendantLoseFocusCalled) {
-}
+  EXPECT_CALL(*child, OnPress(ivec2(1, 1), button, clickCount))
+    .WillOnce(Return(true))
+  ;
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseEnter_OnMouseEnterIsCalled) {
+  widget->Press(subposition, button, clickCount);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterNotOverChild_OnMouseEnterIsCalled) {
-}
+TEST(WidgetTest, AnyWidget_PressHandled_PressReturnsHandler) {
+  auto const widget = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterHandledByChild_OnMouseEnterNotCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(2, 2)))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_MouseEnterHandled_MouseEnterReturnsHandler) {
-}
+  EXPECT_CALL(*widget, OnPress(_, _, _))
+    .WillOnce(Return(true))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_MouseEnterNotHandled_MouseEnterReturnsNull) {
-}
+  std::shared_ptr<Widget> result = widget->Press(ivec2(), AsciiButton::D, 1);
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterHandledByChild_MouseEnterReturnsHandler) {
+  EXPECT_EQ(widget, result);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterOverChildWidget_ChildMouseEnterCalled) {
-}
+TEST(WidgetTest, AnyWidget_PressNotHandled_PressReturnsNull) {
+  auto const widget = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseEnterCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(1, 3)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseEnterNotCalled) {
-}
+  EXPECT_CALL(*widget, OnPress(_, _, _))
+    .WillOnce(Return(false))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseEnterCalled) {
-}
+  std::shared_ptr<Widget> result = widget->Press(ivec2(), AsciiButton::I, 8);
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseEnterOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseEnterNotCalled) {
+  EXPECT_EQ(result, nullptr);
 }
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseLeave_OnMouseLeaveIsCalled) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressHandledByChild_PressReturnsHandler) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child  = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveNotOverChild_OnMouseLeaveIsCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(3, 3)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveHandledByChild_OnMouseLeaveNotCalled) {
-}
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(ivec2(2, 2)))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_MouseLeaveHandled_MouseLeaveReturnsHandler) {
-}
+  EXPECT_CALL(*widget, OnPress(_, _, _))
+    .Times(0)
+  ;
 
-TEST_F(WidgetTest, AnyWidget_MouseLeaveNotHandled_MouseLeaveReturnsNull) {
-}
+  EXPECT_CALL(*child, OnPress(_, _, _))
+    .WillOnce(Return(true))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveHandledByChild_MouseLeaveReturnsHandler) {
-}
+  widget->AddChild(fvec2(), ivec2(), child);
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveOverChildWidget_ChildMouseLeaveCalled) {
-}
+  std::shared_ptr<Widget> result = widget->Press(ivec2(1, 1), AsciiButton::E, 1);
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseLeaveCalled) {
+  EXPECT_EQ(result, child);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseLeaveNotCalled) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressOverChildWidget_ChildPressCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child  = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseLeaveCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(4, 4)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseLeaveOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseLeaveNotCalled) {
-}
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(ivec2(1, 5)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseMove_OnMouseMoveIsCalled) {
-}
+  EXPECT_CALL(*widget, OnPress(_, _, _))
+    .Times(0)
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveNotOverChild_OnMouseMoveIsCalled) {
-}
+  EXPECT_CALL(*child, OnPress(_, _, _))
+    .WillOnce(Return(true))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveHandledByChild_OnMouseMoveNotCalled) {
-}
+  widget->AddChild(fvec2(), ivec2(3, 2), child);
 
-TEST_F(WidgetTest, AnyWidget_MouseMoveHandled_MouseMoveReturnsHandler) {
-}
+  std::shared_ptr<Widget> result = widget->Press(ivec2(3, 4), AsciiButton::N, 2);
 
-TEST_F(WidgetTest, AnyWidget_MouseMoveNotHandled_MouseMoveReturnsNull) {
+  EXPECT_EQ(result, child);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveHandledByChild_MouseMoveReturnsHandler) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstHandles_CorrectChildOnPressCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child0 = std::make_shared<MockWidget>();
+  auto const child1 = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveOverChildWidget_ChildMouseMoveCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(4, 4)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseMoveCalled) {
-}
+  EXPECT_CALL(*child0, GetSize())
+    .WillRepeatedly(Return(ivec2(2, 2)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseMoveNotCalled) {
-}
+  EXPECT_CALL(*child1, GetSize())
+    .WillRepeatedly(Return(ivec2(3, 3)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseMoveCalled) {
-}
+  widget->AddChild(fvec2(), ivec2(0, 0), child0);
+  widget->AddChild(fvec2(), ivec2(1, 1), child1);
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseMoveOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseMoveNotCalled) {
-}
+  EXPECT_CALL(*child0, OnPress(_, _, _))
+    .WillOnce(Return(true))
+  ;
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseDown_OnMouseDownIsCalled) {
-}
+  EXPECT_CALL(*child1, OnPress(_, _, _))
+    .Times(0)
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownNotOverChild_OnMouseDownIsCalled) {
+  widget->Press(ivec2(1, 1), AsciiButton::L, 1);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownHandledByChild_OnMouseDownNotCalled) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnPressCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child0 = std::make_shared<MockWidget>();
+  auto const child1 = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, AnyWidget_MouseDownHandled_MouseDownReturnsHandler) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(5, 2)))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_MouseDownNotHandled_MouseDownReturnsNull) {
-}
+  EXPECT_CALL(*child0, GetSize())
+    .WillRepeatedly(Return(ivec2(3, 1)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownHandledByChild_MouseDownReturnsHandler) {
-}
+  EXPECT_CALL(*child1, GetSize())
+    .WillRepeatedly(Return(ivec2(4, 1)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownOverChildWidget_ChildMouseDownCalled) {
-}
+  widget->AddChild(fvec2(), ivec2(1, 0), child0);
+  widget->AddChild(fvec2(), ivec2(1, 0), child1);
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseDownCalled) {
-}
+  EXPECT_CALL(*child0, OnPress(_, _, _))
+    .WillOnce(Return(false))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseDownNotCalled) {
-}
+  EXPECT_CALL(*child1, OnPress(_, _, _))
+    .WillOnce(Return(true))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseDownCalled) {
+  widget->Press(ivec2(2, 0), AsciiButton::R, 2);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseDownOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseDownNotCalled) {
-}
+TEST(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnPressNotCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const child0 = std::make_shared<MockWidget>();
+  auto const child1 = std::make_shared<MockWidget>();
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseUp_OnMouseUpIsCalled) {
-}
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(5, 2)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpNotOverChild_OnMouseUpIsCalled) {
-}
+  EXPECT_CALL(*child0, GetSize())
+    .WillRepeatedly(Return(ivec2(3, 1)))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpHandledByChild_OnMouseUpNotCalled) {
-}
+  EXPECT_CALL(*child1, GetSize())
+    .WillRepeatedly(Return(ivec2(4, 1)))
+  ;
 
-TEST_F(WidgetTest, AnyWidget_MouseUpHandled_MouseUpReturnsHandler) {
-}
+  widget->AddChild(fvec2(), ivec2(1, 0), child0);
+  widget->AddChild(fvec2(), ivec2(1, 0), child1);
 
-TEST_F(WidgetTest, AnyWidget_MouseUpNotHandled_MouseUpReturnsNull) {
-}
+  EXPECT_CALL(*child0, OnPress(_, _, _))
+    .WillOnce(Return(false))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpHandledByChild_MouseUpReturnsHandler) {
-}
+  EXPECT_CALL(*child0, DoesOcclude(ivec2(1, 0)))
+    .WillRepeatedly(Return(true))
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpOverChildWidget_ChildMouseUpCalled) {
-}
+  EXPECT_CALL(*child1, OnPress(_, _, _))
+    .Times(0)
+  ;
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseUpCalled) {
+  widget->Press(ivec2(2, 0), AsciiButton::R, 2);
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseUpNotCalled) {
+TEST(WidgetTest, WidgetWithNoChildren_Hold_OnHoldIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseUpCalled) {
+TEST(WidgetTest, WidgetWithNoChildren_Drag_OnDragIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseUpOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseUpNotCalled) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseEnter_OnMouseEnterIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseHover_OnMouseHoverIsCalled) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseLeave_OnMouseLeaveIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverNotOverChild_OnMouseHoverIsCalled) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseMove_OnMouseMoveIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverHandledByChild_OnMouseHoverNotCalled) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseDown_OnMouseDownIsCalled) {
 }
 
-TEST_F(WidgetTest, AnyWidget_MouseHoverHandled_MouseHoverReturnsHandler) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseUp_OnMouseUpIsCalled) {
 }
 
-TEST_F(WidgetTest, AnyWidget_MouseHoverNotHandled_MouseHoverReturnsNull) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseHover_OnMouseHoverIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverHandledByChild_MouseHoverReturnsHandler) {
+TEST(WidgetTest, WidgetWithNoChildren_MouseScroll_OnMouseScrollIsCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverOverChildWidget_ChildMouseHoverCalled) {
+TEST(WidgetTest, AnyWidget_HandlesTextEvent_OnTextCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseHoverCalled) {
+TEST(WidgetTest, AnyWidget_HandlesTextEvent_HandlerReturned) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseHoverNotCalled) {
+TEST(WidgetTest, WidgetWithParent_HandlesTextEvent_ParentTextNotCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseHoverCalled) {
+TEST(WidgetTest, WidgetWithNoParent_DoesNotHandleTextEvent_NullReturned) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseHoverOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseHoverNotCalled) {
+TEST(WidgetTest, WidgetWithParent_DoesNotHandleTextEvent_ParentTextCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithNoChildren_MouseScroll_OnMouseScrollIsCalled) {
+TEST(WidgetTest, WidgetWithManager_TriesToGainFocus_ManagerSetsFocusToWidget) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollNotOverChild_OnMouseScrollIsCalled) {
+TEST(WidgetTest, WidgetWithManager_TriesToGainFocus_OnFocusCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollHandledByChild_OnMouseScrollNotCalled) {
+TEST(WidgetTest, WidgetWithNoManager_TriesToGainFocus_DoesNothing) {
 }
 
-TEST_F(WidgetTest, AnyWidget_MouseScrollHandled_MouseScrollReturnsHandler) {
+TEST(WidgetTest, WidgetWithManagerWithPreviousFocus_TriesToGainFocus_PreviousFocussedLosesFocus) {
 }
 
-TEST_F(WidgetTest, AnyWidget_MouseScrollNotHandled_MouseScrollReturnsNull) {
+TEST(WidgetTest, FocussedWidget_TriesToGainFocus_NothingHappens) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollHandledByChild_MouseScrollReturnsHandler) {
+TEST(WidgetTest, AnyWidget_GainsFocus_HasFocus) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollOverChildWidget_ChildMouseScrollCalled) {
+TEST(WidgetTest, AnyWidget_LosesFocus_DoesNotHasFocus) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollOverMultipleChildWidgetsWhereFirstHandles_FirstChildOnMouseScrollCalled) {
+TEST(WidgetTest, AnyWidget_GainsFocus_OnGainedFocusCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollOverMultipleChildWidgetsWhereFirstHandles_SecondChildOnMouseScrollNotCalled) {
+TEST(WidgetTest, WidgetWithAncestors_GainsFocus_AncestorsOnDecendantGainedFocusCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnMouseScrollCalled) {
+TEST(WidgetTest, AnyWidget_LosesFocus_OnLoseFocusCalled) {
 }
 
-TEST_F(WidgetTest, WidgetWithChildren_MouseScrollOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnMouseScrollNotCalled) {
+TEST(WidgetTest, WidgetWithAncestors_LosesFocus_AncestorsOnDecendantLoseFocusCalled) {
 }
 
-TEST_F(WidgetTest, NonResizableWidget_TryToSetSize_ReturnsFalseAndDoesNotSetSize) {
+TEST(WidgetTest, NonResizableWidget_TryToSetSize_ReturnsFalseAndDoesNotSetSize) {
 }
 
-TEST_F(WidgetTest, ResizableWidget_TryToSetSize_CallsOnSetSize) {
+TEST(WidgetTest, ResizableWidget_TryToSetSize_CallsOnSetSize) {
 }
 
-TEST_F(WidgetTest, ResizableWidget_TriesAndSucceedsToSetSize_ReturnsTrue) {
+TEST(WidgetTest, ResizableWidget_TriesAndSucceedsToSetSize_ReturnsTrue) {
 }
 
-TEST_F(WidgetTest, ResizableWidget_TriesAndFailsToSetSize_ReturnsFalse) {
+TEST(WidgetTest, ResizableWidget_TriesAndFailsToSetSize_ReturnsFalse) {
 }
 
-TEST_F(WidgetTest, ResizableWidget_TriesToSetSizeToCurrentSize_DoesNothing) {
+TEST(WidgetTest, ResizableWidget_TriesToSetSizeToCurrentSize_DoesNothing) {
 }
 
-TEST_F(WidgetTest, ResizableWidget_TriesToSetSizeToCurrentSize_ReturnsTrue) {
+TEST(WidgetTest, ResizableWidget_TriesToSetSizeToCurrentSize_ReturnsTrue) {
 }
 
-TEST_F(WidgetTest, WidgetWithNoChildren_CheckControlledOrigin_OriginIs0) {
+TEST(WidgetTest, WidgetWithNoChildren_CheckControlledOrigin_OriginIs0) {
 }
 
-TEST_F(WidgetTest, WidgetWithNoChildren_CheckControlledSize_SizeIsSizeOfWidget) {
+TEST(WidgetTest, WidgetWithNoChildren_CheckControlledSize_SizeIsSizeOfWidget) {
 }
 
-TEST_F(WidgetTest, WidgetWithContainedChildren_CheckControlledOrigin_OriginIs0) {
+TEST(WidgetTest, WidgetWithContainedChildren_CheckControlledOrigin_OriginIs0) {
 }
 
-TEST_F(WidgetTest, WidgetWithContainedChildren_CheckControlledSize_SizeIsSizeOfWidget) {
+TEST(WidgetTest, WidgetWithContainedChildren_CheckControlledSize_SizeIsSizeOfWidget) {
 }
 
-TEST_F(WidgetTest, WidgetWithMaskedUncontainedChildren_CheckControlledOrigin_OriginIs0) {
+TEST(WidgetTest, WidgetWithMaskedUncontainedChildren_CheckControlledOrigin_OriginIs0) {
 }
 
-TEST_F(WidgetTest, WidgetWithMaskedUncontainedChildren_CheckControlledSize_SizeIsSizeOfWidget) {
+TEST(WidgetTest, WidgetWithMaskedUncontainedChildren_CheckControlledSize_SizeIsSizeOfWidget) {
 }
 
-TEST_F(WidgetTest, WidgetWithUncontainedChildren_CheckControlledOrigin_OriginRelativeLeastOfAll) {
+TEST(WidgetTest, WidgetWithUncontainedChildren_CheckControlledOrigin_OriginRelativeLeastOfAll) {
 }
 
-TEST_F(WidgetTest, WidgetWithUncontainedChildren_CheckControlledSize_SizeIsDiffBetwenMinAndMaxExtents) {
+TEST(WidgetTest, WidgetWithUncontainedChildren_CheckControlledSize_SizeIsDiffBetwenMinAndMaxExtents) {
 }
 
-TEST_F(WidgetTest, AnyWidget_SizeChanged_ControlledAreaIsCorrect) {
+TEST(WidgetTest, AnyWidget_SizeChanged_ControlledAreaIsCorrect) {
 }
 
-TEST_F(WidgetTest, WidgetWithParent_SizeChanged_AncestorsControlledAreasAreCorrect) {
+TEST(WidgetTest, WidgetWithParent_SizeChanged_AncestorsControlledAreasAreCorrect) {
 }
