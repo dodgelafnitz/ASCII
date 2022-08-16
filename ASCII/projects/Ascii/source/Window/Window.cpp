@@ -426,6 +426,8 @@ struct AsciiWindow::Impl {
 
       glfwSetWindowUserPointer(impl->window, impl.get());
 
+      glfwSetInputMode(impl->window, GLFW_LOCK_KEY_MODS, GLFW_TRUE);
+
       glfwSetKeyCallback(impl->window, Impl::KeyCallback);
       glfwSetMouseButtonCallback(impl->window, Impl::MouseButtonCallback);
       glfwSetScrollCallback(impl->window, Impl::MouseScrollCallback);

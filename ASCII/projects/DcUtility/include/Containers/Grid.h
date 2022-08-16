@@ -97,7 +97,9 @@ public:
     return true;
   }
 
-  void Clear(void);
+  void Clear(void) {
+    SetSize(ivec<Dimensions>());
+  }
 
   std::vector<T>::const_iterator begin(void) const {
     return m_data.begin();

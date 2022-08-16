@@ -204,3 +204,12 @@ TEST(GridTest, MultidimensionalGrid_GetData_PointsToFirstElement) {
     EXPECT_LE(grid.Data(), &val);
   }
 }
+
+TEST(GridTest, AnyGrid_Clear_SizeIs0) {
+  Grid<int, 4> grid(ivec4(5, 3, 2, 8), 5);
+
+  grid.Clear();
+
+  ASSERT_EQ(grid.GetSize(), ivec4(0, 0, 0, 0));
+  ASSERT_EQ(grid.Count(), 0);
+}

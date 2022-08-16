@@ -9,13 +9,11 @@ namespace {
     Press,
     Hold,
     Drag,
-    MouseEnter,
-    MouseLeave,
-    MouseMove,
-    MouseDown,
-    MouseUp,
+    Text,
     MouseHover,
     MouseScroll,
+    ButtonDown,
+    ButtonUp,
 
     Count
   };
@@ -50,10 +48,21 @@ namespace {
       integerData(scroll)
     {}
 
+    WidgetActionPayload(WidgetActionType type, AsciiButton button) :
+      type(type),
+      button(button)
+    {}
+
+    WidgetActionPayload(WidgetActionType type, TextEvent const & text) :
+      type(type),
+      text(text)
+    {}
+
     WidgetActionType  type        = WidgetActionType::Count;
     AsciiButton       button      = AsciiButton::Count;
     int               integerData = 0;
     ivec2             delta       = ivec2();
+    TextEvent         text        = TextEvent();
   };
 
   std::shared_ptr<Widget> WidgetActionHelper(std::shared_ptr<Widget> const & widget, ivec2 const & subposition, WidgetActionPayload const & payload) {
@@ -61,6 +70,7 @@ namespace {
       return nullptr;
     }
 
+    /*
     for (int i = 0; i < widget->GetChildCount(); ++i) {
       std::shared_ptr<Widget> const child  = widget->GetChild(i);
       ivec2 const                   offset = widget->GetChildOffset(i) + child->GetControlledOrigin();
@@ -82,8 +92,9 @@ namespace {
         }
       }
     }
+    */
 
-    if (widget->GetSize().x > subposition.x && widget->GetSize().y > subposition.y) {
+    if (widget->GetSize().x > subposition.x && subposition.x >= 0 && widget->GetSize().y > subposition.y && subposition.y >= 0) {
       bool handled = false;
       switch (payload.type) {
         case WidgetActionType::Press: {
@@ -95,26 +106,20 @@ namespace {
         case WidgetActionType::Drag: {
           handled = widget->OnDrag(subposition, payload.button, payload.integerData, payload.delta);
         } break;
-        case WidgetActionType::MouseEnter: {
-          handled = widget->OnMouseEnter(subposition, payload.delta);
-        } break;
-        case WidgetActionType::MouseLeave: {
-          handled = widget->OnMouseLeave(subposition, payload.delta);
-        } break;
-        case WidgetActionType::MouseMove: {
-          handled = widget->OnMouseMove(subposition, payload.delta);
-        } break;
-        case WidgetActionType::MouseDown: {
-          handled = widget->OnMouseDown(subposition);
-        } break;
-        case WidgetActionType::MouseUp: {
-          handled = widget->OnMouseUp(subposition);
+        case WidgetActionType::Text: {
+          handled = widget->OnText(subposition, payload.text);
         } break;
         case WidgetActionType::MouseHover: {
           handled = widget->OnMouseHover(subposition);
         } break;
         case WidgetActionType::MouseScroll: {
           handled = widget->OnMouseScroll(subposition, payload.integerData);
+        } break;
+        case WidgetActionType::ButtonDown: {
+          handled = widget->OnButtonDown(subposition, payload.button);
+        } break;
+        case WidgetActionType::ButtonUp: {
+          handled = widget->OnButtonUp(subposition, payload.button);
         } break;
       }
 
@@ -123,7 +128,19 @@ namespace {
       }
     }
 
+    std::weak_ptr<Widget> const parent = widget->GetParent();
+
+    if (auto const parentShared = parent.lock()) {
+      ivec2 const childOffset = parentShared->GetChildOffset(widget->GetIndex());
+
+      return WidgetActionHelper(parentShared, subposition + childOffset, payload);
+    }
+
     return nullptr;
+  }
+
+  std::shared_ptr<Widget> WidgetTargettedActionHelper(std::shared_ptr<Widget> const & widget, ivec2 const & subposition, WidgetActionPayload const & payload) {
+
   }
 }
 
@@ -178,31 +195,11 @@ std::shared_ptr<Widget> Widget::Drag(ivec2 const & subposition, AsciiButton butt
   return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::Drag, button, clickCount, delta));
 }
 
-std::shared_ptr<Widget> Widget::Text(TextEvent const & textEvent) {
+std::shared_ptr<Widget> Widget::Text(ivec2 const & subposition, TextEvent const & textEvent) {
   return nullptr;
 }
 
 void Widget::GainFocus(void) {
-}
-
-std::shared_ptr<Widget> Widget::MouseEnter(ivec2 const & subposition, ivec2 const & delta) {
-  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::MouseEnter, delta));
-}
-
-std::shared_ptr<Widget> Widget::MouseLeave(ivec2 const & subposition, ivec2 const & delta) {
-  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::MouseLeave, delta));
-}
-
-std::shared_ptr<Widget> Widget::MouseMove(ivec2 const & subposition, ivec2 const & delta) {
-  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::MouseMove, delta));
-}
-
-std::shared_ptr<Widget> Widget::MouseDown(ivec2 const & subposition) {
-  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::MouseDown));
-}
-
-std::shared_ptr<Widget> Widget::MouseUp(ivec2 const & subposition) {
-  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::MouseUp));
 }
 
 std::shared_ptr<Widget> Widget::MouseHover(ivec2 const & subposition) {
@@ -211,6 +208,14 @@ std::shared_ptr<Widget> Widget::MouseHover(ivec2 const & subposition) {
 
 std::shared_ptr<Widget> Widget::MouseScroll(ivec2 const & subposition, int scroll) {
   return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::MouseScroll, scroll));
+}
+
+std::shared_ptr<Widget> Widget::ButtonDown(ivec2 const & subposition, AsciiButton button) {
+  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::ButtonDown, button));
+}
+
+std::shared_ptr<Widget> Widget::ButtonUp(ivec2 const & subposition, AsciiButton button) {
+  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::ButtonUp, button));
 }
 
 bool Widget::TrySetSize(ivec2 const & size) {

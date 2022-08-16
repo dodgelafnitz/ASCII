@@ -28,28 +28,26 @@ public:
   virtual bool       HasChildModifiers(void) const           { return false; }
   virtual DrawParams GetChildModifiers(void) const           { return DrawParams(); }
 
-  // Focussing Actions
+  // Handlable Actions
   virtual bool OnPress(ivec2 const & subposition, AsciiButton button, int clickCount)                     { return false; }
   virtual bool OnHold(ivec2 const & subposition, AsciiButton button, int clickCount)                      { return false; }
   virtual bool OnDrag(ivec2 const & subposition, AsciiButton button, int clickCount, ivec2 const & delta) { return false; }
+  virtual bool OnText(ivec2 const & subposition, TextEvent const & textEvent)                             { return false; }
+  virtual bool OnMouseHover(ivec2 const & subposition)                                                    { return false; }
+  virtual bool OnMouseScroll(ivec2 const & subposition, int scroll)                                       { return false; }
+  virtual bool OnButtonDown(ivec2 const & subposition, AsciiButton button)                                { return false; }
+  virtual bool OnButtonUp(ivec2 const & subposition, AsciiButton button)                                  { return false; }
 
-  // Targetted Actions
-  virtual bool OnText(TextEvent const & textEvent) { return false; }
+  // Movement Responses
+  virtual void OnMouseEnter(ivec2 const & subposition, ivec2 const & delta) {}
+  virtual void OnMouseMove(ivec2 const & subposition, ivec2 const & delta)  {}
+  virtual void OnMouseLeave(ivec2 const & subposition, ivec2 const & delta) {}
 
   // Focus Functions
   virtual void OnGainedFocus(void)          {}
   virtual void OnLostFocus(void)            {}
   virtual void OnDecendantGainedFocus(void) {}
   virtual void OnDecendantLostFocus(void)   {}
-
-  // Unfocussed Actions
-  virtual bool OnMouseEnter(ivec2 const & subposition, ivec2 const & delta) { return false; }
-  virtual bool OnMouseLeave(ivec2 const & subposition, ivec2 const & delta) { return false; }
-  virtual bool OnMouseMove(ivec2 const & subposition, ivec2 const & delta)  { return false; }
-  virtual bool OnMouseDown(ivec2 const & subposition)                       { return false; }
-  virtual bool OnMouseUp(ivec2 const & subposition)                         { return false; }
-  virtual bool OnMouseHover(ivec2 const & subposition)                      { return false; }
-  virtual bool OnMouseScroll(ivec2 const & subposition, int scroll)         { return false; }
 
   virtual bool DoesOcclude(ivec2 const & subposition) const { return false; }
   virtual bool DoesMaskChildren(void) const                 { return false; }
@@ -61,25 +59,18 @@ public:
 
   void Draw(DrawParams const & params) const;
 
-  // Focussing Actions
+  // Handlable Actions
   std::shared_ptr<Widget> Press(ivec2 const & subposition, AsciiButton button, int clickCount);
   std::shared_ptr<Widget> Hold(ivec2 const & subposition, AsciiButton button, int clickCount);
   std::shared_ptr<Widget> Drag(ivec2 const & subposition, AsciiButton button, int clickCount, ivec2 const & delta);
-
-  // Targetted Actions
-  std::shared_ptr<Widget> Text(TextEvent const & textEvent);
+  std::shared_ptr<Widget> Text(ivec2 const & subposition, TextEvent const & textEvent);
+  std::shared_ptr<Widget> MouseHover(ivec2 const & subposition);
+  std::shared_ptr<Widget> MouseScroll(ivec2 const & subposition, int scroll);
+  std::shared_ptr<Widget> ButtonDown(ivec2 const & subposition, AsciiButton button);
+  std::shared_ptr<Widget> ButtonUp(ivec2 const & subposition, AsciiButton button);
 
   // Focus Functions
   void GainFocus(void);
-
-  // Unfocussed Actions
-  std::shared_ptr<Widget> MouseEnter(ivec2 const & subposition, ivec2 const & delta);
-  std::shared_ptr<Widget> MouseLeave(ivec2 const & subposition, ivec2 const & delta);
-  std::shared_ptr<Widget> MouseMove(ivec2 const & subposition, ivec2 const & delta);
-  std::shared_ptr<Widget> MouseDown(ivec2 const & subposition);
-  std::shared_ptr<Widget> MouseUp(ivec2 const & subposition);
-  std::shared_ptr<Widget> MouseHover(ivec2 const & subposition);
-  std::shared_ptr<Widget> MouseScroll(ivec2 const & subposition, int scroll);
 
   bool TrySetSize(ivec2 const & size);
 
@@ -198,7 +189,7 @@ public:                                               \
   MOCK_METHOD(                                        \
     bool,                                             \
     OnText,                                           \
-    (TextEvent const &),                              \
+    (ivec2 const &, TextEvent const &),               \
     (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
@@ -226,33 +217,21 @@ public:                                               \
     (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
-    bool,                                             \
+    void,                                             \
     OnMouseEnter,                                     \
     (ivec2 const &, ivec2 const &),                   \
     (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
-    bool,                                             \
-    OnMouseLeave,                                     \
-    (ivec2 const &, ivec2 const &),                   \
-    (override)                                        \
-  );                                                  \
-  MOCK_METHOD(                                        \
-    bool,                                             \
+    void,                                             \
     OnMouseMove,                                      \
     (ivec2 const &, ivec2 const &),                   \
     (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
-    bool,                                             \
-    OnMouseDown,                                      \
-    (ivec2 const &),                                  \
-    (override)                                        \
-  );                                                  \
-  MOCK_METHOD(                                        \
-    bool,                                             \
-    OnMouseUp,                                        \
-    (ivec2 const &),                                  \
+    void,                                             \
+    OnMouseLeave,                                     \
+    (ivec2 const &, ivec2 const &),                   \
     (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
@@ -265,6 +244,18 @@ public:                                               \
     bool,                                             \
     OnMouseScroll,                                    \
     (ivec2 const &, int),                             \
+    (override)                                        \
+  );                                                  \
+  MOCK_METHOD(                                        \
+    bool,                                             \
+    OnButtonDown,                                     \
+    (ivec2 const &, AsciiButton),                     \
+    (override)                                        \
+  );                                                  \
+  MOCK_METHOD(                                        \
+    bool,                                             \
+    OnButtonUp,                                       \
+    (ivec2 const &, AsciiButton),                     \
     (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
