@@ -4,6 +4,8 @@
 
 #include "Widget/Widget.h"
 
+#include "Systems/WidgetManager.h"
+
 namespace {
   enum class WidgetActionType {
     Press,
@@ -70,30 +72,6 @@ namespace {
       return nullptr;
     }
 
-    /*
-    for (int i = 0; i < widget->GetChildCount(); ++i) {
-      std::shared_ptr<Widget> const child  = widget->GetChild(i);
-      ivec2 const                   offset = widget->GetChildOffset(i) + child->GetControlledOrigin();
-
-      if (subposition.x >= offset.x && subposition.y >= offset.y) {
-        ivec2 const maxExtents       = offset + child->GetControlledSize();
-        ivec2 const childSubposition = subposition - offset;
-
-        if (subposition.x < maxExtents.x && subposition.y < maxExtents.y) {
-          auto const handler = WidgetActionHelper(child, childSubposition, payload);
-
-          if (handler) {
-            return handler;
-          }
-
-          if (child->DoesOcclude(childSubposition)) {
-            return nullptr;
-          }
-        }
-      }
-    }
-    */
-
     if (widget->GetSize().x > subposition.x && subposition.x >= 0 && widget->GetSize().y > subposition.y && subposition.y >= 0) {
       bool handled = false;
       switch (payload.type) {
@@ -137,10 +115,6 @@ namespace {
     }
 
     return nullptr;
-  }
-
-  std::shared_ptr<Widget> WidgetTargettedActionHelper(std::shared_ptr<Widget> const & widget, ivec2 const & subposition, WidgetActionPayload const & payload) {
-
   }
 }
 
@@ -196,10 +170,15 @@ std::shared_ptr<Widget> Widget::Drag(ivec2 const & subposition, AsciiButton butt
 }
 
 std::shared_ptr<Widget> Widget::Text(ivec2 const & subposition, TextEvent const & textEvent) {
-  return nullptr;
+  return WidgetActionHelper(shared_from_this(), subposition, WidgetActionPayload(WidgetActionType::Text, textEvent));
 }
 
 void Widget::GainFocus(void) {
+  std::weak_ptr<IWidgetManager> const manager = GetWidgetManager();
+
+  if (std::shared_ptr<IWidgetManager> const sharedManager = manager.lock()) {
+    sharedManager->SetFocus(shared_from_this());
+  }
 }
 
 std::shared_ptr<Widget> Widget::MouseHover(ivec2 const & subposition) {

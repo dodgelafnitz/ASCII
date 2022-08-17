@@ -855,282 +855,6 @@ TEST(WidgetTest, AnyWidget_PressNotWithinParentNotHandled_ParentOnPressIsNotCall
   widget->Press(subposition, button, clickCount);
 }
 
-/*
-TEST(WidgetTest, WidgetWithNoChildren_PressOutOfWidget_OnPressNotCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(3, 4)))
-  ;
-
-  ivec2       subposition = ivec2(2, 6);
-  AsciiButton button      = AsciiButton::Key7;
-  int         clickCount  = 1;
-
-  EXPECT_CALL(*widget, OnPress(_, _, _))
-    .Times(0)
-  ;
-
-  widget->Press(subposition, button, clickCount);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressNotOverChildInWidget_OnPressIsCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child  = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(4, 4)))
-  ;
-
-  EXPECT_CALL(*child, GetSize())
-    .WillRepeatedly(Return(ivec2(2, 2)))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(4, 0), child);
-
-  ivec2       subposition = ivec2(1, 2);
-  AsciiButton button      = AsciiButton::Mouse1;
-  int         clickCount  = 1;
-
-  EXPECT_CALL(*widget, OnPress(subposition, button, clickCount));
-
-  widget->Press(subposition, button, clickCount);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressNotOverChildOutOfWidget_OnPressNotCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child  = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(3, 5)))
-  ;
-
-  EXPECT_CALL(*child, GetSize())
-    .WillRepeatedly(Return(ivec2(1, 1)))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(8, 7), child);
-
-  ivec2       subposition = ivec2(4, 4);
-  AsciiButton button      = AsciiButton::Mouse3;
-  int         clickCount  = 2;
-
-  EXPECT_CALL(*widget, OnPress(_, _, _))
-    .Times(0)
-  ;
-
-  widget->Press(subposition, button, clickCount);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressHandledByChild_OnPressNotCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child  = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(6, 6)))
-  ;
-
-  EXPECT_CALL(*child, GetSize())
-    .WillRepeatedly(Return(ivec2(6, 4)))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(0, 2), child);
-
-  ivec2       subposition = ivec2(1, 3);
-  AsciiButton button      = AsciiButton::D;
-  int         clickCount  = 2;
-
-  EXPECT_CALL(*child, OnPress(ivec2(1, 1), button, clickCount))
-    .WillOnce(Return(true))
-  ;
-
-  widget->Press(subposition, button, clickCount);
-}
-
-TEST(WidgetTest, AnyWidget_PressHandled_PressReturnsHandler) {
-  auto const widget = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(2, 2)))
-  ;
-
-  EXPECT_CALL(*widget, OnPress(_, _, _))
-    .WillOnce(Return(true))
-  ;
-
-  std::shared_ptr<Widget> result = widget->Press(ivec2(), AsciiButton::D, 1);
-
-  EXPECT_EQ(widget, result);
-}
-
-TEST(WidgetTest, AnyWidget_PressNotHandled_PressReturnsNull) {
-  auto const widget = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(1, 3)))
-  ;
-
-  EXPECT_CALL(*widget, OnPress(_, _, _))
-    .WillOnce(Return(false))
-  ;
-
-  std::shared_ptr<Widget> result = widget->Press(ivec2(), AsciiButton::I, 8);
-
-  EXPECT_EQ(result, nullptr);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressHandledByChild_PressReturnsHandler) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child  = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(3, 3)))
-  ;
-
-  EXPECT_CALL(*child, GetSize())
-    .WillRepeatedly(Return(ivec2(2, 2)))
-  ;
-
-  EXPECT_CALL(*widget, OnPress(_, _, _))
-    .Times(0)
-  ;
-
-  EXPECT_CALL(*child, OnPress(_, _, _))
-    .WillOnce(Return(true))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(), child);
-
-  std::shared_ptr<Widget> result = widget->Press(ivec2(1, 1), AsciiButton::E, 1);
-
-  EXPECT_EQ(result, child);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressOverChildWidget_ChildPressCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child  = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(4, 4)))
-  ;
-
-  EXPECT_CALL(*child, GetSize())
-    .WillRepeatedly(Return(ivec2(1, 5)))
-  ;
-
-  EXPECT_CALL(*widget, OnPress(_, _, _))
-    .Times(0)
-  ;
-
-  EXPECT_CALL(*child, OnPress(_, _, _))
-    .WillOnce(Return(true))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(3, 2), child);
-
-  std::shared_ptr<Widget> result = widget->Press(ivec2(3, 4), AsciiButton::N, 2);
-
-  EXPECT_EQ(result, child);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstHandles_CorrectChildOnPressCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child0 = std::make_shared<MockWidget>();
-  auto const child1 = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(4, 4)))
-  ;
-
-  EXPECT_CALL(*child0, GetSize())
-    .WillRepeatedly(Return(ivec2(2, 2)))
-  ;
-
-  EXPECT_CALL(*child1, GetSize())
-    .WillRepeatedly(Return(ivec2(3, 3)))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(0, 0), child0);
-  widget->AddChild(fvec2(), ivec2(1, 1), child1);
-
-  EXPECT_CALL(*child0, OnPress(_, _, _))
-    .WillOnce(Return(true))
-  ;
-
-  EXPECT_CALL(*child1, OnPress(_, _, _))
-    .Times(0)
-  ;
-
-  widget->Press(ivec2(1, 1), AsciiButton::L, 1);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstDoesNotHandle_SecondChildOnPressCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child0 = std::make_shared<MockWidget>();
-  auto const child1 = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(5, 2)))
-  ;
-
-  EXPECT_CALL(*child0, GetSize())
-    .WillRepeatedly(Return(ivec2(3, 1)))
-  ;
-
-  EXPECT_CALL(*child1, GetSize())
-    .WillRepeatedly(Return(ivec2(4, 1)))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(1, 0), child0);
-  widget->AddChild(fvec2(), ivec2(1, 0), child1);
-
-  EXPECT_CALL(*child0, OnPress(_, _, _))
-    .WillOnce(Return(false))
-  ;
-
-  EXPECT_CALL(*child1, OnPress(_, _, _))
-    .WillOnce(Return(true))
-  ;
-
-  widget->Press(ivec2(2, 0), AsciiButton::R, 2);
-}
-
-TEST(WidgetTest, WidgetWithChildren_PressOverMultipleChildWidgetsWhereFirstDoesNotHandleButOccludes_SecondChildOnPressNotCalled) {
-  auto const widget = std::make_shared<MockWidget>();
-  auto const child0 = std::make_shared<MockWidget>();
-  auto const child1 = std::make_shared<MockWidget>();
-
-  EXPECT_CALL(*widget, GetSize())
-    .WillRepeatedly(Return(ivec2(5, 2)))
-  ;
-
-  EXPECT_CALL(*child0, GetSize())
-    .WillRepeatedly(Return(ivec2(3, 1)))
-  ;
-
-  EXPECT_CALL(*child1, GetSize())
-    .WillRepeatedly(Return(ivec2(4, 1)))
-  ;
-
-  widget->AddChild(fvec2(), ivec2(1, 0), child0);
-  widget->AddChild(fvec2(), ivec2(1, 0), child1);
-
-  EXPECT_CALL(*child0, OnPress(_, _, _))
-    .WillOnce(Return(false))
-  ;
-
-  EXPECT_CALL(*child0, DoesOcclude(ivec2(1, 0)))
-    .WillRepeatedly(Return(true))
-  ;
-
-  EXPECT_CALL(*child1, OnPress(_, _, _))
-    .Times(0)
-  ;
-
-  widget->Press(ivec2(2, 0), AsciiButton::R, 2);
-}
-*/
-
 TEST(WidgetTest, WidgetWithNoParent_Hold_OnHoldIsCalled) {
   auto const widget = std::make_shared<MockWidget>();
 
@@ -1164,8 +888,19 @@ TEST(WidgetTest, WidgetWithNoParent_Drag_OnDragIsCalled) {
   widget->Drag(subposition, button, clickCount, delta);
 }
 
-TEST(WidgetTestFuture, MouseMoveTests) {
-  FAIL();
+TEST(WidgetTest, WidgetWithNoParent_TextEvent_OnTextCalled) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(ivec2(4, 7)))
+  ;
+
+  ivec2     subposition = ivec2(1, 3);
+  TextEvent text        = TextEvent::Completion();
+
+  EXPECT_CALL(*widget, OnText(subposition, text));
+
+  widget->Text(subposition, text);
 }
 
 TEST(WidgetTest, WidgetWithNoParent_MouseHover_OnMouseHoverIsCalled) {
@@ -1227,52 +962,30 @@ TEST(WidgetTest, WidgetWithNoParent_ButtonUp_OnButtonUpIsCalled) {
   widget->ButtonUp(subposition, button);
 }
 
-TEST(WidgetTest, AnyWidget_HandlesTextEvent_OnTextCalled) {
-}
-
-TEST(WidgetTest, AnyWidget_HandlesTextEvent_HandlerReturned) {
-}
-
-TEST(WidgetTest, WidgetWithParent_HandlesTextEvent_ParentTextNotCalled) {
-}
-
-TEST(WidgetTest, WidgetWithNoParent_DoesNotHandleTextEvent_NullReturned) {
-}
-
-TEST(WidgetTest, WidgetWithParent_DoesNotHandleTextEvent_ParentTextCalled) {
-}
-
 TEST(WidgetTest, WidgetWithManager_TriesToGainFocus_ManagerSetsFocusToWidget) {
-}
+  auto const widget = std::make_shared<Widget>();
 
-TEST(WidgetTest, WidgetWithManager_TriesToGainFocus_OnFocusCalled) {
+  auto const widgetManager = std::make_shared<MockWidgetManager>();
+  auto const root          = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widgetManager, GetRoot())
+    .WillOnce(Return(root))
+  ;
+  EXPECT_CALL(*root, GetWidgetManager())
+    .WillOnce(Return(widgetManager))
+  ;
+
+  widgetManager->GetRoot()->AddChild(fvec2(), ivec2(), widget);
+
+  EXPECT_CALL(*widgetManager, SetFocus(widget));
+
+  widget->GainFocus();
 }
 
 TEST(WidgetTest, WidgetWithNoManager_TriesToGainFocus_DoesNothing) {
-}
+  auto const widget = std::make_shared<Widget>();
 
-TEST(WidgetTest, WidgetWithManagerWithPreviousFocus_TriesToGainFocus_PreviousFocussedLosesFocus) {
-}
-
-TEST(WidgetTest, FocussedWidget_TriesToGainFocus_NothingHappens) {
-}
-
-TEST(WidgetTest, AnyWidget_GainsFocus_HasFocus) {
-}
-
-TEST(WidgetTest, AnyWidget_LosesFocus_DoesNotHasFocus) {
-}
-
-TEST(WidgetTest, AnyWidget_GainsFocus_OnGainedFocusCalled) {
-}
-
-TEST(WidgetTest, WidgetWithAncestors_GainsFocus_AncestorsOnDecendantGainedFocusCalled) {
-}
-
-TEST(WidgetTest, AnyWidget_LosesFocus_OnLoseFocusCalled) {
-}
-
-TEST(WidgetTest, WidgetWithAncestors_LosesFocus_AncestorsOnDecendantLoseFocusCalled) {
+  widget->GainFocus();
 }
 
 TEST(WidgetTest, NonResizableWidget_TryToSetSize_ReturnsFalseAndDoesNotSetSize) {

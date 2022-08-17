@@ -27,6 +27,8 @@ public:
   virtual std::shared_ptr<Widget> GetHardFocus(void) const = 0;
   virtual std::shared_ptr<Widget> GetSoftFocus(void) const = 0;
 
+  virtual void SetFocus(std::shared_ptr<Widget> const & focus) = 0;
+
   virtual void Update(float dt) = 0;
   virtual void Draw(Grid<AsciiCell, 2> & o_screen) const = 0;
 };
@@ -45,6 +47,8 @@ public:
 
   virtual std::shared_ptr<Widget> GetHardFocus(void) const override;
   virtual std::shared_ptr<Widget> GetSoftFocus(void) const override;
+
+  virtual void SetFocus(std::shared_ptr<Widget> const & focus) override;
 
   virtual void Update(float dt) override;
   virtual void Draw(Grid<AsciiCell, 2> & o_screen) const override;
@@ -93,6 +97,12 @@ public:                                           \
     GetSoftFocus,                                 \
     (),                                           \
     (const, override)                             \
+  );                                              \
+  MOCK_METHOD(                                    \
+    void,                                         \
+    SetFocus,                                     \
+    (std::shared_ptr<Widget> const &),            \
+    (override)                                    \
   );                                              \
   MOCK_METHOD(                                    \
     void,                                         \

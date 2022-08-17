@@ -23,6 +23,9 @@ std::shared_ptr<Widget> WidgetManager::GetSoftFocus(void) const {
   return nullptr;
 }
 
+void WidgetManager::SetFocus(std::shared_ptr<Widget> const & focus) {
+}
+
 void WidgetManager::Update(float dt) {
 }
 

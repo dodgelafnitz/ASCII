@@ -86,7 +86,7 @@ int main(void) {
 
   window->SetFont(font);
 
-  int const width  = 200;
+  int const width  = 100;
   int const height = width / 2;
 
   float const colorRotSpeed          = 0.01f;

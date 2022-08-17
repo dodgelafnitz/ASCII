@@ -4,6 +4,9 @@
 
 #include "Systems/WidgetManager.h"
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
+DEFINE_MockWidgetManager();
 
 TEST(WidgetManagerTest, DefaultConstructed_CheckInputManager_NoInputManager) {
   WidgetManager widgetManager;

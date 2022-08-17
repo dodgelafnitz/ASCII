@@ -764,6 +764,9 @@ namespace {
     if (name == "") {
       return false;
     }
+    if (name == ".") {
+      return true;
+    }
     else {
       card.name = name;
       return true;
