@@ -21,8 +21,11 @@ public:
 
   virtual ~Widget(void) = default;
 
-  virtual std::weak_ptr<IInputManager>  GetInputManager(void) const;
-  virtual std::weak_ptr<IWidgetManager> GetWidgetManager(void) const;
+  virtual std::weak_ptr<IInputManager>  GetInputManager(void);
+  virtual std::weak_ptr<IWidgetManager> GetWidgetManager(void);
+
+  std::weak_ptr<IInputManager const>  GetInputManager(void) const;
+  std::weak_ptr<IWidgetManager const> GetWidgetManager(void) const;
 
   virtual void       OnDraw(DrawParams const & params) const {}
   virtual bool       HasChildModifiers(void) const           { return false; }
@@ -77,17 +80,20 @@ public:
   ivec2 GetControlledOrigin(void) const;
   ivec2 GetControlledSize(void) const;
 
-  int                     GetChildCount(void) const;
-  std::shared_ptr<Widget> GetChild(int index) const;
-  int                     GetChildsIndex(std::shared_ptr<Widget> const & child) const;
-  fvec2                   GetChildScaledOffset(int index) const;
-  ivec2                   GetChildConstantOffset(int index) const;
-  ivec2                   GetChildOffset(int index) const;
+  int                           GetChildCount(void) const;
+  std::shared_ptr<Widget const> GetChild(int index) const;
+  std::shared_ptr<Widget>       GetChild(int index);
+  int                           GetChildsIndex(std::shared_ptr<Widget> const & child) const;
+  fvec2                         GetChildScaledOffset(int index) const;
+  ivec2                         GetChildConstantOffset(int index) const;
+  ivec2                         GetChildOffset(int index) const;
 
-  ivec2                 GetPosition(void) const;
-  std::weak_ptr<Widget> GetRoot(void) const;
-  std::weak_ptr<Widget> GetParent(void) const;
-  int                   GetIndex(void) const;
+  ivec2                       GetPosition(void) const;
+  std::weak_ptr<Widget const> GetRoot(void) const;
+  std::weak_ptr<Widget>       GetRoot(void);
+  std::weak_ptr<Widget const> GetParent(void) const;
+  std::weak_ptr<Widget>       GetParent(void);
+  int                         GetIndex(void) const;
 
   void RemoveChild(int index);
   void SetChildScaledOffset(int index, fvec2 const & scaledOffset);
@@ -142,13 +148,13 @@ public:                                               \
     std::weak_ptr<IInputManager>,                     \
     GetInputManager,                                  \
     (),                                               \
-    (const, override)                                 \
+    (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
     std::weak_ptr<IWidgetManager>,                    \
     GetWidgetManager,                                 \
     (),                                               \
-    (const, override)                                 \
+    (override)                                        \
   );                                                  \
   MOCK_METHOD(                                        \
     void,                                             \

@@ -989,49 +989,313 @@ TEST(WidgetTest, WidgetWithNoManager_TriesToGainFocus_DoesNothing) {
 }
 
 TEST(WidgetTest, NonResizableWidget_TryToSetSize_ReturnsFalseAndDoesNotSetSize) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillOnce(Return(false))
+  ;
+
+  EXPECT_CALL(*widget, OnTrySetSize(_))
+    .Times(0)
+  ;
+
+  EXPECT_FALSE(widget->TrySetSize(ivec2(4, 3)));
 }
 
-TEST(WidgetTest, ResizableWidget_TryToSetSize_CallsOnSetSize) {
+TEST(WidgetTest, ResizableWidget_TryToSetSize_CallsOnTrySetSize) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillOnce(Return(true))
+  ;
+
+  ivec2 const size = ivec2(8, 3);
+
+  EXPECT_CALL(*widget, OnTrySetSize(size));
+
+  widget->TrySetSize(size);
 }
 
 TEST(WidgetTest, ResizableWidget_TriesAndSucceedsToSetSize_ReturnsTrue) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillOnce(Return(true))
+  ;
+
+  ivec2 const size = ivec2(1, 4);
+
+  EXPECT_CALL(*widget, OnTrySetSize(size))
+    .WillOnce(Return(true))
+  ;
+
+  EXPECT_TRUE(widget->TrySetSize(size));
 }
 
 TEST(WidgetTest, ResizableWidget_TriesAndFailsToSetSize_ReturnsFalse) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillOnce(Return(true))
+  ;
+
+  ivec2 const size = ivec2(3, 100);
+
+  EXPECT_CALL(*widget, OnTrySetSize(size))
+    .WillOnce(Return(false))
+  ;
+
+  EXPECT_FALSE(widget->TrySetSize(size));
 }
 
 TEST(WidgetTest, ResizableWidget_TriesToSetSizeToCurrentSize_DoesNothing) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillOnce(Return(true))
+  ;
+
+  ivec2 const size = ivec2(4, 6);
+
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(size))
+  ;
+
+  EXPECT_CALL(*widget, OnTrySetSize(size))
+    .Times(0)
+  ;
+
+  widget->TrySetSize(size);
 }
 
 TEST(WidgetTest, ResizableWidget_TriesToSetSizeToCurrentSize_ReturnsTrue) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillOnce(Return(true))
+  ;
+
+  ivec2 const size = ivec2(4, 6);
+
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(size))
+  ;
+
+  EXPECT_TRUE(widget->TrySetSize(size));
 }
 
 TEST(WidgetTest, WidgetWithNoChildren_CheckControlledOrigin_OriginIs0) {
+  auto const widget = std::make_shared<Widget>();
+
+  EXPECT_EQ(widget->GetControlledOrigin(), ivec2());
 }
 
 TEST(WidgetTest, WidgetWithNoChildren_CheckControlledSize_SizeIsSizeOfWidget) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  ivec2 const size = ivec2(8, 2);
+
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(size))
+  ;
+
+  EXPECT_EQ(widget->GetControlledSize(), size);
 }
 
 TEST(WidgetTest, WidgetWithContainedChildren_CheckControlledOrigin_OriginIs0) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  ivec2 const size = ivec2(3, 3);
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(size))
+  ;
+
+  auto const child = std::make_shared<MockWidget>();
+
+  ivec2 const childSize = ivec2(1, 1);
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(childSize))
+  ;
+
+  ivec2 const offset = ivec2(1, 1);
+
+  widget->AddChild(fvec2(), offset, child);
+
+  EXPECT_EQ(widget->GetControlledOrigin(), ivec2());
 }
 
 TEST(WidgetTest, WidgetWithContainedChildren_CheckControlledSize_SizeIsSizeOfWidget) {
-}
+  auto const widget = std::make_shared<MockWidget>();
 
-TEST(WidgetTest, WidgetWithMaskedUncontainedChildren_CheckControlledOrigin_OriginIs0) {
-}
+  ivec2 const size = ivec2(5, 2);
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(size))
+  ;
 
-TEST(WidgetTest, WidgetWithMaskedUncontainedChildren_CheckControlledSize_SizeIsSizeOfWidget) {
+  auto const child = std::make_shared<MockWidget>();
+
+  ivec2 const childSize = ivec2(2, 1);
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(childSize))
+  ;
+
+  ivec2 const offset = ivec2(2, 0);
+
+  widget->AddChild(fvec2(), offset, child);
+
+  EXPECT_EQ(widget->GetControlledSize(), size);
 }
 
 TEST(WidgetTest, WidgetWithUncontainedChildren_CheckControlledOrigin_OriginRelativeLeastOfAll) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  ivec2 const size = ivec2(3, 9);
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(size))
+  ;
+
+  auto const child = std::make_shared<MockWidget>();
+
+  ivec2 const childSize = ivec2(8, 2);
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(childSize))
+  ;
+
+  ivec2 const offset = ivec2(-2, 2);
+
+  widget->AddChild(fvec2(), offset, child);
+
+  EXPECT_EQ(widget->GetControlledOrigin(), ivec2().Min(offset));
 }
 
 TEST(WidgetTest, WidgetWithUncontainedChildren_CheckControlledSize_SizeIsDiffBetwenMinAndMaxExtents) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  ivec2 const size = ivec2(2, 6);
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(size))
+  ;
+
+  auto const child = std::make_shared<MockWidget>();
+
+  ivec2 const childSize = ivec2(17, 4);
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(childSize))
+  ;
+
+  ivec2 const offset = ivec2(-5, -3);
+
+  widget->AddChild(fvec2(), offset, child);
+
+  EXPECT_EQ(widget->GetControlledSize(), size.Max(offset + childSize) - widget->GetControlledOrigin());
 }
 
 TEST(WidgetTest, AnyWidget_SizeChanged_ControlledAreaIsCorrect) {
+  auto const widget = std::make_shared<MockWidget>();
+
+  ivec2 const size    = ivec2(8, 14);
+  ivec2 const newSize = ivec2(3, 22);
+
+  EXPECT_CALL(*widget, GetSize())
+    .WillRepeatedly(Return(size))
+  ;
+
+  auto const child = std::make_shared<MockWidget>();
+
+  ivec2 const childSize = ivec2(2, 10);
+  EXPECT_CALL(*child, GetSize())
+    .WillRepeatedly(Return(childSize))
+  ;
+
+  ivec2 const offset = ivec2(-1, 2);
+  widget->AddChild(fvec2(), offset, child);
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillRepeatedly(Return(true))
+  ;
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(size))
+    .WillRepeatedly(Return(newSize))
+  ;
+  EXPECT_CALL(*widget, OnTrySetSize(newSize))
+    .WillOnce(Return(true))
+  ;
+
+  widget->TrySetSize(newSize);
+
+  EXPECT_EQ(widget->GetControlledOrigin(), ivec2().Min(offset));
+  EXPECT_EQ(widget->GetControlledSize(), newSize.Max(offset + childSize) - widget->GetControlledOrigin());
 }
 
 TEST(WidgetTest, WidgetWithParent_SizeChanged_AncestorsControlledAreasAreCorrect) {
+  auto const widget = std::make_shared<MockWidget>();
+  auto const parent = std::make_shared<MockWidget>();
+
+  ivec2 const size       = ivec2(2, 7);
+  ivec2 const offset     = ivec2(-4, 2);
+  ivec2 const newSize    = ivec2(5, 2);
+  ivec2 const parentSize = ivec2(8, 3);
+
+  EXPECT_CALL(*parent, GetSize())
+    .WillRepeatedly(Return(parentSize))
+  ;
+
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(size))
+  ;
+
+  parent->AddChild(fvec2(), offset, widget);
+
+  EXPECT_CALL(*widget, CanSetSize())
+    .WillRepeatedly(Return(true))
+  ;
+  EXPECT_CALL(*widget, GetSize())
+    .WillOnce(Return(size))
+    .WillRepeatedly(Return(newSize))
+  ;
+  EXPECT_CALL(*widget, OnTrySetSize(newSize))
+    .WillOnce(Return(true))
+  ;
+
+  widget->TrySetSize(newSize);
+
+  EXPECT_EQ(parent->GetControlledOrigin(), ivec2().Min(offset));
+  EXPECT_EQ(parent->GetControlledSize(), parentSize.Max(offset + newSize) - parent->GetControlledOrigin());
+}
+
+TEST(WidgetTest, WidgetWithNoParent_GetRoot_RootIsSelf) {
+  auto const widget = std::make_shared<Widget>();
+
+  EXPECT_EQ(widget->GetRoot().lock(), widget);
+}
+
+TEST(WidgetTest, WidgetWithAncestors_GetRoot_RootIsCorrect) {
+  auto const widget      = std::make_shared<Widget>();
+  auto const parent      = std::make_shared<Widget>();
+  auto const grandparent = std::make_shared<Widget>();
+
+  grandparent->AddChild(fvec2(), ivec2(), parent);
+  parent->AddChild(fvec2(), ivec2(), widget);
+
+  EXPECT_EQ(widget->GetRoot().lock(), grandparent);
+}
+
+TEST(WidgetTest, WidgetWithNoParent_GetPosition_PositionIs0) {
+  auto const widget = std::make_shared<Widget>();
+
+  EXPECT_EQ(widget->GetPosition(), ivec2());
+}
+
+TEST(WidgetTest, WidgetWithAncestors_GetPosition_PositionIsRelativeToRoot) {
+  auto const widget      = std::make_shared<Widget>();
+  auto const parent      = std::make_shared<Widget>();
+  auto const grandparent = std::make_shared<Widget>();
+
+  ivec2 const widgetOffset = ivec2(10, 4);
+  ivec2 const parentOffset = ivec2(-8, -7);
+
+  grandparent->AddChild(fvec2(), parentOffset, parent);
+  parent->AddChild(fvec2(), widgetOffset, widget);
+
+  EXPECT_EQ(widget->GetPosition(), parentOffset + widgetOffset);
 }

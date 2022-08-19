@@ -118,7 +118,15 @@ namespace {
   }
 }
 
-std::weak_ptr<IInputManager> Widget::GetInputManager(void) const {
+std::weak_ptr<IInputManager const> Widget::GetInputManager(void) const {
+  return const_cast<Widget *>(this)->GetInputManager();
+}
+
+std::weak_ptr<IWidgetManager const> Widget::GetWidgetManager(void) const {
+  return const_cast<Widget *>(this)->GetWidgetManager();
+}
+
+std::weak_ptr<IInputManager> Widget::GetInputManager(void) {
   std::shared_ptr<Widget> const parent = m_parent.lock();
   if (parent) {
     return parent->GetInputManager();
@@ -128,7 +136,7 @@ std::weak_ptr<IInputManager> Widget::GetInputManager(void) const {
   }
 }
 
-std::weak_ptr<IWidgetManager> Widget::GetWidgetManager(void) const {
+std::weak_ptr<IWidgetManager> Widget::GetWidgetManager(void) {
   std::shared_ptr<Widget> const parent = m_parent.lock();
   if (parent) {
     return parent->GetWidgetManager();
@@ -198,6 +206,20 @@ std::shared_ptr<Widget> Widget::ButtonUp(ivec2 const & subposition, AsciiButton 
 }
 
 bool Widget::TrySetSize(ivec2 const & size) {
+  if (CanSetSize()) {
+    if (GetSize() == size) {
+      return true;
+    }
+
+    bool const result = OnTrySetSize(size);
+
+    if (result) {
+      ResetControlledArea();
+    }
+
+    return result;
+  }
+
   return false;
 }
 
@@ -223,7 +245,11 @@ int Widget::GetChildCount(void) const {
   return m_children.size();
 }
 
-std::shared_ptr<Widget> Widget::GetChild(int index) const {
+std::shared_ptr<Widget const> Widget::GetChild(int index) const {
+  return const_cast<Widget *>(this)->GetChild(index);
+}
+
+std::shared_ptr<Widget> Widget::GetChild(int index) {
   if (index == InvalidIndex) {
     return nullptr;
   }
@@ -254,7 +280,38 @@ ivec2 Widget::GetChildOffset(int index) const {
   return child.scaledOffset * GetSize() + child.constantOffset;
 }
 
-std::weak_ptr<Widget> Widget::GetParent(void) const {
+ivec2 Widget::GetPosition(void) const {
+  ivec2 totalOffset;
+
+  std::shared_ptr<Widget const> current    = shared_from_this();
+  std::shared_ptr<Widget const> nextParent = GetParent().lock();
+  while (nextParent) {
+    totalOffset += nextParent->GetChildOffset(current->GetIndex());
+
+    current    = nextParent;
+    nextParent = nextParent->GetParent().lock();
+  }
+
+  return totalOffset;
+}
+
+std::weak_ptr<Widget const> Widget::GetRoot(void) const {
+  return const_cast<Widget *>(this)->GetRoot();
+}
+
+std::weak_ptr<Widget> Widget::GetRoot(void) {
+  if (std::shared_ptr<Widget> parent = GetParent().lock()) {
+    return parent->GetRoot();
+  }
+
+  return weak_from_this();
+}
+
+std::weak_ptr<Widget const> Widget::GetParent(void) const {
+  return const_cast<Widget *>(this)->GetParent();
+}
+
+std::weak_ptr<Widget> Widget::GetParent(void) {
   return m_parent;
 }
 
@@ -350,7 +407,7 @@ void Widget::AppendControlledArea(ivec2 const & offset, ivec2 const & size, bool
   ivec2 const newMax = offset + size;
 
   ivec2 const oldMin = m_controlledOffset;
-  ivec2 const oldMax = m_controlledOffset + m_controlledSize;
+  ivec2 const oldMax = GetControlledOrigin() + GetControlledSize();
 
   ivec2 const min = oldMin.Min(newMin);
   ivec2 const max = oldMax.Max(newMax);
@@ -361,7 +418,6 @@ void Widget::AppendControlledArea(ivec2 const & offset, ivec2 const & size, bool
 
     if (notifyParent) {
       if (std::shared_ptr<Widget> const parent = GetParent().lock()) {
-
         bool const notifyParent = true;
         parent->OnChildResize(GetIndex(), notifyParent);
       }
