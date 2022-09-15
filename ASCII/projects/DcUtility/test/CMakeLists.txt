@@ -33,6 +33,8 @@ set(tst
   "${CMAKE_CURRENT_SOURCE_DIR}/Containers/GridTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Containers/DynamicArrayTest.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/General/DelagateTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Parsers/GastTest.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Parsers/TgastTest.cpp"
 )
 
 target_sources(DcUtilityTest

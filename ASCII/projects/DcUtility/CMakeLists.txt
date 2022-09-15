@@ -22,6 +22,7 @@ PUBLIC
 )
 
 set(inc
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/DcUtility.natvis"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Vector.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Matrix.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/LineSegment.h"
@@ -38,7 +39,8 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Color.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Delagate.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Direction.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/DcUtility.natvis"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Parsers/Gast.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/Parsers/Tgast.h"
 )
 
 set(src
@@ -51,6 +53,8 @@ set(src
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Polygon.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/Math/Shapes2D/Collision.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/source/General/Color.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Parsers/Gast.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/source/Parsers/Tgast.cpp"
 )
 
 target_sources(DcUtility
