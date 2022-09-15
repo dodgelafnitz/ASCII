@@ -1,7 +1,7 @@
 # CMakeLists.txt file generated with DCG.
 
 # To stop file regeneration, remove the following line.
-#!NO_DCG_REGENERATE_THIS_FILE
+#!DCG_REGENERATE_THIS_FILE
 
 project(DcUtility C CXX)
 
@@ -22,7 +22,6 @@ PUBLIC
 )
 
 set(inc
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/DcUtility.natvis"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Vector.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Matrix.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Math/Shapes2D/LineSegment.h"
@@ -39,8 +38,10 @@ set(inc
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Color.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Delagate.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/General/Direction.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/General/ErrorMessage.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Parsers/Gast.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/include/Parsers/Tgast.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/DcUtility.natvis"
 )
 
 set(src

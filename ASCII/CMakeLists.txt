@@ -51,6 +51,7 @@ DCG_BEGIN()
         DCG_FILE_CPP("Gast")
         DCG_FILE_CPP("Tgast")
     DCG_END_FOLDER()
+    DCG_FILE_PUBLIC_RESOURCE("DcUtility.natvis")
   DCG_END_PROJECT()
 
   DCG_PROJECT_LIB("Ascii"
